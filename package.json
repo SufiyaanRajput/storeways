@@ -1,0 +1,20 @@
+{
+    "name": "storeways-monorepo",
+    "private": true,
+    "version": "1.0.0",
+    "packageManager": "pnpm@9.1.0",
+    "workspaces": [
+      "repos/*"
+    ],
+    "scripts": {
+      "install:all": "pnpm install -r",
+      "dev": "pnpm --parallel --stream run dev",
+      "dev:server": "pnpm --stream --filter server run dev",
+      "dev:client": "pnpm --filter client run dev",
+      "dev:admin": "pnpm --filter admin run dev",
+      "build": "pnpm --parallel --stream run build",
+      "start": "pnpm --parallel --stream run start",
+      "setup-p": "pnpm install -r && pnpm --stream --filter server run migrate"
+    }
+  }
+  

@@ -1,0 +1,72 @@
+# ===========================================
+# 🧱 Storeways Monorepo - Root .gitignore
+# ===========================================
+
+# Node.js dependencies (ignore everywhere)
+node_modules/
+**/node_modules/
+
+# Environment files
+.env
+.env.*
+!.env.example   # keep the example env if you use one
+**/.env
+**/.env.*
+
+# Build outputs
+dist/
+build/
+out/
+.next/
+.cache/
+.temp/
+.tmp/
+coverage/
+**/dist/
+**/build/
+**/out/
+**/.next/
+**/coverage/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+logs/
+*.log
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+*.bak
+*.tmp
+*.pem
+**/*.pem
+
+# Local dev files
+*.local
+*.pid
+*.seed
+*.sqlite
+*.db
+**/uploads/
+uploads/
+
+# Lockfiles (optional if only using pnpm)
+package-lock.json
+yarn.lock
+
+# Ignore root pnpm store cache (optional)
+.pnpm-store/
+
+# Optional: test artifacts
+jest-test-results.json
+coverage-final.json
+
+# Optional: custom generated assets
+public/uploads/
