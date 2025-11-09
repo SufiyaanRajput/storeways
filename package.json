@@ -13,8 +13,10 @@
       "dev:client": "pnpm --filter client run dev",
       "dev:admin": "pnpm --filter admin run dev",
       "build": "pnpm --parallel --stream run build",
-      "start": "pnpm --parallel --stream run start",
-      "setup-p": "pnpm install -r && pnpm --stream --filter server run migrate"
+      "start:server": "pnpm --stream --filter server run start",
+      "setup-p": "pnpm install -r && pnpm --stream --filter server run migrate",
+      "build:client": "pnpm --filter client run build",
+      "build:admin": "pnpm --filter admin-ui run build"
     }
   }
   
