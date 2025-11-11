@@ -1,15 +1,15 @@
 import models from '../../models';
-import { uploadImage, deleteImage, deleteImageBulk } from '../utilities';
+import FileStorage from '../utilities/FileStorage';
 
-export const uploadImageService = async ({ file, fileName, folder='/' }) => {
+export const uploadImageService = async ({ file, fileName, ext }) => {
   try{
-    const {fileId, url, name, filePath} = await uploadImage({ file, fileName, folder });
+    const storage = new FileStorage();
+    const { url, fileId } = await storage.upload(file, `${fileName}.${ext}`);
     
     return {
       fileId,
       url,
       name,
-      filePath
     };
   }catch(error){
     throw error;
@@ -18,20 +18,37 @@ export const uploadImageService = async ({ file, fileName, folder='/' }) => {
 
 export const deleteImageService = async ({ imageId }) => {
   try{
-    return await deleteImage({ imageId });
+    const storage = new FileStorage();
+    await storage.delete();
   }catch(error){
     throw error;
   }
 }
 
-export const updateStoreSettings = async ({ storeId, filesToDelete=[], logoText, logo, tax, otherCharges, domain, ...payload }) => {
+export const updateStoreSettings = async ({ 
+  storeId, 
+  filesToDelete=[], 
+  logoText, 
+  logo, 
+  tax, 
+  otherCharges, 
+  domain, 
+  isOnlinePaymentEnabled = false, 
+  ...payload 
+}) => {
   try{
     if (filesToDelete.length) {
-      await deleteImageBulk(filesToDelete.map(({fileId}) => fileId));
     }
 
     return await models.Store.update({
-      settings: models.Sequelize.literal(`settings :: jsonb || '${JSON.stringify({store: {theme: payload, logoText, otherCharges, tax}})}' :: jsonb`),
+      settings: models.Sequelize.literal(`settings :: jsonb || '${JSON.stringify({
+        store: {
+          theme: payload, 
+          logoText, 
+          otherCharges, 
+          tax, 
+          isOnlinePaymentEnabled
+        }})}' :: jsonb`),
       logo,
       domain
     }, {
@@ -48,7 +65,6 @@ export const updateStoreSettings = async ({ storeId, filesToDelete=[], logoText,
 export const updateFooter = async ({ storeId, filesToDelete=[], ...payload }) => {
   try{
     if (filesToDelete.length) {
-      await deleteImageBulk(filesToDelete.map(({fileId}) => fileId));
     }
 
     return await models.Store.update({
@@ -120,7 +136,6 @@ export const updateLayout = async ({ storeId, page, layout }) => {
 export const updateSection = async ({ storeId, page, sectionId, filesToDelete=[], ...payload }) => {
   try{
     if (filesToDelete.length) {
-      await deleteImageBulk(filesToDelete.map(({fileId}) => fileId));
     }
 
     const store = await models.Store.findOne({

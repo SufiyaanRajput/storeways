@@ -2,7 +2,7 @@ import models from '../../models';
 import { QueryTypes } from 'sequelize';
 import { updateStock } from '../utilities/core';
 import { DELIVERY_STATUSES } from '../../utils/constants';
-import {sendEmail} from '../utilities/email';
+import Email from '../utilities/Email';
 
 export const fetchOrders = async ({storeId, userId, admin, textSearchType, search, deliveryStatus}) => {
   try{
@@ -125,7 +125,9 @@ export const cancelOrders = async ({referenceIds, storeId, customerId, admin, st
 
     await transaction.commit();
 
-    sendEmail({
+    const EmailService = new Email();
+
+    await EmailService.sendEmail({
       to: user.email,
       subject: 'Order CANCELLED',
       ReplyTo: storeSupport.email,
@@ -159,7 +161,9 @@ export const updateOrder = async ({storeId, customerId, referenceId, storeSuppor
     ]);
 
     if (updates.deliveryStatus !== undefined) {
-      sendEmail({
+      const EmailService = new Email();
+
+      await EmailService.sendEmail({
         to: user.email,
         subject: 'Order updated',
         ReplyTo: storeSupport.email,

@@ -3,7 +3,8 @@ import jwt from 'jsonwebtoken';
 import config from '../../config';
 import bcrypt from 'bcryptjs';
 import defaultStoreSettings from './defaultStoreSettings';
-import {sendEmail, sendSMS, verifyOTP} from '../utilities';
+import Email from '../utilities/Email';
+import SMS from '../utilities/SMS';
 // const twilio = require('twilio')(config.twilio.accountSid, config.twilio.authToken);
 
 export const makeAuthToken = ({userId, role, storeId, mobile}) => {
@@ -84,7 +85,8 @@ export const login = async ({email, password, mobile, otp, userType}) => {
     }
     
     if (userType === 'customer' && otp) {
-      const otpVerification = await verifyOTP({to: mobile, otp});
+      const SmsService = new SMS();
+      const otpVerification = await SmsService.verifyOTP({to: mobile, otp});
 
       if (otpVerification.status !== 'approved') {
         throw {status: 400, msgText: 'Icorrect OTP!', error: new Error};
@@ -125,7 +127,8 @@ export const logout = async ({token, userId}) => {
 
 export const registerLoginCustomer = async ({name, mobile, otp, storeId}) => {
   try{
-    const otpVerification = await verifyOTP({to: mobile, otp});
+    const SmsService = new SMS();
+    const otpVerification = await SmsService.verifyOTP({to: mobile, otp});
 
     if (otpVerification.status !== 'approved') {
       throw {status: 400, msgText: 'Icorrect OTP!', error: new Error};
@@ -174,7 +177,8 @@ export const sendPasswordResetEmail = async ({email}) => {
     await models.AuthToken.create({token, userId: user.id});
     const link = `${config.clientbaseUrl}/password-reset?token=${jwt}`;
 
-    sendEmail({
+    const EmailService = new Email();
+    await EmailService.sendEmail({
       to: email,
       subject: 'Storeways admin password reset',
       ReplyTo: 'sufiyaan@storeways.io',
@@ -203,11 +207,15 @@ export const sendOTPForLogin = async ({mobile, ip}) => {
       },
     });
 
+    const SmsService = new SMS();
+
+    await SmsService.sendSMS({to: mobile, ip});
+
     if(!user){
-      throw {status: 400, msgText: 'Account not found! Your account is auto created when you first checkout.', error: new Error};
+      return { msgText: 'Account not found! Your account is auto created when you first checkout.'};
     } 
 
-    await sendSMS({to: mobile, ip});
+    return { msgText: 'OTP sent successfully!'}
   }catch(error){
     throw error;
   }

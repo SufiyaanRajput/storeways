@@ -1,27 +1,31 @@
-import config from '../../config';
-import logger from '../../loaders/logger';
-import Twilio from 'twilio';
+import getConfig from "../../../config";
+import { getPlugin } from "../../plugins/registry";
 
-// const instance = Twilio(config.twilio.accountSid, config.twilio.authToken);
+let smsService = null;
 
-export const sendSMS = async ({to, ip}) => {
-  try{
-    // await instance.verify.services(config.twilio.verifyServiceId)
-    // .verifications
-    // .create({rateLimits: {
-    //   end_user_ip_address: ip
-    // }, to, channel: 'sms'});
-  }catch(error){
-    logger('UTILITIES-SMS-sendSMS').error(error);
+const getSmsService = () => {
+  if (!smsService) {
+    const pluginConfig = getConfig().plugins.find(plugin => plugin.key === 'sms-service');
+    const SmsService = getPlugin('sms-service'); 
+
+    if (SmsService) {
+      smsService = new SmsService(pluginConfig.options);
+    }
   }
+
+  return smsService;
 }
 
-export const verifyOTP = async ({to, otp}) => {
-  try{
-    // return instance.verify.services(config.twilio.verifyServiceId)
-    // .verificationChecks
-    // .create({to, code: otp});
-  }catch(error){
-    logger('UTILITIES-SMS-sendSMS').error(error);
-  }
-}
+SMS.prototype.sendSMS = async function(...args) {
+  const service = getSmsService();
+
+  if (!service) return;
+
+  return getSmsService().sendSMS(...args);
+};
+
+SMS.prototype.verifyOTP = async function() {};
+
+function SMS() {};
+
+export default SMS;

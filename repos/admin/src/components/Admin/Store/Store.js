@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { PageHeader, LayoutContent, SubmitWrapper, FormSectionHeader, FullPageSpinner } from "../styles";
-import { Button, Form, Input, Select, notification, Row, Col, Alert, Space } from 'antd';
+import { Button, Form, Input, Select, notification, Row, Col, Alert, Space, Switch } from 'antd';
 import { getStoreSettings, updateStoreSettings, uploadLogo, updateStore } from "./api";
 import ImgCrop from 'antd-img-crop';
 import { useForm } from "antd/lib/form/Form";
@@ -84,9 +84,11 @@ const Store = () => {
       logoText,
       termsOfService,
       privacyPolicy,
+      isOnlinePaymentEnabled,
      } = fetchStoreSettingsResponse.data.store;
+
       if (logo) setLogo(logo);
-      form.setFieldsValue({...restTheme, logo, otherCharges, logoText, otherChargesType, tax, taxType});
+      form.setFieldsValue({...restTheme, logo, otherCharges, logoText, otherChargesType, tax, taxType, isOnlinePaymentEnabled});
       termsForm.setFieldsValue({termsOfService, privacyPolicy});
     }
   }, [fetchStoreSettingsResponse, fetchStoreSettingsSuccess, form, termsForm]);
@@ -280,6 +282,15 @@ const Store = () => {
                       }]}
                     >
                       <Input addonAfter={suffixSelectorPrice('otherChargesType')}/>
+                    </Form.Item>
+                  </Col>
+                  <Col sm={12} md={8}>
+                    <Form.Item
+                      label="Enable online payment"
+                      name="isOnlinePaymentEnabled"
+                      valuePropName="checked"
+                    >
+                      <Switch />
                     </Form.Item>
                   </Col>
                 </Row>

@@ -26,7 +26,7 @@ const Checkout = () => {
   const checkout = useContext(checkoutStore);
   const router = useRouter();
   const [isOTPModelVisible, setOTPModelVisible] = useState(false);
-  const hasPaymentGateway = !!store.settings?.apps?.razorpay?.active;
+  const hasPaymentGateway = !!store.settings?.store?.isOnlinePaymentEnabled;
 
   const {
     isLoading: creatingOrder,
@@ -53,6 +53,7 @@ const Checkout = () => {
     error: sendOTPError,
     success: sendOTPSuccess,
     refetch: resendOTP,
+    response,
   } = useAsyncFetch(false, sendOTP);
 
   useEffect(() => {
@@ -133,7 +134,6 @@ const Checkout = () => {
             amount,
             currency: 'INR',
             name: store.name,
-            account_id: store.settings.apps.razorpay.accountId,
             description: ``,
             order_id: paymentOrder.id,
             handler: function (response){
@@ -211,12 +211,10 @@ const Checkout = () => {
 
     if (!otp) return otpForm.validateFields();
 
-    const {accountId} = store.settings.apps.razorpay;
     const {mobile, shippingAddress, ...values} = form.getFieldsValue();
 
     recreateOrder({
       ...values, 
-      accountId, 
       otp,
       amount: cart.totalAmount, 
       address: shippingAddress, 
@@ -259,33 +257,40 @@ const Checkout = () => {
             />
           }
         {
-          sendOTPError ?
+          sendOTPError &&
           <Alert
             description={sendOTPError?.response?.data?.message || 'Something went wrong!'}
             type="error"
             showIcon
-          /> :
+          />
+        }
+        {
+          response?.data?.response?.msgText &&
+          <Alert
+            description={response?.data?.response?.msgText}
+            showIcon
+          />
+        }
           <Form
-              form={otpForm}
-              name="login"
-              layout="vertical"
-              wrapperCol={{ span: 24 }}
-              // onFinish={onSubmit}
-              validateTrigger="onBlur"
-              // onValuesChange={onValuesChange}
-              autoComplete="off">
-              <Form.Item
-                label="OTP"
-                name="otp"
-                rules={[{required: true, message: 'Please enter OTP!'}, {
-                  pattern: '^[0-9]{6}$',
-                  message: `Doesn't seem like an OTP!`
-                }]}
-              >
+            form={otpForm}
+            name="login"
+            layout="vertical"
+            wrapperCol={{ span: 24 }}
+            // onFinish={onSubmit}
+            validateTrigger="onBlur"
+            // onValuesChange={onValuesChange}
+            autoComplete="off">
+            <Form.Item
+              label="OTP"
+              name="otp"
+              rules={[{required: true, message: 'Please enter OTP!'}, {
+                pattern: '^[0-9]{6}$',
+                message: `Doesn't seem like an OTP!`
+              }]}
+            >
               <Input />
             </Form.Item>
           </Form> 
-        }
         </Space>
       </Modal>
       <Section>

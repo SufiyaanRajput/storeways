@@ -1,3 +1,5 @@
+import config from './src/config';
+
 const getConfig = () => ({
   plugins: [
     {
@@ -5,6 +7,14 @@ const getConfig = () => ({
       resolve: `./storage/LocalFileStorage`,
       options: {
         uploadDir: "uploads", // relative to your project root
+      },
+    },
+    {
+			key: 'payment-gateway',
+      resolve: `./payments/RazorPay`,
+      options: {
+        keyId: config.paymentGateway.keyId,
+        keySecret: config.paymentGateway.keySecret
       },
     },
   ],

@@ -10,9 +10,7 @@ This guide will help you quickly set up the server locally and get started with 
 - Built with **Node.js + Express**
 - Uses **PostgreSQL** with **Sequelize ORM**
 - Secure authentication via **JWT + bcrypt**
-- File upload & optimization using **Multer + Sharp + ImageKit**
-- Email delivery via **Postmark**
-- SMS support with **Twilio**
+- Extendable services with plugin system
 - Environment-based service architecture
 - Database migrations with **Umzug + Sequelize CLI**
 
@@ -48,20 +46,8 @@ npm install
 Create a `.env` file in the project root:
 
 ```bash
-NODE_ENV=development
-PORT=4000
 DATABASE_URL=postgres://user:password@localhost:5432/storeways
 JWT_SECRET=supersecretkey
-
-# ImageKit
-IMAGEKIT_PUBLIC_KEY=your_public_key
-IMAGEKIT_PRIVATE_KEY=your_private_key
-IMAGEKIT_URL_ENDPOINT=https://ik.imagekit.io/your_id/
-
-# Email and SMS
-POSTMARK_API_KEY=your_postmark_key
-TWILIO_ACCOUNT_SID=your_twilio_sid
-TWILIO_AUTH_TOKEN=your_twilio_token
 ```
 
 > 💡 You can also copy the included `.env.example` file and update it with your credentials.

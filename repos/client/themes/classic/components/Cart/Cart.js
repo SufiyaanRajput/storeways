@@ -108,7 +108,7 @@ const Cart = observer(() => {
   }
 
   const makeChargeByType = useCallback((type) => {
-    if (!storeSettings[type]) return 0;
+    if (isNaN(storeSettings[type])) return 0;
     if (storeSettings[type].type === 'VALUE') return storeSettings[type].value;
     const subTotal = makeSubtotal();
     return (subTotal * storeSettings[type].value) / 100;

@@ -127,8 +127,8 @@ const sendOTPSchema = Joi.object({
 
 router.post('/send-otp', requestValidator(sendOTPSchema), async (req, res) => {
   try{
-    const user = await userService.sendOTPForLogin({...req.values, ip: req['x-real-ip'] || req.ip});
-    res.status(200).send({success: true});
+    const response = await userService.sendOTPForLogin({...req.values, ip: req['x-real-ip'] || req.ip});
+    res.status(200).send({success: true, response });
   }catch(error){
     logger('USERS-SEND-OTP-FOR-LOGIN-POST-CONTROLLER').error(error)
     const {status, ...data} = formatFromError(error);

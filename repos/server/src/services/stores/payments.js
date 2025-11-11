@@ -1,17 +1,17 @@
 import models from '../../models';
-import axios from 'axios';
-import config from '../../config';
 import { makeAuthToken } from '../users/account';
 import { customAlphabet } from 'nanoid';
 import logger from '../../loaders/logger';
-import crypto from 'crypto';
 import { getVariationGroupBySelection } from '../../utils/helpers';
 import { updateStock } from '../utilities/core';
-import { sendEmailWithTemplate, verifyOTP } from '../utilities';
+import PaymentGateway from '../utilities/PaymentGateway';
+import Email from '../utilities/Email';
 
-const sendOrderMail = ({to, from, firstName, subTotal, cartReferenceId, items, total, supportEmail, storeName}) => {
+const sendOrderMail = async ({to, from, firstName, subTotal, cartReferenceId, items, total, supportEmail, storeName}) => {
   try {
-    sendEmailWithTemplate({
+    const EmailService = new Email();
+
+    return EmailService.sendEmail({
       to, 
       from,
       ReplyTo: supportEmail,
@@ -33,7 +33,6 @@ const sendOrderMail = ({to, from, firstName, subTotal, cartReferenceId, items, t
 }
 
 export const createOrder = async ({
-  accountId, 
   amount, 
   name, 
   mobile, 
@@ -50,11 +49,11 @@ export const createOrder = async ({
   storeSettings
 }) => {
   try{
-    const otpVerification = await verifyOTP({to: mobile, otp});
+    // const otpVerification = await verifyOTP({to: mobile, otp});
 
-    if (!otpVerification || otpVerification.status !== 'approved') {
-      throw {status: 400, msgText: 'Icorrect OTP!', error: new Error};
-    }
+    // if (!otpVerification || otpVerification.status !== 'approved') {
+    //   throw {status: 400, msgText: 'Icorrect OTP!', error: new Error};
+    // }
 
     const [productsData, existingUser] = await Promise.all([
       models.Product.findAll({
@@ -89,22 +88,14 @@ export const createOrder = async ({
       if (outStock || stockChanged) return {outStock, stockChanged};
     }
 
-    const encodedBase64Token = Buffer.from(`${config.razorpay.clientId}:${config.razorpay.clientSecret}`).toString('base64');
-    let promises = [
-      axios.post('https://api.razorpay.com/v1/orders', {
-        amount: amount * 100,
-        currency: 'INR',
-        receipt: '1',
-        account_id: accountId
-      }, {
-        headers: {
-          Authorization: `Basic ${encodedBase64Token}`,
-        }
-      }),
-    ];
+    const paymentGateway = new PaymentGateway();
+
+    let promises = [];
 
     if (paymentMode === 'cod') {
       promises = updateStock({products});
+    } else {
+      promises.push(paymentGateway.createOrder({ amount }));
     }
 
     if (!existingUser) {
@@ -218,18 +209,6 @@ export const createOrder = async ({
   }
 };
 
-const verifyPaymentSignature = ({razorpayOrderId, razorpayPaymentId, razorpaySignature}) => {
-  try{
-    const hmac = crypto.createHmac('sha256', config.razorpay.clientSecret);
-    hmac.update(razorpayOrderId + "|" + razorpayPaymentId);
-    const generatedSignature = hmac.digest('hex');
-
-    return generatedSignature == razorpaySignature;
-  }catch(error){
-    throw error;
-  }
-}
-
 export const confirmPayment = async ({
   storeName, 
   storeSupport, 
@@ -243,7 +222,8 @@ export const confirmPayment = async ({
   storeSettings
 }) => {
   try{
-    const verfied = verifyPaymentSignature({razorpayOrderId, razorpayPaymentId, razorpaySignature});
+    const paymentGateway = new PaymentGateway();
+    const verfied = paymentGateway.verifySignature({razorpayOrderId, razorpayPaymentId, razorpaySignature});
 
     const [productsData, orderData] = await Promise.all([
       models.Product.findAll({

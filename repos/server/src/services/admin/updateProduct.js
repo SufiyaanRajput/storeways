@@ -77,7 +77,6 @@ export const deleteProductImage = async ({ imageId }) => {
   try{
     const storage = new FileStorage();
     return await  storage.delete();
-    // return await deleteImage({ imageId });
   }catch(error){
     throw error;
   }

@@ -1,34 +1,29 @@
-import config from '../../config';
-import logger from '../../loaders/logger';
-import * as postmark from 'postmark';
+import getConfig from "../../../config";
+import { getPlugin } from "../../plugins/registry";
 
-const client = new postmark.ServerClient(config.postmarkKey);
+let emailService = null;
 
-export const sendEmail = ({to, subject, htmlBody, ReplyTo}) => {
-  try{
-    client.sendEmail({
-      From: 'notifications@storeways.io',
-      To: to,
-      ReplyTo,
-      Subject: subject,
-      HtmlBody: htmlBody,
-      MessageStream: 'outbound'
-    });
-  }catch(error){
-    logger('UTILITIES-EMAIL-sendEmail').error(error);
+const getEmailService = () => {
+  if (!emailService) {
+    const pluginConfig = getConfig().plugins.find(plugin => plugin.key === 'email-service');
+    const EmailService = getPlugin('email-service'); 
+
+    if (EmailService) {
+      emailService = new EmailService(pluginConfig.options);
+    }
   }
+
+  return emailService;
 }
 
-export const sendEmailWithTemplate = ({from, to, ReplyTo, TemplateModel, TemplateAlias}) => {
-  try{
-    client.sendEmailWithTemplate({
-      From: from,
-      ReplyTo,
-      To: to,
-      TemplateAlias,
-      TemplateModel,
-    });
-  }catch(error){
-    logger('UTILITIES-EMAIL-sendEmailWithTemplate').error(error);
-  }
-}
+Email.prototype.sendEmail = async function(...args) {
+  const service = getEmailService();
+
+  if (!service) return;
+
+  return getEmailService().sendEmail(...args);
+};
+
+function Email() {};
+
+export default Email;

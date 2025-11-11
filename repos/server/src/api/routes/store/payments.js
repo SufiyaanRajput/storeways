@@ -8,7 +8,6 @@ import Joi from 'joi';
 const router = Router();
 
 const schema = Joi.object({
-  accountId: Joi.string().required(),
   amount: Joi.number().positive().required(),
   name: Joi.string().required(), 
   mobile: Joi.string().trim().custom(customJoiValidators.validateMobile).required(), 

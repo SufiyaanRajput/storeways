@@ -50,6 +50,7 @@ const storeSettingsSchema = Joi.object({
   navTextColor: Joi.string().required(),
   logo: Joi.object().allow(null),
   filesToDelete: Joi.array(),
+  isOnlinePaymentEnabled: Joi.boolean(),
   otherCharges: Joi.object({
     value: Joi.number().integer().positive().required(),
     type: Joi.string().required()
