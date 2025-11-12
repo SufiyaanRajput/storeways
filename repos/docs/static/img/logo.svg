@@ -1,0 +1,17 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Storeways">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#0f6fec"/>
+      <stop offset="100%" stop-color="#6ea8fe"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="96" fill="url(#g)"/>
+  <g fill="#fff">
+    <path d="M128 192h256l-16 160H144l-16-160z"/>
+    <circle cx="208" cy="384" r="20"/>
+    <circle cx="320" cy="384" r="20"/>
+  </g>
+  <text x="50%" y="85%" text-anchor="middle" font-size="56" fill="#ffffff" font-family="Arial, Helvetica, sans-serif">Storeways</text>
+</svg>
+
+

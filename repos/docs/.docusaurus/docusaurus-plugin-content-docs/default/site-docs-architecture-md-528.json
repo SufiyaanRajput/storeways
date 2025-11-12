@@ -1,0 +1,27 @@
+{
+  "id": "architecture",
+  "title": "Architecture Overview",
+  "description": "Storeways is a pnpm‑managed monorepo with three primary apps and a plugin system.",
+  "source": "@site/docs/architecture.md",
+  "sourceDirName": ".",
+  "slug": "/architecture",
+  "permalink": "/docs/architecture",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/SufiyaanRajput/storeways/edit/main/repos/docs/docs/architecture.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "architecture",
+    "title": "Architecture Overview"
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Getting Started",
+    "permalink": "/docs/get-started"
+  },
+  "next": {
+    "title": "Admin Dashboard",
+    "permalink": "/docs/admin"
+  }
+}

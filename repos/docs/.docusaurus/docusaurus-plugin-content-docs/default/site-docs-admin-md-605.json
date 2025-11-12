@@ -1,0 +1,27 @@
+{
+  "id": "admin",
+  "title": "Admin Dashboard",
+  "description": "The Admin app lets you manage products, categories, orders, and users.",
+  "source": "@site/docs/admin.md",
+  "sourceDirName": ".",
+  "slug": "/admin",
+  "permalink": "/docs/admin",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/SufiyaanRajput/storeways/edit/main/repos/docs/docs/admin.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "admin",
+    "title": "Admin Dashboard"
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Architecture Overview",
+    "permalink": "/docs/architecture"
+  },
+  "next": {
+    "title": "Storefront (Client)",
+    "permalink": "/docs/client"
+  }
+}

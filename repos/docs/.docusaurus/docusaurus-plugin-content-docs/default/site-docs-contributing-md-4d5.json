@@ -1,0 +1,27 @@
+{
+  "id": "contributing",
+  "title": "Contributing",
+  "description": "We welcome contributions! You can:",
+  "source": "@site/docs/contributing.md",
+  "sourceDirName": ".",
+  "slug": "/contributing",
+  "permalink": "/docs/contributing",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/SufiyaanRajput/storeways/edit/main/repos/docs/docs/contributing.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "contributing",
+    "title": "Contributing"
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Plugins",
+    "permalink": "/docs/server/plugins"
+  },
+  "next": {
+    "title": "License",
+    "permalink": "/docs/license"
+  }
+}

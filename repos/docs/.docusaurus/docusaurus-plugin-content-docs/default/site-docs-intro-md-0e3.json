@@ -1,0 +1,24 @@
+{
+  "id": "intro",
+  "title": "Welcome to Storeways",
+  "description": "Storeways is an open‑source, modular e‑commerce platform. It gives you full control over the stack — from backend APIs to storefront and admin.",
+  "source": "@site/docs/intro.md",
+  "sourceDirName": ".",
+  "slug": "/intro",
+  "permalink": "/docs/intro",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/SufiyaanRajput/storeways/edit/main/repos/docs/docs/intro.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "intro",
+    "title": "Welcome to Storeways",
+    "sidebar_label": "Introduction"
+  },
+  "sidebar": "tutorialSidebar",
+  "next": {
+    "title": "Getting Started",
+    "permalink": "/docs/get-started"
+  }
+}

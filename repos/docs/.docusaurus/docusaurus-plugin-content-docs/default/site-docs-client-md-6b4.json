@@ -1,0 +1,27 @@
+{
+  "id": "client",
+  "title": "Storefront (Client)",
+  "description": "The Client app is a Next.js storefront for Storeways.",
+  "source": "@site/docs/client.md",
+  "sourceDirName": ".",
+  "slug": "/client",
+  "permalink": "/docs/client",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/SufiyaanRajput/storeways/edit/main/repos/docs/docs/client.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "client",
+    "title": "Storefront (Client)"
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Admin Dashboard",
+    "permalink": "/docs/admin"
+  },
+  "next": {
+    "title": "Server (API)",
+    "permalink": "/docs/server"
+  }
+}

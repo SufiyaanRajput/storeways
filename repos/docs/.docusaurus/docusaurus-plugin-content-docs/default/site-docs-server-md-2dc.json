@@ -1,0 +1,27 @@
+{
+  "id": "server",
+  "title": "Server (API)",
+  "description": "The Server is a Node.js + Express API with PostgreSQL via Sequelize.",
+  "source": "@site/docs/server.md",
+  "sourceDirName": ".",
+  "slug": "/server",
+  "permalink": "/docs/server",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/SufiyaanRajput/storeways/edit/main/repos/docs/docs/server.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "server",
+    "title": "Server (API)"
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Storefront (Client)",
+    "permalink": "/docs/client"
+  },
+  "next": {
+    "title": "Plugins",
+    "permalink": "/docs/server/plugins"
+  }
+}

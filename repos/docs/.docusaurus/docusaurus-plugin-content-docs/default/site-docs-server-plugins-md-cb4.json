@@ -1,0 +1,27 @@
+{
+  "id": "server/plugins",
+  "title": "Plugins",
+  "description": "Plugins enable optional integrations (e.g., storage, payments). They are declared via configuration and resolved at runtime with options.",
+  "source": "@site/docs/server/plugins.md",
+  "sourceDirName": "server",
+  "slug": "/server/plugins",
+  "permalink": "/docs/server/plugins",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/SufiyaanRajput/storeways/edit/main/repos/docs/docs/server/plugins.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "plugins",
+    "title": "Plugins"
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Server (API)",
+    "permalink": "/docs/server"
+  },
+  "next": {
+    "title": "Contributing",
+    "permalink": "/docs/contributing"
+  }
+}
