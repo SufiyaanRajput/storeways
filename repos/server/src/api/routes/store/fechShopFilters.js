@@ -1,5 +1,5 @@
 import {Router} from 'express';
-import {formatFromError} from '../../../utils/helpers';
+import {formatFromError, makeSwaggerFromJoi} from '../../../utils/helpers';
 import { storeService } from '../../../services';
 import logger from '../../../loaders/logger';
 import { getStore, requestValidator } from '../../middlewares';
@@ -16,6 +16,15 @@ const corsOptions = {
 //   name: Joi.string().trim().required(),
 //   parentId: Joi.number().integer().positive().allow(null)
 // });
+
+export const shopFiltersSwagger = makeSwaggerFromJoi({ 
+  JoiSchema: {}, 
+  route: '/filters', 
+  method: 'get', 
+  summary: 'Fetch shop filters', 
+  tags: ['Store'],
+  security: false,
+});
 
 router.get('/filters', cors(corsOptions), getStore(), async (req, res) => {
   try{

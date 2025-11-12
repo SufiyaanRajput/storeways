@@ -1,5 +1,5 @@
 import {Router} from 'express';
-import {formatFromError} from '../../../utils/helpers';
+import {formatFromError, makeSwaggerFromJoi} from '../../../utils/helpers';
 import { requestValidator, auth } from '../../middlewares';
 import { adminService } from '../../../services';
 import logger from '../../../loaders/logger';
@@ -27,6 +27,14 @@ const schema = Joi.object({
       value: Joi.string().required(),
     })),
   })),
+});
+
+export const productSwagger = makeSwaggerFromJoi({ 
+  JoiSchema: schema, 
+  route: '/products', 
+  method: 'post', 
+  summary: 'Create a product', 
+  tags: ['Products'] 
 });
 
 router.post('/products', auth(['owner']), requestValidator(schema), async (req, res) => {

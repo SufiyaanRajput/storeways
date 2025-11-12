@@ -1,5 +1,5 @@
 import {Router} from 'express';
-import {formatFromError} from '../../../utils/helpers';
+import {formatFromError, makeSwaggerFromJoi} from '../../../utils/helpers';
 import { storeService } from '../../../services';
 import logger from '../../../loaders/logger';
 import { getStore, auth } from '../../middlewares';
@@ -11,6 +11,14 @@ var corsOptions = {
   origin: '*',
   optionsSuccessStatus: 200
 };
+
+export const fetchStoreSwagger = makeSwaggerFromJoi({ 
+  JoiSchema: {}, 
+  route: '/', 
+  method: 'get', 
+  summary: 'Fetch store by domain', 
+  tags: ['Store'] 
+});
 
 router.get('/', cors(corsOptions), auth(['owner'], true), getStore(), async (req, res) => {
   try{

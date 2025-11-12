@@ -1,4 +1,5 @@
-import { customAlphabet } from 'nanoid/async'
+import { customAlphabet } from 'nanoid/async';
+import joiToSwagger from 'joi-to-swagger';
 
 export const formatJoiData = (data) => {
   const {error: {details=[]} = {}} = data;
@@ -59,4 +60,56 @@ export const getVariationGroupBySelection = (productVariationStocks, selectedVar
       return pvs.variationGroup.find(vg => vg.name === svo.variationName && vg.value === svo.option);
     })
   });
+}
+
+export const makeSwaggerFromJoi = ({ 
+  JoiSchema, 
+  route, 
+  method, 
+  summary, 
+  tags, 
+  security = true, 
+  roles = ['owner'],
+  contentType = 'application/json',
+  formDataSchema = undefined
+}) => {
+  const { swagger } = joiToSwagger(JoiSchema);
+  const operationObject = {
+    summary,
+    tags,
+  };
+
+  if (contentType === 'multipart/form-data') {
+    operationObject.requestBody = {
+      content: {
+        'multipart/form-data': {
+          schema: formDataSchema || { type: 'object' },
+        },
+      },
+    };
+  } else {
+    operationObject.requestBody = {
+      content: {
+        'application/json': { schema: swagger },
+      },
+    };
+  }
+
+  if (security) {
+    operationObject.security = [
+      {
+        bearerAuth: [], // 🔒 this line tells Swagger it needs a JWT
+      },
+    ];
+
+    operationObject.description = `🔒 Requires JWT token. Accessible only by users with the "${roles.join(', ')}" role.`;
+  }
+
+  const swaggerSchema = {
+    [route]: {
+      [method]: operationObject,
+    },
+  };
+
+  return swaggerSchema; 
 }

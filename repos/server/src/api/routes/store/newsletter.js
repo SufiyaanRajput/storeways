@@ -1,5 +1,5 @@
 import {Router} from 'express';
-import {formatFromError} from '../../../utils/helpers';
+import {formatFromError, makeSwaggerFromJoi} from '../../../utils/helpers';
 import { newsletterService } from '../../../services';
 import logger from '../../../loaders/logger';
 import { getStore, requestValidator } from '../../middlewares';
@@ -10,6 +10,15 @@ const router = Router();
 const schema = Joi.object({
   name: Joi.string().required(),
   email: Joi.string().email().required()
+});
+
+export const addSubscriberSwagger = makeSwaggerFromJoi({ 
+  JoiSchema: schema, 
+  route: '/newsletter', 
+  method: 'post', 
+  summary: 'Add newsletter subscriber', 
+  tags: ['Store'],
+  security: false,
 });
 
 router.post('/newsletter', requestValidator(schema), getStore(), async (req, res) => {

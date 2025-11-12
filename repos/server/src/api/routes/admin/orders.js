@@ -1,5 +1,5 @@
 import {Router} from 'express';
-import {formatFromError, customJoiValidators} from '../../../utils/helpers';
+import {formatFromError, customJoiValidators, makeSwaggerFromJoi} from '../../../utils/helpers';
 import { orderService } from '../../../services';
 import logger from '../../../loaders/logger';
 import { getStore, auth, requestValidator } from '../../middlewares';
@@ -12,6 +12,14 @@ const getSchema = Joi.object({
   search: Joi.string(),
   deliveryStatus: Joi.number().integer().allow(null),
   page: Joi.number().integer().required(),
+});
+
+const getOrdersSwagger = makeSwaggerFromJoi({ 
+  JoiSchema: getSchema, 
+  route: '/orders', 
+  method: 'get', 
+  summary: 'Fetch orders', 
+  tags: ['Orders'] 
 });
 
 router.get('/orders', auth(['owner']), requestValidator(getSchema), async (req, res) => {
@@ -32,6 +40,16 @@ const schema = Joi.object({
   products: Joi.array().items(Joi.object()).required(),
 });
 
+const cancelOrdersSwagger = makeSwaggerFromJoi({ 
+  JoiSchema: schema.keys({
+    products: Joi.forbidden(),
+  }), 
+  route: '/orders/cancel', 
+  method: 'put', 
+  summary: 'Cancel orders', 
+  tags: ['Orders'] 
+});
+
 router.put('/orders/cancel', auth(['owner']), requestValidator(schema), getStore(), async (req, res) => {
   try{
     await orderService.cancelOrders({storeId: req.storeId, storeSupport: req.storeSupport, admin: true, ...req.values});
@@ -50,6 +68,14 @@ const updateOrderSchema = Joi.object({
   deliveryStatus: Joi.number().integer().positive().allow(0).required(),
 });
 
+const updateOrdersSwagger = makeSwaggerFromJoi({ 
+  JoiSchema: updateOrderSchema, 
+  route: '/orders', 
+  method: 'put', 
+  summary: 'Update orders', 
+  tags: ['Orders'] 
+});
+
 router.put('/orders', auth(['owner']), requestValidator(updateOrderSchema), getStore(), async (req, res) => {
   try{
     await orderService.updateOrder({storeId: req.storeId, storeSupport: req.storeSupport, ...req.values});
@@ -61,6 +87,14 @@ router.put('/orders', auth(['owner']), requestValidator(updateOrderSchema), getS
     res.status(status).send(data);
   }
 });
+
+export const ordersSwagger = {
+  '/orders': {
+    ...getOrdersSwagger['/orders'],
+    ...updateOrdersSwagger['/orders'],
+  },
+  ...cancelOrdersSwagger,
+}
 
 
 export default router;

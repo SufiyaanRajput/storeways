@@ -1,5 +1,5 @@
 import {Router} from 'express';
-import {formatFromError} from '../../../utils/helpers';
+import {formatFromError, makeSwaggerFromJoi} from '../../../utils/helpers';
 import { requestValidator, auth } from '../../middlewares';
 import { adminService } from '../../../services';
 import logger from '../../../loaders/logger';
@@ -10,6 +10,23 @@ const router = Router();
 
 const storage = multer.memoryStorage()
 const upload = multer({ storage: storage })
+
+export const uploadLogoSwagger = makeSwaggerFromJoi({ 
+  JoiSchema: {}, 
+  route: '/uploads/logo', 
+  method: 'post', 
+  summary: 'Upload a logo', 
+  tags: ['Customize'],
+  contentType: 'multipart/form-data',
+  formDataSchema: {
+    type: 'object',
+    required: ['logo', 'fileName'],
+    properties: {
+      logo: { type: 'string', format: 'binary' },
+      fileName: { type: 'string' },
+    },
+  },
+});
 
 router.post('/uploads/logo', auth(['owner']), upload.single('logo'), async (req, res) => {
   try{
@@ -28,6 +45,16 @@ router.post('/uploads/logo', auth(['owner']), upload.single('logo'), async (req,
 
 const imageDeleteSchema = Joi.object({
   imageId: Joi.string().required(),
+});
+
+const deleteLogoSwagger = makeSwaggerFromJoi({ 
+  JoiSchema: imageDeleteSchema.keys({
+    imageId: Joi.forbidden(),
+  }), 
+  route: '/uploads/logo/:imageId', 
+  method: 'delete', 
+  summary: 'Delete a logo image', 
+  tags: ['Customize'] 
 });
 
 router.delete('/uploads/logo/:imageId', auth(['owner']), requestValidator(imageDeleteSchema), async (req, res) => {
@@ -59,6 +86,14 @@ const storeSettingsSchema = Joi.object({
     value: Joi.number().integer().positive().required(),
     type: Joi.string().required()
   })
+});
+
+const updateStoreSettingsSwagger = makeSwaggerFromJoi({ 
+  JoiSchema: storeSettingsSchema, 
+  route: '/customize/store', 
+  method: 'put', 
+  summary: 'Update store settings', 
+  tags: ['Customize'] 
 });
 
 router.put('/customize/store', auth(['owner']), requestValidator(storeSettingsSchema), async (req, res) => {
@@ -93,6 +128,14 @@ const footerSchema = Joi.object({
   instagram: Joi.string(),
 });
 
+const updateFooterSwagger = makeSwaggerFromJoi({ 
+  JoiSchema: footerSchema, 
+  route: '/customize/footer', 
+  method: 'put', 
+  summary: 'Update footer', 
+  tags: ['Customize'] 
+});
+
 router.put('/customize/footer', auth(['owner']), requestValidator(footerSchema), async (req, res) => {
   try{
     req.values.storeId = req.user.storeId;
@@ -105,6 +148,14 @@ router.put('/customize/footer', auth(['owner']), requestValidator(footerSchema),
   }
 });
 
+const getStoreSettingsSwagger = makeSwaggerFromJoi({ 
+  JoiSchema: {}, 
+  route: '/customize/settings', 
+  method: 'get', 
+  summary: 'Fetch store settings', 
+  tags: ['Customize'] 
+});
+
 router.get('/customize/settings', auth(['owner']), async (req, res) => {
   try{
     const store = await adminService.getSettingByKey({ storeId: req.user.storeId, key: 'store' });
@@ -114,6 +165,14 @@ router.get('/customize/settings', auth(['owner']), async (req, res) => {
     const {status, ...data} = formatFromError(error);
     res.status(status).send(data);
   }
+});
+
+const getFooterSettingsSwagger = makeSwaggerFromJoi({ 
+  JoiSchema: {}, 
+  route: '/customize/footer', 
+  method: 'get', 
+  summary: 'Fetch footer settings', 
+  tags: ['Customize'] 
 });
 
 router.get('/customize/footer', auth(['owner']), async (req, res) => {
@@ -129,6 +188,14 @@ router.get('/customize/footer', auth(['owner']), async (req, res) => {
 
 const pageLayoutSchema = Joi.object({
   page: Joi.string().required(),
+});
+
+const getPageLayoutSwagger = makeSwaggerFromJoi({ 
+  JoiSchema: pageLayoutSchema.keys({ page: Joi.forbidden() }), 
+  route: '/customize/layout/:page', 
+  method: 'get', 
+  summary: 'Fetch layout for a page', 
+  tags: ['Customize'] 
 });
 
 router.get('/customize/layout/:page', auth(['owner']), requestValidator(pageLayoutSchema), async (req, res) => {
@@ -147,6 +214,14 @@ const updatePageLayoutSchema = Joi.object({
   layout: Joi.array().min(3).required(),
 });
 
+const updatePageLayoutSwagger = makeSwaggerFromJoi({ 
+  JoiSchema: updatePageLayoutSchema.keys({ page: Joi.forbidden() }), 
+  route: '/customize/layout/:page', 
+  method: 'put', 
+  summary: 'Update layout for a page', 
+  tags: ['Customize'] 
+});
+
 router.put('/customize/layout/:page', auth(['owner']), requestValidator(updatePageLayoutSchema), async (req, res) => {
   try{
     await adminService.updateLayout({ storeId: req.user.storeId, ...req.values });
@@ -156,6 +231,23 @@ router.put('/customize/layout/:page', auth(['owner']), requestValidator(updatePa
     const {status, ...data} = formatFromError(error);
     res.status(status).send(data);
   }
+});
+
+export const uploadBannerSwagger = makeSwaggerFromJoi({ 
+  JoiSchema: {}, 
+  route: '/uploads/banner', 
+  method: 'post', 
+  summary: 'Upload a banner', 
+  tags: ['Customize'],
+  contentType: 'multipart/form-data',
+  formDataSchema: {
+    type: 'object',
+    required: ['banner', 'fileName'],
+    properties: {
+      banner: { type: 'string', format: 'binary' },
+      fileName: { type: 'string' },
+    },
+  },
 });
 
 router.post('/uploads/banner', auth(['owner']), upload.single('banner'), async (req, res) => {
@@ -171,6 +263,16 @@ router.post('/uploads/banner', auth(['owner']), upload.single('banner'), async (
     const {status, ...data} = formatFromError(error);
     res.status(status).send(data);
   }
+});
+
+const deleteBannerSwagger = makeSwaggerFromJoi({ 
+  JoiSchema: imageDeleteSchema.keys({
+    imageId: Joi.forbidden(),
+  }), 
+  route: '/uploads/banner/:imageId', 
+  method: 'delete', 
+  summary: 'Delete a banner image', 
+  tags: ['Customize'] 
 });
 
 router.delete('/uploads/banner/:imageId', auth(['owner']), requestValidator(imageDeleteSchema), async (req, res) => {
@@ -205,6 +307,14 @@ const updatePageLayoutSectionSchema = Joi.object({
   features: Joi.array().min(1).max(6),
 });
 
+const updatePageLayoutSectionSwagger = makeSwaggerFromJoi({ 
+  JoiSchema: updatePageLayoutSectionSchema.keys({ page: Joi.forbidden(), sectionId: Joi.forbidden() }), 
+  route: '/customize/layout/:page/sections/:sectionId', 
+  method: 'put', 
+  summary: 'Update a section of a page layout', 
+  tags: ['Customize'] 
+});
+
 router.put('/customize/layout/:page/sections/:sectionId', auth(['owner']), requestValidator(updatePageLayoutSectionSchema), async (req, res) => {
   try{
     await adminService.updateSection({ storeId: req.user.storeId, ...req.values });
@@ -214,6 +324,23 @@ router.put('/customize/layout/:page/sections/:sectionId', auth(['owner']), reque
     const {status, ...data} = formatFromError(error);
     res.status(status).send(data);
   }
+});
+
+export const uploadPosterSwagger = makeSwaggerFromJoi({ 
+  JoiSchema: {}, 
+  route: '/uploads/poster', 
+  method: 'post', 
+  summary: 'Upload a poster', 
+  tags: ['Customize'],
+  contentType: 'multipart/form-data',
+  formDataSchema: {
+    type: 'object',
+    required: ['poster', 'fileName'],
+    properties: {
+      poster: { type: 'string', format: 'binary' },
+      fileName: { type: 'string' },
+    },
+  },
 });
 
 router.post('/uploads/poster', auth(['owner']), upload.single('poster'), async (req, res) => {
@@ -229,6 +356,16 @@ router.post('/uploads/poster', auth(['owner']), upload.single('poster'), async (
     const {status, ...data} = formatFromError(error);
     res.status(status).send(data);
   }
+});
+
+const deletePosterSwagger = makeSwaggerFromJoi({ 
+  JoiSchema: imageDeleteSchema.keys({
+    imageId: Joi.forbidden(),
+  }), 
+  route: '/uploads/poster/:imageId', 
+  method: 'delete', 
+  summary: 'Delete a poster image', 
+  tags: ['Customize'] 
 });
 
 router.delete('/uploads/poster/:imageId', auth(['owner']), requestValidator(imageDeleteSchema), async (req, res) => {
@@ -277,6 +414,14 @@ const storeSchema = Joi.object({
   domain: Joi.string().trim().allow(''),
 });
 
+const updateStoreSwagger = makeSwaggerFromJoi({ 
+  JoiSchema: storeSchema, 
+  route: '/stores', 
+  method: 'put', 
+  summary: 'Update store', 
+  tags: ['Customize'] 
+});
+
 router.put('/stores', auth(['owner']), requestValidator(storeSchema), async (req, res) => {
   try{
     req.values.storeId = req.user.storeId;
@@ -288,5 +433,77 @@ router.put('/stores', auth(['owner']), requestValidator(storeSchema), async (req
     res.status(status).send(data);
   }
 });
+
+export const storeCustomizeSwagger = {
+  '/uploads/logo': {
+    ...uploadLogoSwagger['/uploads/logo'],
+  },
+  '/uploads/logo/{imageId}': {
+    delete: {
+      ...deleteLogoSwagger['/uploads/logo/:imageId'].delete,
+      parameters: [
+        { name: 'imageId', in: 'path', required: true, schema: { type: 'string' } },
+      ],
+    },
+  },
+  '/customize/store': {
+    ...updateStoreSettingsSwagger['/customize/store'],
+  },
+  '/customize/footer': {
+    ...updateFooterSwagger['/customize/footer'],
+    ...getFooterSettingsSwagger['/customize/footer'],
+  },
+  '/customize/settings': {
+    ...getStoreSettingsSwagger['/customize/settings'],
+  },
+  '/customize/layout/{page}': {
+    get: {
+      ...getPageLayoutSwagger['/customize/layout/:page'].get,
+      parameters: [
+        { name: 'page', in: 'path', required: true, schema: { type: 'string' } },
+      ],
+    },
+    put: {
+      ...updatePageLayoutSwagger['/customize/layout/:page'].put,
+      parameters: [
+        { name: 'page', in: 'path', required: true, schema: { type: 'string' } },
+      ],
+    },
+  },
+  '/customize/layout/{page}/sections/{sectionId}': {
+    put: {
+      ...updatePageLayoutSectionSwagger['/customize/layout/:page/sections/:sectionId'].put,
+      parameters: [
+        { name: 'page', in: 'path', required: true, schema: { type: 'string' } },
+        { name: 'sectionId', in: 'path', required: true, schema: { type: 'string' } },
+      ],
+    },
+  },
+  '/uploads/banner': {
+    ...uploadBannerSwagger['/uploads/banner'],
+  },
+  '/uploads/banner/{imageId}': {
+    delete: {
+      ...deleteBannerSwagger['/uploads/banner/:imageId'].delete,
+      parameters: [
+        { name: 'imageId', in: 'path', required: true, schema: { type: 'string' } },
+      ],
+    },
+  },
+  '/uploads/poster': {
+    ...uploadPosterSwagger['/uploads/poster'],
+  },
+  '/uploads/poster/{imageId}': {
+    delete: {
+      ...deletePosterSwagger['/uploads/poster/:imageId'].delete,
+      parameters: [
+        { name: 'imageId', in: 'path', required: true, schema: { type: 'string' } },
+      ],
+    },
+  },
+  '/stores': {
+    ...updateStoreSwagger['/stores'],
+  },
+}
 
 export default router;

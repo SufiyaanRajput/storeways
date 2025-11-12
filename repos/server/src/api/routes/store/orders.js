@@ -1,11 +1,20 @@
 import {Router} from 'express';
-import {formatFromError, customJoiValidators} from '../../../utils/helpers';
+import {formatFromError, customJoiValidators, makeSwaggerFromJoi} from '../../../utils/helpers';
 import { orderService } from '../../../services';
 import logger from '../../../loaders/logger';
 import { getStore, auth, requestValidator } from '../../middlewares';
 import Joi from 'joi';
 
 const router = Router();
+
+export const myOrdersSwagger = makeSwaggerFromJoi({ 
+  JoiSchema: {}, 
+  route: '/orders', 
+  method: 'get', 
+  summary: 'Fetch my orders', 
+  tags: ['Orders'],
+  roles: ['customer'],
+});
 
 router.get('/orders', auth(['customer']), getStore(), async (req, res) => {
   try{
@@ -22,6 +31,15 @@ router.get('/orders', auth(['customer']), getStore(), async (req, res) => {
 const schema = Joi.object({
   referenceIds: Joi.array().required(),
   products: Joi.array().items(Joi.object()).required(),
+});
+
+export const cancelStoreOrdersSwagger = makeSwaggerFromJoi({ 
+  JoiSchema: schema, 
+  route: '/orders/cancel', 
+  method: 'put', 
+  summary: 'Cancel my orders', 
+  tags: ['Orders'],
+  roles: ['owner', 'customer'],
 });
 
 router.put('/orders/cancel', auth(['customer', 'owner']), requestValidator(schema), getStore(), async (req, res) => {

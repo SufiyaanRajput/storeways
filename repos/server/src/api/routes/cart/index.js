@@ -1,5 +1,5 @@
 import {Router} from 'express';
-import {formatFromError} from '../../../utils/helpers';
+import {formatFromError, makeSwaggerFromJoi} from '../../../utils/helpers';
 import { storeService } from '../../../services';
 import logger from '../../../loaders/logger';
 import { getStore, requestValidator } from '../../middlewares';
@@ -13,6 +13,15 @@ const schema = Joi.object({
   limit: Joi.number().integer().positive(),
   type: Joi.string().valid('MOST_RATED', 'BEST_SELLING', 'LATEST'),
   categories: Joi.array(),
+});
+
+export const cartAddSwagger = makeSwaggerFromJoi({ 
+  JoiSchema: schema, 
+  route: '/cart', 
+  method: 'post', 
+  summary: 'Add items to cart', 
+  tags: ['Cart'],
+  roles: ['customer'],
 });
 
 router.post('/', auth(['customer']), requestValidator(schema), getStore(), async (req, res) => {

@@ -1,5 +1,5 @@
 import {Router} from 'express';
-import {formatFromError} from '../../../utils/helpers';
+import {formatFromError, makeSwaggerFromJoi} from '../../../utils/helpers';
 import { storeService } from '../../../services';
 import logger from '../../../loaders/logger';
 import { getStore, requestValidator } from '../../middlewares';
@@ -17,6 +17,42 @@ const schema = Joi.object({
   type: Joi.string().valid('MOST_RATED', 'BEST_SELLING', 'LATEST'),
   categories: Joi.array(),
 });
+
+export const fetchProductsSwagger = makeSwaggerFromJoi({ 
+  JoiSchema: schema.keys({ id: Joi.forbidden() }), 
+  route: '/products', 
+  method: 'get', 
+  summary: 'Fetch products', 
+  tags: ['Store'] 
+});
+
+const fetchProductByIdSwagger = makeSwaggerFromJoi({ 
+  JoiSchema: schema.keys({ id: Joi.forbidden() }), 
+  route: '/products/:id', 
+  method: 'get', 
+  summary: 'Fetch a product by ID', 
+  tags: ['Store'] 
+});
+
+export const productsSwagger = {
+  '/products': {
+    ...fetchProductsSwagger['/products'],
+  },
+  '/products/{id}': {
+    get: {
+      ...fetchProductByIdSwagger['/products/:id'].get,
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          description: 'The unique ID of the product',
+          schema: { type: 'integer' },
+        },
+      ],
+    },
+  },
+}
 
 router.get('/products/:id?', auth(['owner'], true), requestValidator(schema), getStore(), async (req, res) => {
   try{

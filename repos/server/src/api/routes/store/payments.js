@@ -1,5 +1,5 @@
 import {Router} from 'express';
-import {formatFromError, customJoiValidators} from '../../../utils/helpers';
+import {formatFromError, customJoiValidators, makeSwaggerFromJoi} from '../../../utils/helpers';
 import { storeService } from '../../../services';
 import logger from '../../../loaders/logger';
 import { getStore, auth, requestValidator } from '../../middlewares';
@@ -18,6 +18,15 @@ const schema = Joi.object({
   otp: Joi.string().length(6).required(),
   products: Joi.array().items(Joi.object()).required(),
   paymentMode: Joi.string().valid('online', 'cod').required(),
+});
+
+export const createOrderSwagger = makeSwaggerFromJoi({ 
+  JoiSchema: schema, 
+  route: '/orders', 
+  method: 'post', 
+  summary: 'Create an order', 
+  tags: ['Payments'],
+  security: false,
 });
 
 router.post('/orders', getStore(), requestValidator(schema), async (req, res) => {
@@ -44,6 +53,15 @@ const confirmSchema = Joi.object({
   razorpayOrderId: Joi.string().required(), 
   razorpaySignature: Joi.string().required(), 
   orderIds: Joi.array().items(Joi.number().integer().positive()).required()
+});
+
+export const confirmPaymentSwagger = makeSwaggerFromJoi({ 
+  JoiSchema: confirmSchema, 
+  route: '/confirm', 
+  method: 'post', 
+  summary: 'Confirm payment', 
+  tags: ['Payments'],
+  roles: ['customer'],
 });
 
 router.post('/confirm', getStore(), auth(['customer']), requestValidator(confirmSchema), async (req, res) => {

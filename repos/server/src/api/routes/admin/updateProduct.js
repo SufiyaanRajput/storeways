@@ -1,5 +1,5 @@
 import {Router} from 'express';
-import {formatFromError} from '../../../utils/helpers';
+import {formatFromError, makeSwaggerFromJoi} from '../../../utils/helpers';
 import { requestValidator, auth } from '../../middlewares';
 import { adminService } from '../../../services';
 import logger from '../../../loaders/logger';
@@ -11,6 +11,24 @@ const router = Router();
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
+
+export const updateProductImageUploadSwagger = makeSwaggerFromJoi({ 
+  JoiSchema: {}, 
+  route: '/products/image', 
+  method: 'post', 
+  summary: 'Upload a product image', 
+  tags: ['Products'],
+  contentType: 'multipart/form-data',
+  formDataSchema: {
+    type: 'object',
+    required: ['productImage', 'fileName'],
+    properties: {
+      productImage: { type: 'string', format: 'binary' },
+      fileName: { type: 'string' },
+      ext: { type: 'string' },
+    },
+  },
+});
 
 router.post('/products/image', auth(['owner']), upload.single('productImage'), async (req, res) => {
   try{
@@ -29,6 +47,16 @@ router.post('/products/image', auth(['owner']), upload.single('productImage'), a
 
 const imageDeleteSchema = Joi.object({
   imageId: Joi.string().required(),
+});
+
+const deleteProductImageSwagger = makeSwaggerFromJoi({ 
+  JoiSchema: imageDeleteSchema.keys({
+    imageId: Joi.forbidden(),
+  }), 
+  route: '/products/image/:imageId', 
+  method: 'delete', 
+  summary: 'Delete a product image', 
+  tags: ['Products'] 
 });
 
 router.delete('/products/image/:imageId', auth(['owner']), requestValidator(imageDeleteSchema), async (req, res) => {
@@ -65,6 +93,14 @@ const productSchema = Joi.object({
   })),
 });
 
+const updateProductSwagger = makeSwaggerFromJoi({ 
+  JoiSchema: productSchema.keys({ id: Joi.forbidden() }), 
+  route: '/products/:id', 
+  method: 'put', 
+  summary: 'Update a product', 
+  tags: ['Products'] 
+});
+
 router.put('/products/:id', auth(['owner']), requestValidator(productSchema), async (req, res) => {
   try{
     const description = sanitizeHtml(req.values.description);
@@ -82,6 +118,16 @@ const deleteProductSchema = Joi.object({
   id: Joi.number().integer().positive().required()
 });
 
+const deleteProductSwagger = makeSwaggerFromJoi({ 
+  JoiSchema: deleteProductSchema.keys({
+    id: Joi.forbidden(),
+  }), 
+  route: '/products/:id', 
+  method: 'delete', 
+  summary: 'Delete a product', 
+  tags: ['Products'] 
+});
+
 router.delete('/products/:id', auth(['owner']), requestValidator(deleteProductSchema), async (req, res) => {
   try{
     await adminService.deleteProduct({...req.values, storeId: req.user.storeId});
@@ -92,5 +138,51 @@ router.delete('/products/:id', auth(['owner']), requestValidator(deleteProductSc
     res.status(status).send(data);
   }
 });
+
+export const updateProductsSwagger = {
+  '/products/image': {
+    ...updateProductImageUploadSwagger['/products/image'],
+  },
+  '/products/image/{imageId}': {
+    delete: {
+      ...deleteProductImageSwagger['/products/image/:imageId'].delete,
+      parameters: [
+        {
+          name: 'imageId',
+          in: 'path',
+          required: true,
+          description: 'The ID of the image to delete',
+          schema: { type: 'string' },
+        },
+      ],
+    },
+  },
+  '/products/{id}': {
+    put: {
+      ...updateProductSwagger['/products/:id'].put,
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          description: 'The unique ID of the product',
+          schema: { type: 'integer' },
+        },
+      ],
+    },
+    delete: {
+      ...deleteProductSwagger['/products/:id'].delete,
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          description: 'The unique ID of the product',
+          schema: { type: 'integer' },
+        },
+      ],
+    },
+  },
+}
 
 export default router;

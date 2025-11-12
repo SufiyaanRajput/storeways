@@ -1,5 +1,5 @@
 import {Router} from 'express';
-import {formatFromError, customJoiValidators} from '../../../utils/helpers';
+import {formatFromError, customJoiValidators, makeSwaggerFromJoi} from '../../../utils/helpers';
 import { auth, getStore, requestValidator } from '../../middlewares';
 import { userService } from '../../../services';
 import logger from '../../../loaders/logger';
@@ -19,6 +19,15 @@ const schema = Joi.object({
   confirmPassword: Joi.string().trim().valid(Joi.ref('password')).required()
 });
 
+export const registerSwagger = makeSwaggerFromJoi({ 
+  JoiSchema: schema, 
+  route: '/register', 
+  method: 'post', 
+  summary: 'Register store owner', 
+  tags: ['Users'],
+  security: false,
+});
+
 router.post('/register', cors(adminCorsOptions), requestValidator(schema), async (req, res) => {
   try{
     const user = await userService.register(req.values);
@@ -35,6 +44,15 @@ const loginschema = Joi.object({
   password: Joi.string().trim().required(),
 });
 
+export const loginSwagger = makeSwaggerFromJoi({ 
+  JoiSchema: loginschema, 
+  route: '/login', 
+  method: 'post', 
+  summary: 'Login store owner', 
+  tags: ['Users'],
+  security: false,
+});
+
 router.post('/login', cors(adminCorsOptions), requestValidator(loginschema), async (req, res) => {
   try{
     const user = await userService.login({...req.values, userType: 'owner'});
@@ -48,6 +66,15 @@ router.post('/login', cors(adminCorsOptions), requestValidator(loginschema), asy
 
 const passwordResetEmailSchema = Joi.object({
   email: Joi.string().email().required(),
+});
+
+export const passwordResetEmailSwagger = makeSwaggerFromJoi({ 
+  JoiSchema: passwordResetEmailSchema, 
+  route: '/password-reset-email', 
+  method: 'post', 
+  summary: 'Send password reset email', 
+  tags: ['Users'],
+  security: false,
 });
 
 router.post('/password-reset-email', cors(adminCorsOptions), requestValidator(passwordResetEmailSchema), async (req, res) => {
@@ -67,6 +94,15 @@ const passwordResetchema = Joi.object({
   confirmPassword: Joi.string().trim().valid(Joi.ref('password')).required()
 });
 
+export const passwordResetSwagger = makeSwaggerFromJoi({ 
+  JoiSchema: passwordResetchema, 
+  route: '/password-reset', 
+  method: 'post', 
+  summary: 'Reset password', 
+  tags: ['Users'],
+  security: false,
+});
+
 router.post('/password-reset', cors(adminCorsOptions), requestValidator(passwordResetchema), async (req, res) => {
   try{
     await userService.passwordReset({...req.values, userType: 'owner'});
@@ -83,6 +119,15 @@ const customerLoginschema = Joi.object({
   otp: Joi.string().length(6).required(),
 });
 
+export const customerLoginSwagger = makeSwaggerFromJoi({ 
+  JoiSchema: customerLoginschema, 
+  route: '/customer-login', 
+  method: 'post', 
+  summary: 'Login customer via OTP', 
+  tags: ['Users'],
+  security: false,
+});
+
 router.post('/customer-login', requestValidator(customerLoginschema), async (req, res) => {
   try{
     const user = await userService.login({...req.values, userType: 'customer'});
@@ -92,6 +137,14 @@ router.post('/customer-login', requestValidator(customerLoginschema), async (req
     const {status, ...data} = formatFromError(error);
     res.status(status).send(data);
   }
+});
+
+export const logoutSwagger = makeSwaggerFromJoi({ 
+  JoiSchema: {}, 
+  route: '/logout', 
+  method: 'post', 
+  summary: 'Logout owner', 
+  tags: ['Users'],
 });
 
 router.post('/logout', cors(adminCorsOptions), auth(['owner']), async (req, res) => {
@@ -110,6 +163,15 @@ const customerSchema = Joi.object({
   mobile: Joi.string().trim().custom(customJoiValidators.validateMobile).required(),
 });
 
+export const registerCustomerSwagger = makeSwaggerFromJoi({ 
+  JoiSchema: customerSchema, 
+  route: '/customer', 
+  method: 'post', 
+  summary: 'Register/Login customer', 
+  tags: ['Users'],
+  security: false,
+});
+
 router.post('/customer', requestValidator(customerSchema), getStore(), async (req, res) => {
   try{
     const user = await userService.registerLoginCustomer({...req.values, storeId: req.storeId});
@@ -123,6 +185,15 @@ router.post('/customer', requestValidator(customerSchema), getStore(), async (re
 
 const sendOTPSchema = Joi.object({
   mobile: Joi.string().trim().custom(customJoiValidators.validateMobile).required(),
+});
+
+export const sendOTPSwagger = makeSwaggerFromJoi({ 
+  JoiSchema: sendOTPSchema, 
+  route: '/send-otp', 
+  method: 'post', 
+  summary: 'Send OTP to mobile', 
+  tags: ['Users'],
+  security: false,
 });
 
 router.post('/send-otp', requestValidator(sendOTPSchema), async (req, res) => {
