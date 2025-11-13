@@ -17,7 +17,7 @@
       "setup-p": "pnpm install -r && pnpm --stream --filter server run migrate",
       "build:client": "pnpm --filter client run build",
       "build:admin": "pnpm --filter admin run build",
-      "docs:dev": "pnpm --filter docs run start",
+      "dev:docs": "pnpm --filter docs run start",
       "docs:build": "pnpm --filter docs run build",
       "docs:serve": "pnpm --filter docs run serve"
     }
