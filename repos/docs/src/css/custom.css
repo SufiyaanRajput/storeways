@@ -13,3 +13,14 @@
 }
 
 
+/* API Reference page: remove container/column max-width so Redoc can use full width */
+html[class*="docs-doc-id-server/api-reference"] .container {
+  max-width: 100% !important;
+}
+
+html[class*="docs-doc-id-server/api-reference"] .row .col[class*="docItemCol"] {
+  max-width: 100% !important;
+  flex: 0 0 100% !important;
+}
+
+

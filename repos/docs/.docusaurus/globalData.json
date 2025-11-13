@@ -51,6 +51,11 @@
               "sidebar": "tutorialSidebar"
             },
             {
+              "id": "server/api-reference",
+              "path": "/docs/server/api-reference",
+              "sidebar": "tutorialSidebar"
+            },
+            {
               "id": "server/plugins",
               "path": "/docs/server/plugins",
               "sidebar": "tutorialSidebar"

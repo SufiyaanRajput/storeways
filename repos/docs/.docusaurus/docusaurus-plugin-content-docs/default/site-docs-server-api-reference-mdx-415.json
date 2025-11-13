@@ -1,0 +1,29 @@
+{
+  "id": "server/api-reference",
+  "title": "API Reference",
+  "description": "Below is the interactive API documentation powered by Redoc.",
+  "source": "@site/docs/server/api-reference.mdx",
+  "sourceDirName": "server",
+  "slug": "/server/api-reference",
+  "permalink": "/docs/server/api-reference",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/SufiyaanRajput/storeways/edit/main/repos/docs/docs/server/api-reference.mdx",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 10,
+  "frontMatter": {
+    "title": "API Reference",
+    "sidebar_position": 10,
+    "wrapperClassName": "api-reference-page"
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Plugins",
+    "permalink": "/docs/server/plugins"
+  },
+  "next": {
+    "title": "Contributing",
+    "permalink": "/docs/contributing"
+  }
+}

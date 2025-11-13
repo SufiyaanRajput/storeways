@@ -17,8 +17,8 @@
   },
   "sidebar": "tutorialSidebar",
   "previous": {
-    "title": "Plugins",
-    "permalink": "/docs/server/plugins"
+    "title": "API Reference",
+    "permalink": "/docs/server/api-reference"
   },
   "next": {
     "title": "License",

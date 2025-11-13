@@ -81,4 +81,4 @@ const swaggerDocument = {
   },
 };
 
-  export default swaggerDocument;
+export default swaggerDocument;

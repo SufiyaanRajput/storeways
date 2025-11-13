@@ -1,0 +1,2270 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "My Open Source API",
+    "version": "1.0.0",
+    "description": "API documentation for my Node.js monorepo project"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "Local dev server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "paths": {
+    "/v1/admin/products": {
+      "post": {
+        "summary": "Create a product",
+        "tags": [
+          "Products"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "sku": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "description": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "maxOrderQuantity": {
+                    "type": "integer"
+                  },
+                  "images": {
+                    "type": "array",
+                    "items": {}
+                  },
+                  "returnPolicy": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "categoryIds": {
+                    "type": "array",
+                    "items": {}
+                  },
+                  "price": {
+                    "type": "integer"
+                  },
+                  "stock": {
+                    "type": "integer"
+                  },
+                  "variations": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "maxOrderQuantity": {
+                          "type": "integer"
+                        },
+                        "price": {
+                          "type": "number",
+                          "format": "float",
+                          "minimum": 1
+                        },
+                        "stock": {
+                          "type": "integer",
+                          "minimum": 1
+                        },
+                        "variationGroup": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string"
+                              },
+                              "value": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "name",
+                              "value"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "price",
+                        "stock"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "name",
+                  "sku",
+                  "images",
+                  "categoryIds",
+                  "price",
+                  "stock"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "🔒 Requires JWT token. Accessible only by users with the \"owner\" role."
+      }
+    },
+    "/v1/admin/products/image": {
+      "post": {
+        "summary": "Upload a product image",
+        "tags": [
+          "Products"
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "productImage",
+                  "fileName"
+                ],
+                "properties": {
+                  "productImage": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "fileName": {
+                    "type": "string"
+                  },
+                  "ext": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "🔒 Requires JWT token. Accessible only by users with the \"owner\" role."
+      }
+    },
+    "/v1/admin/products/image/{imageId}": {
+      "delete": {
+        "summary": "Delete a product image",
+        "tags": [
+          "Products"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "🔒 Requires JWT token. Accessible only by users with the \"owner\" role.",
+        "parameters": [
+          {
+            "name": "imageId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the image to delete",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/v1/admin/products/{id}": {
+      "put": {
+        "summary": "Update a product",
+        "tags": [
+          "Products"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "sku": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "description": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "maxOrderQuantity": {
+                    "type": "integer"
+                  },
+                  "images": {
+                    "type": "array",
+                    "items": {}
+                  },
+                  "returnPolicy": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "categoryIds": {
+                    "type": "array",
+                    "items": {}
+                  },
+                  "price": {
+                    "type": "integer"
+                  },
+                  "stock": {
+                    "type": "integer"
+                  },
+                  "variations": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "maxOrderQuantity": {
+                          "type": "integer"
+                        },
+                        "price": {
+                          "type": "number",
+                          "format": "float",
+                          "minimum": 1
+                        },
+                        "stock": {
+                          "type": "integer",
+                          "minimum": 1
+                        },
+                        "variationGroup": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string"
+                              },
+                              "value": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "name",
+                              "value"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "price",
+                        "stock"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "name",
+                  "sku",
+                  "images",
+                  "categoryIds",
+                  "price",
+                  "stock"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "🔒 Requires JWT token. Accessible only by users with the \"owner\" role.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The unique ID of the product",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ]
+      },
+      "delete": {
+        "summary": "Delete a product",
+        "tags": [
+          "Products"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "🔒 Requires JWT token. Accessible only by users with the \"owner\" role.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The unique ID of the product",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ]
+      }
+    },
+    "/v1/admin/categories": {
+      "post": {
+        "summary": "Create a category",
+        "tags": [
+          "Categories"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "parentId": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "nullable": true
+                  }
+                },
+                "required": [
+                  "name"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "🔒 Requires JWT token. Accessible only by users with the \"owner\" role."
+      },
+      "get": {
+        "summary": "Fetch categories",
+        "tags": [
+          "Categories"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "🔒 Requires JWT token. Accessible only by users with the \"owner\" role."
+      }
+    },
+    "/v1/admin/categories/{id}": {
+      "put": {
+        "summary": "Update a category",
+        "tags": [
+          "Categories"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "active": {
+                    "type": "boolean"
+                  },
+                  "parentId": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "nullable": true
+                  }
+                },
+                "required": [
+                  "name"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "🔒 Requires JWT token. Accessible only by users with the \"owner\" role.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The unique ID of the category",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "delete": {
+        "summary": "Delete a category",
+        "tags": [
+          "Categories"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "🔒 Requires JWT token. Accessible only by users with the \"owner\" role.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The unique ID of the category",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/v1/admin/orders": {
+      "get": {
+        "summary": "Fetch orders",
+        "tags": [
+          "Orders"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "textSearchType": {
+                    "type": "string"
+                  },
+                  "search": {
+                    "type": "string"
+                  },
+                  "deliveryStatus": {
+                    "type": "integer",
+                    "nullable": true
+                  },
+                  "page": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "page"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "🔒 Requires JWT token. Accessible only by users with the \"owner\" role."
+      },
+      "put": {
+        "summary": "Update orders",
+        "tags": [
+          "Orders"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "referenceId": {
+                    "type": "string"
+                  },
+                  "customerId": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "deliveryStatus": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                },
+                "required": [
+                  "referenceId",
+                  "customerId",
+                  "deliveryStatus"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "🔒 Requires JWT token. Accessible only by users with the \"owner\" role."
+      }
+    },
+    "/v1/admin/orders/cancel": {
+      "put": {
+        "summary": "Cancel orders",
+        "tags": [
+          "Orders"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "referenceIds": {
+                    "type": "array",
+                    "items": {}
+                  },
+                  "customerId": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                },
+                "required": [
+                  "referenceIds",
+                  "customerId"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "🔒 Requires JWT token. Accessible only by users with the \"owner\" role."
+      }
+    },
+    "/v1/admin/variations": {
+      "get": {
+        "summary": "Fetch variations",
+        "tags": [
+          "Variations"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "🔒 Requires JWT token. Accessible only by users with the \"owner\" role."
+      },
+      "post": {
+        "summary": "Create a variation",
+        "tags": [
+          "Variations"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "categoryId": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "nullable": true
+                  },
+                  "options": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "name",
+                  "options"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "🔒 Requires JWT token. Accessible only by users with the \"owner\" role."
+      }
+    },
+    "/v1/admin/variations/{id}": {
+      "put": {
+        "summary": "Update a variation",
+        "tags": [
+          "Variations"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "categoryId": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "nullable": true
+                  },
+                  "options": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "name",
+                  "options"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "🔒 Requires JWT token. Accessible only by users with the \"owner\" role.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The unique ID of the variation",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ]
+      },
+      "delete": {
+        "summary": "Delete a variation",
+        "tags": [
+          "Variations"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "🔒 Requires JWT token. Accessible only by users with the \"owner\" role.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The unique ID of the variation",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ]
+      }
+    },
+    "/v1/admin/uploads/logo": {
+      "post": {
+        "summary": "Upload a logo",
+        "tags": [
+          "Customize"
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "logo",
+                  "fileName"
+                ],
+                "properties": {
+                  "logo": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "fileName": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "🔒 Requires JWT token. Accessible only by users with the \"owner\" role."
+      }
+    },
+    "/v1/admin/uploads/logo/{imageId}": {
+      "delete": {
+        "summary": "Delete a logo image",
+        "tags": [
+          "Customize"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "🔒 Requires JWT token. Accessible only by users with the \"owner\" role.",
+        "parameters": [
+          {
+            "name": "imageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/v1/admin/customize/store": {
+      "put": {
+        "summary": "Update store settings",
+        "tags": [
+          "Customize"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "logoText": {
+                    "type": "string"
+                  },
+                  "domain": {
+                    "type": "string"
+                  },
+                  "brandColor": {
+                    "type": "string"
+                  },
+                  "navBackgroundColor": {
+                    "type": "string"
+                  },
+                  "navTextColor": {
+                    "type": "string"
+                  },
+                  "logo": {
+                    "type": "object",
+                    "properties": {},
+                    "additionalProperties": false,
+                    "nullable": true
+                  },
+                  "filesToDelete": {
+                    "type": "array",
+                    "items": {}
+                  },
+                  "isOnlinePaymentEnabled": {
+                    "type": "boolean"
+                  },
+                  "otherCharges": {
+                    "type": "object",
+                    "properties": {
+                      "value": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "type": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "value",
+                      "type"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "tax": {
+                    "type": "object",
+                    "properties": {
+                      "value": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "type": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "value",
+                      "type"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "logoText",
+                  "brandColor",
+                  "navBackgroundColor",
+                  "navTextColor"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "🔒 Requires JWT token. Accessible only by users with the \"owner\" role."
+      }
+    },
+    "/v1/admin/customize/footer": {
+      "put": {
+        "summary": "Update footer",
+        "tags": [
+          "Customize"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "bgColor": {
+                    "type": "object",
+                    "properties": {
+                      "r": {
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "g": {
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "b": {
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "a": {
+                        "type": "number",
+                        "format": "float"
+                      }
+                    },
+                    "required": [
+                      "r",
+                      "g",
+                      "b",
+                      "a"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "logo": {
+                    "type": "object",
+                    "properties": {},
+                    "additionalProperties": false,
+                    "nullable": true
+                  },
+                  "filesToDelete": {
+                    "type": "array",
+                    "items": {}
+                  },
+                  "copyrightText": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "officeAddress": {
+                    "type": "string"
+                  },
+                  "phone": {
+                    "type": "string"
+                  },
+                  "summary": {
+                    "type": "string"
+                  },
+                  "sections": {
+                    "type": "array",
+                    "items": {}
+                  },
+                  "facebook": {
+                    "type": "string"
+                  },
+                  "twitter": {
+                    "type": "string"
+                  },
+                  "instagram": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "bgColor"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "🔒 Requires JWT token. Accessible only by users with the \"owner\" role."
+      },
+      "get": {
+        "summary": "Fetch footer settings",
+        "tags": [
+          "Customize"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "🔒 Requires JWT token. Accessible only by users with the \"owner\" role."
+      }
+    },
+    "/v1/admin/customize/settings": {
+      "get": {
+        "summary": "Fetch store settings",
+        "tags": [
+          "Customize"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "🔒 Requires JWT token. Accessible only by users with the \"owner\" role."
+      }
+    },
+    "/v1/admin/customize/layout/{page}": {
+      "get": {
+        "summary": "Fetch layout for a page",
+        "tags": [
+          "Customize"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "🔒 Requires JWT token. Accessible only by users with the \"owner\" role.",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "put": {
+        "summary": "Update layout for a page",
+        "tags": [
+          "Customize"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "layout": {
+                    "type": "array",
+                    "items": {},
+                    "minItems": 3
+                  }
+                },
+                "required": [
+                  "layout"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "🔒 Requires JWT token. Accessible only by users with the \"owner\" role.",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/v1/admin/customize/layout/{page}/sections/{sectionId}": {
+      "put": {
+        "summary": "Update a section of a page layout",
+        "tags": [
+          "Customize"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "banners": {
+                    "type": "array",
+                    "items": {},
+                    "minItems": 2,
+                    "maxItems": 5
+                  },
+                  "banner": {
+                    "type": "object",
+                    "properties": {},
+                    "additionalProperties": false
+                  },
+                  "filesToDelete": {
+                    "type": "array",
+                    "items": {}
+                  },
+                  "posters": {
+                    "type": "array",
+                    "items": {},
+                    "minItems": 1,
+                    "maxItems": 3
+                  },
+                  "products": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string"
+                      },
+                      "limit": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 10
+                      }
+                    },
+                    "required": [
+                      "type",
+                      "limit"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "sectionBgColor": {
+                    "type": "object",
+                    "properties": {
+                      "r": {
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "g": {
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "b": {
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "a": {
+                        "type": "number",
+                        "format": "float"
+                      }
+                    },
+                    "required": [
+                      "r",
+                      "g",
+                      "b",
+                      "a"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "features": {
+                    "type": "array",
+                    "items": {},
+                    "minItems": 1,
+                    "maxItems": 6
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "🔒 Requires JWT token. Accessible only by users with the \"owner\" role.",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sectionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/v1/admin/uploads/banner": {
+      "post": {
+        "summary": "Upload a banner",
+        "tags": [
+          "Customize"
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "banner",
+                  "fileName"
+                ],
+                "properties": {
+                  "banner": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "fileName": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "🔒 Requires JWT token. Accessible only by users with the \"owner\" role."
+      }
+    },
+    "/v1/admin/uploads/banner/{imageId}": {
+      "delete": {
+        "summary": "Delete a banner image",
+        "tags": [
+          "Customize"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "🔒 Requires JWT token. Accessible only by users with the \"owner\" role.",
+        "parameters": [
+          {
+            "name": "imageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/v1/admin/uploads/poster": {
+      "post": {
+        "summary": "Upload a poster",
+        "tags": [
+          "Customize"
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "poster",
+                  "fileName"
+                ],
+                "properties": {
+                  "poster": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "fileName": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "🔒 Requires JWT token. Accessible only by users with the \"owner\" role."
+      }
+    },
+    "/v1/admin/uploads/poster/{imageId}": {
+      "delete": {
+        "summary": "Delete a poster image",
+        "tags": [
+          "Customize"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "🔒 Requires JWT token. Accessible only by users with the \"owner\" role.",
+        "parameters": [
+          {
+            "name": "imageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/v1/admin/stores": {
+      "put": {
+        "summary": "Update store",
+        "tags": [
+          "Customize"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "termsOfService": {
+                    "type": "string"
+                  },
+                  "privacyPolicy": {
+                    "type": "string"
+                  },
+                  "domain": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "🔒 Requires JWT token. Accessible only by users with the \"owner\" role."
+      }
+    },
+    "/v1/stores": {
+      "get": {
+        "summary": "Fetch store by domain",
+        "tags": [
+          "Store"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "🔒 Requires JWT token. Accessible only by users with the \"owner\" role."
+      }
+    },
+    "/v1/stores/products": {
+      "get": {
+        "summary": "Fetch products",
+        "tags": [
+          "Store"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "MOST_RATED",
+                      "BEST_SELLING",
+                      "LATEST"
+                    ]
+                  },
+                  "categories": {
+                    "type": "array",
+                    "items": {}
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "🔒 Requires JWT token. Accessible only by users with the \"owner\" role."
+      }
+    },
+    "/v1/stores/products/{id}": {
+      "get": {
+        "summary": "Fetch a product by ID",
+        "tags": [
+          "Store"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "MOST_RATED",
+                      "BEST_SELLING",
+                      "LATEST"
+                    ]
+                  },
+                  "categories": {
+                    "type": "array",
+                    "items": {}
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "🔒 Requires JWT token. Accessible only by users with the \"owner\" role.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The unique ID of the product",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ]
+      }
+    },
+    "/v1/stores/filters": {
+      "get": {
+        "summary": "Fetch shop filters",
+        "tags": [
+          "Store"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/stores/orders": {
+      "get": {
+        "summary": "Fetch my orders",
+        "tags": [
+          "Orders"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "🔒 Requires JWT token. Accessible only by users with the \"customer\" role."
+      }
+    },
+    "/v1/stores/orders/cancel": {
+      "put": {
+        "summary": "Cancel my orders",
+        "tags": [
+          "Orders"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "referenceIds": {
+                    "type": "array",
+                    "items": {}
+                  },
+                  "products": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {},
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "referenceIds",
+                  "products"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "🔒 Requires JWT token. Accessible only by users with the \"owner, customer\" role."
+      }
+    },
+    "/v1/stores/reviews": {
+      "post": {
+        "summary": "Create or update a review",
+        "tags": [
+          "Reviews"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "ratings": {
+                    "type": "number",
+                    "format": "float"
+                  },
+                  "content": {
+                    "type": "string"
+                  },
+                  "productId": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                },
+                "required": [
+                  "ratings",
+                  "content",
+                  "productId"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "🔒 Requires JWT token. Accessible only by users with the \"customer\" role."
+      }
+    },
+    "/v1/stores/reviews/{productId}": {
+      "get": {
+        "summary": "Fetch reviews for a product",
+        "tags": [
+          "Reviews"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the product",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ]
+      }
+    },
+    "/v1/stores/newsletter": {
+      "post": {
+        "summary": "Add newsletter subscriber",
+        "tags": [
+          "Store"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  }
+                },
+                "required": [
+                  "name",
+                  "email"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/stores/payments/orders": {
+      "post": {
+        "summary": "Create an order",
+        "tags": [
+          "Payments"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "amount": {
+                    "type": "number",
+                    "format": "float",
+                    "minimum": 1
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "mobile": {
+                    "type": "string"
+                  },
+                  "address": {
+                    "type": "string"
+                  },
+                  "landmark": {
+                    "type": "string"
+                  },
+                  "pincode": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "otp": {
+                    "type": "string",
+                    "minLength": 6,
+                    "maxLength": 6
+                  },
+                  "products": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {},
+                      "additionalProperties": false
+                    }
+                  },
+                  "paymentMode": {
+                    "type": "string",
+                    "enum": [
+                      "online",
+                      "cod"
+                    ]
+                  }
+                },
+                "required": [
+                  "amount",
+                  "name",
+                  "mobile",
+                  "address",
+                  "landmark",
+                  "pincode",
+                  "email",
+                  "otp",
+                  "products",
+                  "paymentMode"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/stores/payments/confirm": {
+      "post": {
+        "summary": "Confirm payment",
+        "tags": [
+          "Payments"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "products": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {},
+                      "additionalProperties": false
+                    }
+                  },
+                  "razorpayPaymentId": {
+                    "type": "string"
+                  },
+                  "razorpayOrderId": {
+                    "type": "string"
+                  },
+                  "razorpaySignature": {
+                    "type": "string"
+                  },
+                  "orderIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "required": [
+                  "products",
+                  "razorpayPaymentId",
+                  "razorpayOrderId",
+                  "razorpaySignature",
+                  "orderIds"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "🔒 Requires JWT token. Accessible only by users with the \"customer\" role."
+      }
+    },
+    "/v1/users/register": {
+      "post": {
+        "summary": "Register store owner",
+        "tags": [
+          "Users"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "mobile": {
+                    "type": "string"
+                  },
+                  "storeName": {
+                    "type": "string"
+                  },
+                  "inviteCode": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "confirmPassword": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "email",
+                  "mobile",
+                  "storeName",
+                  "inviteCode",
+                  "password",
+                  "confirmPassword"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/users/login": {
+      "post": {
+        "summary": "Login store owner",
+        "tags": [
+          "Users"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "email",
+                  "password"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/users/password-reset-email": {
+      "post": {
+        "summary": "Send password reset email",
+        "tags": [
+          "Users"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  }
+                },
+                "required": [
+                  "email"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/users/password-reset": {
+      "post": {
+        "summary": "Reset password",
+        "tags": [
+          "Users"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "token": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "confirmPassword": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "token",
+                  "password",
+                  "confirmPassword"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/users/customer-login": {
+      "post": {
+        "summary": "Login customer via OTP",
+        "tags": [
+          "Users"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "mobile": {
+                    "type": "string"
+                  },
+                  "otp": {
+                    "type": "string",
+                    "minLength": 6,
+                    "maxLength": 6
+                  }
+                },
+                "required": [
+                  "mobile",
+                  "otp"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/users/logout": {
+      "post": {
+        "summary": "Logout owner",
+        "tags": [
+          "Users"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "🔒 Requires JWT token. Accessible only by users with the \"owner\" role."
+      }
+    },
+    "/v1/users/customer": {
+      "post": {
+        "summary": "Register/Login customer",
+        "tags": [
+          "Users"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "mobile": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "mobile"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/users/send-otp": {
+      "post": {
+        "summary": "Send OTP to mobile",
+        "tags": [
+          "Users"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "mobile": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "mobile"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tickets": {
+      "post": {
+        "summary": "Create a support ticket",
+        "tags": [
+          "Support"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "subject": {
+                    "type": "string",
+                    "maxLength": 100
+                  },
+                  "description": {
+                    "type": "string",
+                    "maxLength": 1300
+                  },
+                  "classification": {
+                    "type": "string",
+                    "enum": [
+                      "Problem",
+                      "Request",
+                      "Question",
+                      "Others"
+                    ]
+                  },
+                  "priority": {
+                    "type": "string",
+                    "enum": [
+                      "High",
+                      "Medium",
+                      "Low"
+                    ]
+                  },
+                  "category": {
+                    "type": "string",
+                    "enum": [
+                      "General",
+                      "Defects"
+                    ],
+                    "default": "General"
+                  }
+                },
+                "required": [
+                  "subject",
+                  "description",
+                  "classification",
+                  "priority",
+                  "category"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "🔒 Requires JWT token. Accessible only by users with the \"owner\" role."
+      }
+    },
+    "/cart": {
+      "post": {
+        "summary": "Add items to cart",
+        "tags": [
+          "Cart"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "MOST_RATED",
+                      "BEST_SELLING",
+                      "LATEST"
+                    ]
+                  },
+                  "categories": {
+                    "type": "array",
+                    "items": {}
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "🔒 Requires JWT token. Accessible only by users with the \"customer\" role."
+      }
+    }
+  }
+}

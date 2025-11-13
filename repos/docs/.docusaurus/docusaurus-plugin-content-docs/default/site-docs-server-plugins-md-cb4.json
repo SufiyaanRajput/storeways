@@ -21,7 +21,7 @@
     "permalink": "/docs/server"
   },
   "next": {
-    "title": "Contributing",
-    "permalink": "/docs/contributing"
+    "title": "API Reference",
+    "permalink": "/docs/server/api-reference"
   }
 }

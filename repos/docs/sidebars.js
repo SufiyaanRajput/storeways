@@ -25,6 +25,7 @@ const sidebars = {
           items: [
             'server',
             'server/plugins',
+            'server/api-reference',
           ],
         },
         'contributing',
