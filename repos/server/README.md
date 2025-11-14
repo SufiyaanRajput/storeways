@@ -73,7 +73,7 @@ npm run dev
 The API will be available at:
 
 ```
-http://localhost:4000
+http://localhost:8080
 ```
 
 ---

@@ -1,8 +1,8 @@
 import models from '../../models';
 import { QueryTypes } from 'sequelize';
-import { updateStock } from '../utilities/core';
 import { DELIVERY_STATUSES } from '../../utils/constants';
-import Email from '../utilities/Email';
+import Email from '../integrations/Email';
+import { updateStock } from '../admin/updateProduct';
 
 export const fetchOrders = async ({storeId, userId, admin, textSearchType, search, deliveryStatus}) => {
   try{

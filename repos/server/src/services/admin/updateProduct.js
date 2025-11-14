@@ -1,5 +1,5 @@
 import models from '../../models';
-import FileStorage from '../utilities/FileStorage';
+import FileStorage from '../integrations/FileStorage';
 
 export const updateProduct = async ({ categoryIds, variations=[], storeId, ...payload }) => {
   try{   
@@ -95,6 +95,65 @@ export const deleteProduct = async ({ storeId, id }) => {
       }
     });
   }catch(error){
+    throw error;
+  }
+}
+
+export const updateStock = ({products, transaction, operation='-'}) => {
+  try {
+    let variationStockUpdateQuery = `
+    UPDATE product_variation_stocks SET stock = (
+      CASE
+  `;
+
+  let stockUpdateQuery = `
+    UPDATE products SET stock = (
+      CASE
+  `;
+
+  let hasVariations = false, hasNonVariants = false, promises=[];
+
+    for (const product of products) {
+      if (product.variations && product.variations.length) {
+        variationStockUpdateQuery += `
+          WHEN product_id = ${product.id} AND id = ${product.productVariationStockId}
+          THEN (stock ${operation} ${product.quantity}) 
+          ELSE stock
+            `;
+
+        hasVariations = true;
+        continue;
+      }
+
+      stockUpdateQuery += `
+        WHEN id = ${product.id} 
+        THEN (stock ${operation} ${product.quantity}) 
+        ELSE stock
+      `;
+
+      hasNonVariants = true;
+    }
+
+    variationStockUpdateQuery += `
+      END
+      ) WHERE product_id IN (${products.map(({id}) => id).join(',')}) AND stock > 0 AND deleted_at IS NULL
+    `;
+
+    stockUpdateQuery += `
+      END
+      ) WHERE id IN (${products.map(({id}) => id).join(',')}) AND stock > 0
+    `;
+
+    if (hasVariations) {
+      promises.push(models.sequelize.query(variationStockUpdateQuery, { type: QueryTypes.UPDATE, transaction }));
+    }
+
+    if (hasNonVariants) {
+      promises.push(models.sequelize.query(stockUpdateQuery, { type: QueryTypes.UPDATE, transaction }));
+    }
+
+    return promises;
+  } catch (error) {
     throw error;
   }
 }

@@ -3,8 +3,8 @@ import jwt from 'jsonwebtoken';
 import config from '../../config';
 import bcrypt from 'bcryptjs';
 import defaultStoreSettings from './defaultStoreSettings';
-import Email from '../utilities/Email';
-import SMS from '../utilities/SMS';
+import Email from '../integrations/Email';
+import SMS from '../integrations/SMS';
 // const twilio = require('twilio')(config.twilio.accountSid, config.twilio.authToken);
 
 export const makeAuthToken = ({userId, role, storeId, mobile}) => {

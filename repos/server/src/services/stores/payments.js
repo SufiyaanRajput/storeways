@@ -3,9 +3,9 @@ import { makeAuthToken } from '../users/account';
 import { customAlphabet } from 'nanoid';
 import logger from '../../loaders/logger';
 import { getVariationGroupBySelection } from '../../utils/helpers';
-import { updateStock } from '../utilities/core';
-import PaymentGateway from '../utilities/PaymentGateway';
-import Email from '../utilities/Email';
+import PaymentGateway from '../integrations/PaymentGateway';
+import Email from '../integrations/Email';
+import { updateStock } from '../admin/updateProduct';
 
 const sendOrderMail = async ({to, from, firstName, subTotal, cartReferenceId, items, total, supportEmail, storeName}) => {
   try {

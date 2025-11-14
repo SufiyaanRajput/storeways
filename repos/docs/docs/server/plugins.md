@@ -59,13 +59,13 @@ export default getConfig;
 
 3) Use via the adapter (not directly)
 - The `FileStorage` adapter resolves the plugin by key and forwards calls:
-  - Adapter: `repos/server/src/services/utilities/FileStorage.js`
+  - Adapter: `repos/server/src/services/integrations/FileStorage.js`
   - This keeps app code stable while allowing you to swap implementations.
 
 Example usage:
 
 ```js
-// repos/server/src/services/utilities/FileStorage.js
+// repos/server/src/services/integrations/FileStorage.js
 import getConfig from "../../../config";
 import { getPlugin } from "../../plugins/registry";
 
@@ -98,7 +98,7 @@ Service example:
 
 ```js
 // repos/server/src/services/admin/updateProduct.js
-import FileStorage from '../utilities/FileStorage';
+import FileStorage from '../integrations/FileStorage';
 
 export const addImage = async ({ file, fileName, ext }) => {
   const storage = new FileStorage();
@@ -109,30 +109,6 @@ export const addImage = async ({ file, fileName, ext }) => {
     name: fileName,
   };
 };
-```
-
-Express route example:
-
-```js
-// repos/server/src/api/products.js
-import express from 'express';
-import multer from 'multer';
-import FileStorage from '../services/utilities/FileStorage';
-
-const router = express.Router();
-const upload = multer(); // memory storage
-
-router.post('/:id/images', upload.single('image'), async (req, res, next) => {
-  try {
-    const storage = new FileStorage();
-    const { url, fileId } = await storage.upload(req.file.buffer, req.file.originalname);
-    res.json({ url, fileId });
-  } catch (err) {
-    next(err);
-  }
-});
-
-export default router;
 ```
 
 Notes

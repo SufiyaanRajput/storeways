@@ -1,5 +1,5 @@
 import models from '../../models';
-import FileStorage from '../utilities/FileStorage';
+import FileStorage from '../integrations/FileStorage';
 
 export const uploadImageService = async ({ file, fileName, ext }) => {
   try{
