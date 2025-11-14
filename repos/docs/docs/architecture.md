@@ -33,4 +33,8 @@ For how to add or swap plugins in the Server (API), see [Plugins](./server/plugi
 - PostgreSQL via Sequelize ORM
 - Migrations managed in `repos/server/migrations`
 
+## System Flow
+
+![Storeways Flow](/img/architecture-flow.svg)
+
 
