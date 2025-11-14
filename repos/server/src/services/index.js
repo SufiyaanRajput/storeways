@@ -6,6 +6,7 @@ import * as integrationService from './integrations';
 import * as orderService from './orders';
 import * as reviewSrvice from './reviews';
 import * as newsletterService from './newsletter';
+import * as productsService from './products';
 
 export {
   userService,
@@ -15,5 +16,6 @@ export {
   integrationService,
   orderService,
   reviewSrvice,
-  newsletterService
+  newsletterService,
+  productsService
 }

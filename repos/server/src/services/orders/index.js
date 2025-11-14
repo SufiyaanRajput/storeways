@@ -2,7 +2,7 @@ import models from '../../models';
 import { QueryTypes } from 'sequelize';
 import { DELIVERY_STATUSES } from '../../utils/constants';
 import Email from '../integrations/Email';
-import { updateStock } from '../admin/updateProduct';
+import * as ProductService from '../products';
 
 export const fetchOrders = async ({storeId, userId, admin, textSearchType, search, deliveryStatus}) => {
   try{
@@ -120,7 +120,7 @@ export const cancelOrders = async ({referenceIds, storeId, customerId, admin, st
         AND reference_id IN ('${referenceIds.join(`','`)}')
         ${!admin ? ' AND orders.user_id = ' + customerId : ''};
       `, { type: QueryTypes.UPDATE, transaction }),
-      ...updateStock({products: orders, transaction, operation: '+'})
+      ...ProductService.updateStock({products: orders, transaction, operation: '+'})
     ]);
 
     await transaction.commit();

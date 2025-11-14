@@ -5,7 +5,7 @@ import logger from '../../loaders/logger';
 import { getVariationGroupBySelection } from '../../utils/helpers';
 import PaymentGateway from '../integrations/PaymentGateway';
 import Email from '../integrations/Email';
-import { updateStock } from '../admin/updateProduct';
+import * as ProductService from '../products';
 
 const sendOrderMail = async ({to, from, firstName, subTotal, cartReferenceId, items, total, supportEmail, storeName}) => {
   try {
@@ -93,7 +93,7 @@ export const createOrder = async ({
     let promises = [];
 
     if (paymentMode === 'cod') {
-      promises = updateStock({products});
+      promises = ProductService.updateStock({products});
     } else {
       promises.push(paymentGateway.createOrder({ amount }));
     }
@@ -253,7 +253,7 @@ export const confirmPayment = async ({
       }
 
       const promises = [
-        ...updateStock({products, operation: '-'}),
+        ...ProductService.updateStock({products, operation: '-'}),
         models.Order.update({
           isSuspicious: !verfied, 
           status: 'Active', 

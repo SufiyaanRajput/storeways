@@ -1,19 +1,7 @@
-import models from '../../models';
+import * as ProductService from '../products';
 
-const fetchProduct = async ({storeId, id}) => {
-  try{
-    return models.Product.findOne({
-      where: {
-        id,
-        storeId,
-        deletedAt: null,
-        active: true
-      },
-      include: [{ model: models.ProductVariationStock, as: 'productVariationStocks', where: { deletedAt: null }}]
-    })
-  }catch(error){
-    throw error;
-  }
+const fetchProduct = async (args) => {
+  return ProductService.fetchProduct(args);
 };
 
 export default fetchProduct;
