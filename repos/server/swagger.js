@@ -29,9 +29,9 @@ const prefixPaths = (paths, base) => {
 const swaggerDocument = {
   openapi: '3.0.0',
   info: {
-    title: 'My Open Source API',
+    title: 'Storeways Open Source API',
     version: '1.0.0',
-    description: 'API documentation for my Node.js monorepo project',
+    description: 'API documentation for storeways',
   },
   servers: [
     {
