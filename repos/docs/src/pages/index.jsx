@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from '@docusaurus/Link';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 import styles from './home.module.css';
 
 export default function Home() {
@@ -29,7 +30,7 @@ export default function Home() {
           </div>
           <div className={styles.colRight}>
             <img
-              src="/img/unbox-overview.svg"
+              src={useBaseUrl('/img/unbox-overview.svg')}
               alt="Carton unboxing Storefront, Admin, and API out of the box"
               className={styles.headerIllustration}
               loading="lazy"
@@ -73,7 +74,7 @@ export default function Home() {
           </div>
           <div className={styles.showcaseImage}>
             <img
-              src="/img/storefront-placeholder.svg"
+              src={useBaseUrl('/img/storefront-placeholder.svg')}
               alt="Sample screenshot of the included client storefront"
               className={styles.screenshot}
               loading="lazy"
@@ -100,7 +101,7 @@ export default function Home() {
           </div>
           <div className={styles.showcaseImage}>
             <img
-              src="/img/admin-ui-placeholder.svg"
+              src={useBaseUrl('/img/admin-ui-placeholder.svg')}
               alt="Sample screenshot of the admin dashboard"
               className={styles.screenshot}
               loading="lazy"

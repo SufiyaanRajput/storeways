@@ -8,7 +8,7 @@ export default function RedocEmbed() {
     const script = document.createElement("script");
     script.src = "https://cdn.redoc.ly/redoc/latest/bundles/redoc.standalone.js";
     script.onload = () => {
-      window.Redoc.init("/openapi.json", { scrollYOffset: 60 }, ref.current);
+      window.Redoc.init("/storeways/openapi.json", { scrollYOffset: 60 }, ref.current);
     };
     document.body.appendChild(script);
   }, []);

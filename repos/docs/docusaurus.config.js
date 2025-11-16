@@ -4,7 +4,7 @@ const config = {
   title: 'Storeways',
   tagline: 'Open-source e-commerce platform',
   url: 'https://SufiyaanRajput.github.io',
-  baseUrl: '/',
+  baseUrl: '/storeways/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/logo.svg',
