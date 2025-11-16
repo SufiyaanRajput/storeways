@@ -20,7 +20,7 @@
       "dev:docs": "pnpm --filter docs run start",
       "build:docs": "pnpm --filter docs run build",
       "serve:docs": "pnpm --filter docs run serve",
-      "docs:deploy": "pnpm --filter docs run deploy"
+      "docs:deploy": "pnpm --filter docs exec docusaurus deploy"
     }
   }
   
