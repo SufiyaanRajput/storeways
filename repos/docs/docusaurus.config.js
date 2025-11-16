@@ -3,13 +3,14 @@
 const config = {
   title: 'Storeways',
   tagline: 'Open-source e-commerce platform',
-  url: 'https://storeways.dev',
+  url: 'https://SufiyaanRajput.github.io',
   baseUrl: '/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/logo.svg',
-  organizationName: 'storeways',
-  projectName: 'docs',
+  organizationName: 'SufiyaanRajput',
+  projectName: 'storeways',
+  deploymentBranch: 'gh-pages',
   i18n: {
     defaultLocale: 'en',
     locales: ['en'],

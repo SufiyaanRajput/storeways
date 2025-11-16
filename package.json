@@ -18,8 +18,9 @@
       "build:client": "pnpm --filter client run build",
       "build:admin": "pnpm --filter admin run build",
       "dev:docs": "pnpm --filter docs run start",
-      "docs:build": "pnpm --filter docs run build",
-      "docs:serve": "pnpm --filter docs run serve"
+      "build:docs": "pnpm --filter docs run build",
+      "serve:docs": "pnpm --filter docs run serve",
+      "docs:deploy": "pnpm --filter docs run deploy"
     }
   }
   

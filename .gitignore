@@ -27,6 +27,7 @@ coverage/
 **/out/
 **/.next/
 **/coverage/
+**/.docusaurus/
 
 # Logs
 npm-debug.log*

@@ -27,6 +27,24 @@ This will:
 1. Install dependencies across all workspaces
 2. Run server database migrations
 
+## Multi-tenant local subdomain
+
+Storeways uses a multi-tenant architecture with subdomain-based tenant resolution. For local development, access the storefront via a subdomain (e.g., `store.localhost.com`) so the host header includes a tenant.
+
+Default subdomain in the setup is `store`.
+
+Add an entry to your `/etc/hosts` pointing a subdomain to your local IP:
+
+```bash
+sudo sh -c 'echo "127.0.0.1 store.localhost.com" >> /etc/hosts'
+```
+
+Then use the subdomain with the relevant dev ports:
+
+- Client: `http://store.localhost.com:3000`
+- Admin: `localhost:3001`
+- API: `localhost:8080`
+
 ## Run in Development
 
 Run everything:
