@@ -6,13 +6,15 @@ It’s designed for developers who want full control over their stack — from b
 Storeways is modular, extensible, and easy to self-host.  
 Built with **pnpm workspaces**, **Node.js**, and a plugin-based architecture for flexibility.
 
+Non binding so you dont get stuck in the docs forever
+
 ---
 
 ## 🚀 Features
 
 - **🧱 Modular Monorepo** — all apps managed with `pnpm`
 - **⚙️ Plugin System** — easily integrate storage, payment gateways, and more
-- **🖥️ Storefront (Client)** — user-facing shop built for daily & office wear
+- **🖥️ Storefront (Client)** — user-facing shop built ready to use
 - **🛠️ Admin Dashboard** — manage products, orders, and customers
 - **🗄️ Server API** — Node/Express backend with Babel, dotenv, and migration support
 - **📦 Ready for OSS Deployment** — works with Amplify, Render, Netlify, or Railway
