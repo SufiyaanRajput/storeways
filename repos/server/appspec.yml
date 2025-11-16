@@ -1,9 +1,0 @@
-version: 0.0
-os: linux
-files:
-  - source: /
-    destination: /usr/repos/storeways-server
-hooks:
-  AfterInstall:
-    - location: scripts/start.sh
-      runas: ubuntu
