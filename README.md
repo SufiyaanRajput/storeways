@@ -161,10 +161,9 @@ Licensed under the **MIT License** — free to use, modify, and distribute.
 
 ## 📬 Community
 
-- 💬 Discussions: [GitHub Discussions](https://github.com/SufiyaanRajput/storeways/discussions)
 - 🐛 Issues: [GitHub Issues](https://github.com/SufiyaanRajput/storeways/issues)
-- 🌐 Website: _coming soon_
-- Discord 
+- 🌐 Website: https://sufiyaanrajput.github.io/storeways/
+- Discord: https://discord.gg/Cyddxr25
 
 ---
 
