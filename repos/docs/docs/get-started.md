@@ -61,6 +61,11 @@ pnpm dev:client   # storefront on http://localhost:3000
 pnpm dev:admin    # admin on http://localhost:3001
 ```
 
+## Demo credentials
+
+- Email: `dummy@example.com`
+- Password: `password123`
+
 ## Production Builds
 
 ```bash

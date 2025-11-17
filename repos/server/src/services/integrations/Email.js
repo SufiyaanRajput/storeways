@@ -16,12 +16,12 @@ const getEmailService = () => {
   return emailService;
 }
 
-Email.prototype.sendEmail = async function(...args) {
+Email.prototype.send = async function(...args) {
   const service = getEmailService();
 
   if (!service) return;
 
-  return getEmailService().sendEmail(...args);
+  return service.send(...args);
 };
 
 function Email() {};

@@ -11,6 +11,7 @@
     "start": "babel-node src/app.js"
   },
   "dependencies": {
+    "@sendgrid/mail": "^8.1.6",
     "axios": "^0.25.0",
     "bcryptjs": "^2.4.3",
     "bunyan": "^1.8.15",

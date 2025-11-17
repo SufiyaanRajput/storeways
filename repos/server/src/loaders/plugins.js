@@ -1,5 +1,26 @@
 import path from "path";
 import { registerPlugin } from "../plugins/registry";
+import { execSync } from "child_process";
+import _ from "lodash";
+
+async function ensurePluginDependencies(plugin) {
+  if (_.isEmpty(plugin.packages)) {
+    return; // No dependencies declared
+  }
+
+  for (const pkg of plugin.packages) {
+    try {
+      require.resolve(pkg);
+    } catch (error) {
+      console.error(`plugin dependency not found: ${pkg}`);
+      console.log(`📦 Installing missing plugin dependency: ${pkg}`);
+      execSync(`pnpm add ${pkg} --filter server --stream`, {
+        cwd: process.cwd(),
+        stdio: "inherit",
+      });
+    }
+  }
+}
 
 /**
  * Dynamically imports all configured plugins
@@ -14,10 +35,13 @@ export default async function loadPlugins(config, context = {}) {
 
     try {
       // Dynamically import the plugin
-      const plugin = await import(pluginPath);
+      const pluginModule = await import(pluginPath);
+
+      // Ensure dependencies (install if missing)
+      ensurePluginDependencies(plugin);
 
       // Instance of each plugin is registered
-      registerPlugin(key, plugin.default);
+      registerPlugin(key, pluginModule.default);
     } catch (error) {
       console.warn(`⚠️  Plugin ${resolve} has no init/register export.`); 
     }

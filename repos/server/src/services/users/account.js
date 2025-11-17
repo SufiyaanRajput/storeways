@@ -178,11 +178,11 @@ export const sendPasswordResetEmail = async ({email}) => {
     const link = `${config.clientbaseUrl}/password-reset?token=${jwt}`;
 
     const EmailService = new Email();
-    await EmailService.sendEmail({
+    await EmailService.send({
       to: email,
       subject: 'Storeways admin password reset',
-      ReplyTo: 'sufiyaan@storeways.io',
-      htmlBody: `
+      from: 'theoceanlabs@gmail.com',
+      html: `
         Hey there,
 
         <p>Here's your link to reset your password:</p>

@@ -127,11 +127,10 @@ export const cancelOrders = async ({referenceIds, storeId, customerId, admin, st
 
     const EmailService = new Email();
 
-    await EmailService.sendEmail({
+    await EmailService.send({
       to: user.email,
       subject: 'Order CANCELLED',
-      ReplyTo: storeSupport.email,
-      htmlBody: `
+      html: `
         Hey ${user.name.split(' ')[0]},
 
         <p>Your order with referrence ID: <strong>${referenceIds.join(', ')}</strong> has been <strong>Cancelled</strong>${admin ? ' by the store!' : '!'}</p>
@@ -163,11 +162,11 @@ export const updateOrder = async ({storeId, customerId, referenceId, storeSuppor
     if (updates.deliveryStatus !== undefined) {
       const EmailService = new Email();
 
-      await EmailService.sendEmail({
+      await EmailService.send({
         to: user.email,
         subject: 'Order updated',
-        ReplyTo: storeSupport.email,
-        htmlBody: `
+        from: 'theoceanlabs@gmail.com',
+        html: `
           Hey ${user.name.split(' ')[0]},
   
           <p>Your order with referrence ID: <strong>${referenceId}</strong> is in <strong>${DELIVERY_STATUSES.find(d => d.value === updates.deliveryStatus).label}</strong></p>

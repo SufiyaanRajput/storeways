@@ -6,26 +6,44 @@ import { getVariationGroupBySelection } from '../../utils/helpers';
 import PaymentGateway from '../integrations/PaymentGateway';
 import Email from '../integrations/Email';
 import * as ProductService from '../products';
+import config from '../../config';
 
-const sendOrderMail = async ({to, from, firstName, subTotal, cartReferenceId, items, total, supportEmail, storeName}) => {
+const sendOrderMail = async ({
+  to, 
+  from, 
+  firstName, 
+  subTotal, 
+  cartReferenceId, 
+  items, 
+  total, 
+  address, 
+  supportEmail, 
+  storeName
+}) => {
   try {
     const EmailService = new Email();
-
-    return EmailService.sendEmail({
-      to, 
-      from,
-      ReplyTo: supportEmail,
-      TemplateAlias: 'receipt',
-      TemplateModel: {
-        firstName,
-        cartReferenceId,
-        date: new Date().toLocaleDateString(),
-        receiptDetails: items,
-        subTotal,
-        total,
-        supportEmail,
-        storeName,
-      }
+    return EmailService.send({
+      to,
+      from, // Verified sender
+      template_id: 'd-8b28c8c38a8149a883a27f27b02f177f',
+      dynamic_template_data: {
+        customer_name: firstName,
+        order_id: cartReferenceId,
+        order_date: new Date().toLocaleDateString(),
+        order_note: "",
+        subtotal: subTotal,
+        shipping: 0,
+        tax: 0,
+        total: total,
+        order_url: `${config.clientbaseUrl}/orders`,
+        items: items.map((item) => ({
+          name: item.productName,
+          quantity: item.quantity,
+          price: item.amount,
+          image: item.image,
+        })),
+        shipping_address: address,
+      },
     });
   } catch (error) {
     logger('STORES-PAYMENTS-ORDERS-sendOrderMail').error(error);
@@ -158,15 +176,17 @@ export const createOrder = async ({
     if (paymentMode === 'cod') {
       sendOrderMail({
         to: user.email, 
-        from: 'notifications@storeways.io',
+        from: 'theoceanlabs@gmail.com',
         storeName,
         cartReferenceId, 
         firstName: user.name.split(' ')[0],
         total: `₹${makeTotal()}`,
         subTotal: `₹${makeChargeByType('otherCharges') + makeChargeByType('tax')}`,
         supportEmail: storeSupport.email,
+        address,
         items: products.map((product) => ({
           productName: product.name,
+          image: product.images[0],
           amount: product.price,
           quantity: product.quantity,
         }))
@@ -285,18 +305,21 @@ export const confirmPayment = async ({
         return (subTotal * storeSettings[type].value) / 100;
       }
 
-      sendOrderMail({
+      console.log('sending email', user);
+      await sendOrderMail({
         to: user.email, 
-        from: 'notifications@storeways.io',
+        from: 'theoceanlabs@gmail.com',
         storeName,
         cartReferenceId: orderData.cartReferenceId, 
         firstName: user.name.split(' ')[0],
         total: orderData.amount,
         subTotal: makeChargeByType('otherCharges') + makeChargeByType('tax'),
         supportEmail: storeSupport.email,
+        address: user.address,
         items: products.map((product) => ({
           productName: product.name,
           amount: product.price,
+          image: product.images[0],
           quantity: product.quantity,
         }))
       });

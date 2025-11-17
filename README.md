@@ -89,6 +89,11 @@ pnpm dev:client
 pnpm dev:admin
 ```
 
+## 🔑 Demo credentials
+
+- Email: `dummy@example.com`
+- Password: `password123`
+
 ---
 
 ## 🛠️ Scripts

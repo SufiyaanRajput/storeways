@@ -12,9 +12,13 @@ const getConfig = () => ({
     {
 			key: 'payment-gateway',
       resolve: `./payments/RazorPay`,
+    },
+    {
+			key: 'email-service',
+      resolve: `./communications/SendGrid`,
+      packages: ['@sendgrid/mail'],
       options: {
-        keyId: config.paymentGateway.keyId,
-        keySecret: config.paymentGateway.keySecret
+        from: 'theoceanlabs@gmail.com',
       },
     },
   ],

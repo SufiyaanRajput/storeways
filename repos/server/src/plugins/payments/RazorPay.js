@@ -1,11 +1,12 @@
 import axios from "axios";
 import logger from "../../loaders/logger";
 import crypto from 'crypto';
+import config from "../../config";
 
 RazorPay.prototype.createOrder = async function({ amount, currency = 'INR', accountId, receipt = '1' }) {
   try {
     const encodedBase64Token = 
-		Buffer.from(`${this.options.keyId}:${this.options.keySecret}`).toString('base64');
+		Buffer.from(`${config.paymentGateway.keyId}:${config.paymentGateway.keySecret}`).toString('base64');
 
     return axios.post('https://api.razorpay.com/v1/orders', {
       amount: amount * 100,
