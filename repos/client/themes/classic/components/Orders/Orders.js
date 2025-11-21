@@ -4,6 +4,7 @@ import { Table, Button, Modal, notification, Tag } from "antd";
 import { useEffect, useState } from "react";
 import { useAsyncFetch } from "themes/utils/hooks";
 import { cancelOrders, fetchOrders } from "./api";
+import { confirmPayment as confirmPaymentApi } from "../Checkout/api";
 
 const ProductTable = ({ record, refetchOrders, deliveryStatuses }) => {
   const [cancellingId, setCancellingId] = useState(null);

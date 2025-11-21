@@ -34,16 +34,16 @@ export default async function loadPlugins(config, context = {}) {
     const pluginPath = path.resolve(__dirname, '../plugins', resolve);
 
     try {
-      // Dynamically import the plugin
-      const pluginModule = await import(pluginPath);
-
       // Ensure dependencies (install if missing)
       ensurePluginDependencies(plugin);
+
+      // Dynamically import the plugin
+      const pluginModule = await import(pluginPath);
 
       // Instance of each plugin is registered
       registerPlugin(key, pluginModule.default);
     } catch (error) {
-      console.warn(`⚠️  Plugin ${resolve} has no init/register export.`); 
+      console.warn(`⚠️  Plugin ${resolve} has no init/register export.`, error); 
     }
   }
 

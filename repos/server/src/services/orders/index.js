@@ -3,6 +3,139 @@ import { QueryTypes } from 'sequelize';
 import { DELIVERY_STATUSES } from '../../utils/constants';
 import Email from '../integrations/Email';
 import * as ProductService from '../products';
+import { getVariationGroupBySelection } from '../../utils/helpers';
+import config from '../../config';
+
+export const sendOrderMail = async ({
+  to, 
+  firstName, 
+  subTotal, 
+  cartReferenceId, 
+  items, 
+  total, 
+  address, 
+  supportEmail, 
+  storeName
+}) => {
+  try {
+    const EmailService = new Email();
+    return EmailService.send({
+      to,
+      template_id: 'd-8b28c8c38a8149a883a27f27b02f177f',
+      dynamic_template_data: {
+        customer_name: firstName,
+        order_id: cartReferenceId,
+        order_date: new Date().toLocaleDateString(),
+        order_note: "",
+        subtotal: subTotal,
+        shipping: 0,
+        tax: 0,
+        total: total,
+        order_url: `${config.clientbaseUrl}/orders`,
+        items: items.map((item) => ({
+          name: item.productName,
+          quantity: item.quantity,
+          price: item.amount,
+          image: item.image,
+        })),
+        shipping_address: address,
+      },
+    });
+  } catch (error) {
+    console.error('[ORDERS]-sendOrderMail', error);
+  }
+}
+
+export const confirmOrdersAfterPayment = async ({
+  storeName, 
+  storeSupport, 
+  storeId, 
+  user, 
+  orderIds, 
+  products,
+  storeSettings,
+  paymentMeta = {},
+  isVerified = true
+}) => {
+  try{
+    const [productsData, orderData] = await Promise.all([
+      models.Product.findAll({
+        where: {
+          id: products.map(({id}) => id),
+          storeId,
+          active: true,
+          deletedAt: null
+        },
+        include: [{ model: models.ProductVariationStock, as: 'productVariationStocks', where: { deletedAt: null }}]
+      }),
+      models.Order.findOne({
+        where: {
+          id: orderIds[0]
+        },
+        attributes: ['cartReferenceId', 'amount'],
+      })
+    ]);
+
+    for (const product of products) {
+      const realProduct = productsData.find(({id}) => id === Number(product.id));
+
+      if (product.variations && product.variations.length) {
+        const vairationGroup = getVariationGroupBySelection(realProduct.get({plain:true}).productVariationStocks, product.variations);
+        product.productVariationStockId = vairationGroup[0].id;
+      }
+    }
+
+    const promises = [
+      ...ProductService.updateStock({products, operation: '-'}),
+      models.Order.update({
+        isSuspicious: !isVerified, 
+        status: 'confirmed',
+        ...paymentMeta
+      }, {
+        where: {
+          id: orderIds, 
+          storeId, 
+          userId: user.id
+        }
+      }),
+    ];
+
+    await Promise.all(promises);
+
+    const makeSubtotal = () => {
+      return products.reduce((acc, item) => {
+        acc+=Number(item.price) * Number(item.quantity);
+        return acc; 
+      }, 0);
+    }
+
+    const makeChargeByType = (type) => {
+      if (!storeSettings[type]) return 0;
+      if (storeSettings[type].type === 'VALUE') return storeSettings[type].value;
+      const subTotal = makeSubtotal();
+      return (subTotal * storeSettings[type].value) / 100;
+    }
+
+    await sendOrderMail({
+      to: user.email, 
+      storeName,
+      cartReferenceId: orderData.cartReferenceId, 
+      firstName: user.name.split(' ')[0],
+      total: orderData.amount,
+      subTotal: makeChargeByType('otherCharges') + makeChargeByType('tax'),
+      supportEmail: storeSupport.email,
+      address: user.address,
+      items: products.map((product) => ({
+        productName: product.name,
+        amount: product.price,
+        image: product.images[0],
+        quantity: product.quantity,
+      }))
+    });
+  } catch(error){
+    throw error;
+  }
+};
 
 export const fetchOrders = async ({storeId, userId, admin, textSearchType, search, deliveryStatus}) => {
   try{

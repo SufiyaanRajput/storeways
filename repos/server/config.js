@@ -11,7 +11,8 @@ const getConfig = () => ({
     },
     {
 			key: 'payment-gateway',
-      resolve: `./payments/RazorPay`,
+      resolve: `./payments/Stripe`,
+      packages: ['stripe'],
     },
     {
 			key: 'email-service',

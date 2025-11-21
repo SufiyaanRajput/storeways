@@ -1,6 +1,6 @@
 import config from "../../config";
 
 export const adminCorsOptions = {
-  origin: config.clientbaseUrl,
+  origin: config.adminbaseUrl,
   optionsSuccessStatus: 200
 };

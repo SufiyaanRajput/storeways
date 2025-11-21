@@ -12,10 +12,10 @@ import { useRouter } from "next/router";
 import {useAsyncFetch} from 'themes/utils/hooks';
 import {createOrder, confirmPayment} from './api';
 import { cancelOrders } from "../Orders/api";
-import Head from "next/head";
 import { observer } from "mobx-react-lite";
 import { toJS } from "mobx";
 import { sendOTP } from "themes/api";
+import startPayment from "./payments";
 
 const Checkout = () => {
   const [form] = useForm();
@@ -129,44 +129,33 @@ const Checkout = () => {
           cart.clearStore();
           router.push('/orders');
         } else {
-          const options = {
-            key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+          startPayment({
+            paymentGateway: createOrderResponse.data?.paymentGateway,
+            paymentOrder,
             amount,
-            currency: 'INR',
-            name: store.name,
-            description: ``,
-            order_id: paymentOrder.id,
-            handler: function (response){
-              const payload = {
-                razorpayPaymentId: response.razorpay_payment_id, 
-                razorpayOrderId: response.razorpay_order_id,
-                razorpaySignature: response.razorpay_signature,
-                orderIds,
-                products: cart.items
-              };
-  
-              reconfirmPayment(payload);
-            },
-            prefill: {
-              name: customer.name,
-              email: customer.email,
-              contact: customer.mobile
-            },
-          }
-  
-          const razorpay = new window.Razorpay(options);
-          razorpay.on('payment.failed', function (response){
-            // console.log({
-            //   code: response.error.code,
-            //   description: response.error.description,
-            //   source: response.error.source,
-            //   step: response.error.step,
-            //   reason: response.error.reason,
-            //   orderId: response.error.metadata.order_id,
-            //   paymentId: response.error.metadata.payment_id
-            // });
+            orderIds,
+            cart,
+            customer,
+            store,
+            reconfirmPayment,
+            Modal,
+            Space
+          }).catch((error) => {
+            console.log('error', error);
+            Modal.error({
+              title: '',
+              wrapClassName: 'modalInstance',
+              content: (
+                <div>
+                  <Space direction="vertical">
+                    <p>Unable to start checkout. Please try again later.</p>
+                  </Space>
+                </div>
+              ),
+              maskClosable: true,
+              okButtonProps: {style: {display: 'none'}}
+            });
           });
-          razorpay.open();  
         }
       }
     }
@@ -229,9 +218,6 @@ const Checkout = () => {
   
   return (
    <>
-    <Head>
-      <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-    </Head>
     <main>
       <Modal
         visible={isOTPModelVisible}

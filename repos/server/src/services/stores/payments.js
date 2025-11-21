@@ -4,51 +4,10 @@ import { customAlphabet } from 'nanoid';
 import logger from '../../loaders/logger';
 import { getVariationGroupBySelection } from '../../utils/helpers';
 import PaymentGateway from '../integrations/PaymentGateway';
-import Email from '../integrations/Email';
 import * as ProductService from '../products';
 import config from '../../config';
+import { sendOrderMail, confirmOrdersAfterPayment } from '../orders';
 
-const sendOrderMail = async ({
-  to, 
-  from, 
-  firstName, 
-  subTotal, 
-  cartReferenceId, 
-  items, 
-  total, 
-  address, 
-  supportEmail, 
-  storeName
-}) => {
-  try {
-    const EmailService = new Email();
-    return EmailService.send({
-      to,
-      from, // Verified sender
-      template_id: 'd-8b28c8c38a8149a883a27f27b02f177f',
-      dynamic_template_data: {
-        customer_name: firstName,
-        order_id: cartReferenceId,
-        order_date: new Date().toLocaleDateString(),
-        order_note: "",
-        subtotal: subTotal,
-        shipping: 0,
-        tax: 0,
-        total: total,
-        order_url: `${config.clientbaseUrl}/orders`,
-        items: items.map((item) => ({
-          name: item.productName,
-          quantity: item.quantity,
-          price: item.amount,
-          image: item.image,
-        })),
-        shipping_address: address,
-      },
-    });
-  } catch (error) {
-    logger('STORES-PAYMENTS-ORDERS-sendOrderMail').error(error);
-  }
-}
 
 export const createOrder = async ({
   amount, 
@@ -109,11 +68,42 @@ export const createOrder = async ({
     const paymentGateway = new PaymentGateway();
 
     let promises = [];
+    const nanoid = customAlphabet('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', 13);
+    const cartReferenceId = nanoid();
 
-    if (paymentMode === 'cod') {
-      promises = ProductService.updateStock({products});
+    const isCod = paymentMode === 'cod';
+
+    if (isCod) {
+      promises = [
+        ProductService.updateStock({products}),
+        sendOrderMail({
+          to: user.email, 
+          storeName,
+          cartReferenceId, 
+          firstName: user.name.split(' ')[0],
+          total: `₹${makeTotal()}`,
+          subTotal: `₹${makeChargeByType('otherCharges') + makeChargeByType('tax')}`,
+          supportEmail: storeSupport.email,
+          address,
+          items: products.map((product) => ({
+            productName: product.name,
+            image: product.images[0],
+            amount: product.price,
+            quantity: product.quantity,
+          }))
+        }),
+      ];
     } else {
-      promises.push(paymentGateway.createOrder({ amount }));
+      const successUrl = `${config.clientbaseUrl}/orders`;
+      const cancelUrl = `${config.clientbaseUrl}/cart`;
+      promises.push(paymentGateway.createOrder({ 
+        amount,
+        products,
+        cartReferenceId,
+        storeId,
+        successUrl,
+        cancelUrl,
+      }));
     }
 
     if (!existingUser) {
@@ -152,9 +142,6 @@ export const createOrder = async ({
 
     if (existingUser) user = existingUser;
 
-    const nanoid = customAlphabet('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', 13);
-    const cartReferenceId = nanoid();
-
     const makeSubtotal = () => {
       return products.reduce((acc, item) => {
         acc+=Number(item.price) * Number(item.quantity);
@@ -173,31 +160,11 @@ export const createOrder = async ({
       return makeSubtotal() + makeChargeByType('otherCharges') + makeChargeByType('tax');
     }
 
-    if (paymentMode === 'cod') {
-      sendOrderMail({
-        to: user.email, 
-        from: 'theoceanlabs@gmail.com',
-        storeName,
-        cartReferenceId, 
-        firstName: user.name.split(' ')[0],
-        total: `₹${makeTotal()}`,
-        subTotal: `₹${makeChargeByType('otherCharges') + makeChargeByType('tax')}`,
-        supportEmail: storeSupport.email,
-        address,
-        items: products.map((product) => ({
-          productName: product.name,
-          image: product.images[0],
-          amount: product.price,
-          quantity: product.quantity,
-        }))
-      });
-    }
-
     const { tax = {}, otherCharges = {} } = storeSettings || {};
 
     const orderEntries = products.map((product) => ({
       productId: product.id,
-      amountPaid: paymentMode === 'cod' ? 0 : amount,
+      amountPaid: isCod ? 0 : amount,
       price: product.price * product.quantity,
       quantity: product.quantity,
       amount: makeTotal(),
@@ -211,7 +178,7 @@ export const createOrder = async ({
       productVariationStockId: product.productVariationStockId,
       source: 'store',
       referenceId: nanoid(11),
-      status: 'Active',
+      status: isCod ? 'confirmed' : 'checkout',
       deliveryStatus: 0,
       userId: user.id,
       paymentMode,
@@ -223,7 +190,15 @@ export const createOrder = async ({
     await models.AuthToken.create({token, userId: user.id});
     await models.AuthToken.update({active: false, deletedAt: new Date()}, {where: {token, userId: user.id}});
     user.setDataValue("authToken", token);
-    return {paymentOrder: response.data, amount, orderIds: orders.map(order => order.get({plain:true}).id), user, paymentMode};
+    
+    return {
+      paymentOrder: response.data,
+      paymentGateway: paymentMode === 'cod' ? 'cod' : paymentGateway.getName(),
+      amount,
+      orderIds: orders.map(order => order.get({plain:true}).id),
+      user,
+      paymentMode
+    };
   }catch(error){
     throw error;
   }
@@ -245,84 +220,21 @@ export const confirmPayment = async ({
     const paymentGateway = new PaymentGateway();
     const verfied = paymentGateway.verifySignature({razorpayOrderId, razorpayPaymentId, razorpaySignature});
 
-    const [productsData, orderData] = await Promise.all([
-      models.Product.findAll({
-        where: {
-          id: products.map(({id}) => id),
-          storeId,
-          active: true,
-          deletedAt: null
-        },
-        include: [{ model: models.ProductVariationStock, as: 'productVariationStocks', where: { deletedAt: null }}]
-      }),
-      models.Order.findOne({
-        where: {
-          id: orderIds[0]
-        },
-        attributes: ['cartReferenceId', 'amount'],
-      })
-    ]);
-
-      for (const product of products) {
-        const realProduct = productsData.find(({id}) => id === Number(product.id));
-
-        if (product.variations && product.variations.length) {
-          const vairationGroup = getVariationGroupBySelection(realProduct.get({plain:true}).productVariationStocks, product.variations);
-          product.productVariationStockId = vairationGroup[0].id;
-        }
-      }
-
-      const promises = [
-        ...ProductService.updateStock({products, operation: '-'}),
-        models.Order.update({
-          isSuspicious: !verfied, 
-          status: 'Active', 
-          razorpayOrderId, 
-          razorpayPaymentId, 
-          razorpaySignature
-        }, {
-          where: {
-            id: orderIds, 
-            storeId, 
-            userId: user.id
-          }
-        }),
-      ];
-
-      await Promise.all(promises);
-
-      const makeSubtotal = () => {
-        return products.reduce((acc, item) => {
-          acc+=Number(item.price) * Number(item.quantity);
-          return acc; 
-        }, 0);
-      }
-
-      const makeChargeByType = (type) => {
-        if (!storeSettings[type]) return 0;
-        if (storeSettings[type].type === 'VALUE') return storeSettings[type].value;
-        const subTotal = makeSubtotal();
-        return (subTotal * storeSettings[type].value) / 100;
-      }
-
-      console.log('sending email', user);
-      await sendOrderMail({
-        to: user.email, 
-        from: 'theoceanlabs@gmail.com',
-        storeName,
-        cartReferenceId: orderData.cartReferenceId, 
-        firstName: user.name.split(' ')[0],
-        total: orderData.amount,
-        subTotal: makeChargeByType('otherCharges') + makeChargeByType('tax'),
-        supportEmail: storeSupport.email,
-        address: user.address,
-        items: products.map((product) => ({
-          productName: product.name,
-          amount: product.price,
-          image: product.images[0],
-          quantity: product.quantity,
-        }))
-      });
+    await confirmOrdersAfterPayment({
+      storeName,
+      storeSupport,
+      storeId,
+      user,
+      orderIds,
+      products,
+      storeSettings,
+      paymentMeta: {
+        razorpayOrderId,
+        razorpayPaymentId,
+        razorpaySignature,
+      },
+      isVerified: verfied,
+    });
    } catch(error){
     throw error;
   }
