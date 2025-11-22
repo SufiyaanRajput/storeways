@@ -26,6 +26,10 @@ PaymentGateway.prototype.getName = function() {
   return instance?.name;
 };
 
+PaymentGateway.prototype.webhook = function(...args) {
+  return getPaymentGateway().webhook(...args);
+};
+
 function PaymentGateway() {}
 
 export default PaymentGateway;

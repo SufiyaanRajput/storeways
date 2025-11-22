@@ -14,7 +14,13 @@ export default ({app}) => {
   }
 
   app.enable('trust proxy');
-  app.use(express.json());
+  app.use((req, res, next) => {
+    console.log('req.originalUrl', req.originalUrl, req.originalUrl.includes('/payments/webhook'));
+    if (req.originalUrl.includes('/payments/webhook')) {
+      return next();
+    }
+    return express.json()(req, res, next);
+  });
   app.use((req, res, next) => {
     logger.info(reqSerializer(req));
     next();

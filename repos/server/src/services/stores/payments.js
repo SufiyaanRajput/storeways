@@ -6,7 +6,7 @@ import { getVariationGroupBySelection } from '../../utils/helpers';
 import PaymentGateway from '../integrations/PaymentGateway';
 import * as ProductService from '../products';
 import config from '../../config';
-import { sendOrderMail, confirmOrdersAfterPayment } from '../orders';
+import { sendOrderMail, confirmOrdersAfterPayment, processOrder } from '../orders';
 
 
 export const createOrder = async ({
@@ -138,7 +138,7 @@ export const createOrder = async ({
       }
     }
 
-    let [response = {}, user] = await Promise.all(promises);
+    let [orderSessionResponse = {}, user] = await Promise.all(promises);
 
     if (existingUser) user = existingUser;
 
@@ -192,7 +192,7 @@ export const createOrder = async ({
     user.setDataValue("authToken", token);
     
     return {
-      paymentOrder: response.data,
+      paymentOrder: orderSessionResponse.data,
       paymentGateway: paymentMode === 'cod' ? 'cod' : paymentGateway.getName(),
       amount,
       orderIds: orders.map(order => order.get({plain:true}).id),
@@ -236,6 +236,31 @@ export const confirmPayment = async ({
       isVerified: verfied,
     });
    } catch(error){
+    throw error;
+  }
+};
+
+export const paymentWebhook = async (payload, signature, query) => {
+  try{
+    console.log('paymentWebhook', query);
+    const paymentGateway = new PaymentGateway();
+
+    const { metadata: eventMetadata, type, status } = await paymentGateway.webhook(
+      payload,
+      signature,
+      'whsec_moWrvAm8BBPHnA1gwgIr8i5BDa0GmfYd',
+    );
+
+    const isVerified = status === "success";
+
+    if (type === "completed") {
+      await processOrder({
+        cartReferenceId: eventMetadata.cartReferenceId,
+        storeId: Number(eventMetadata.storeId),
+        isVerified,
+      });
+    }
+  } catch(error){
     throw error;
   }
 };

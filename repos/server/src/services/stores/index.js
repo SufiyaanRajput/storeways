@@ -2,7 +2,7 @@ import fetchStore from './fetchStore';
 import {fetchProducts, fetchProductsByIds} from './fetchProducts';
 import fechShopFilters from './fechShopFilters';
 import fetchProduct from './fetchProduct';
-import {createOrder, confirmPayment} from './payments';
+import {createOrder, confirmPayment, paymentWebhook} from './payments';
 
 export {
   fetchStore,
@@ -12,4 +12,5 @@ export {
   createOrder,
   fetchProduct,
   confirmPayment,
+  paymentWebhook,
 }

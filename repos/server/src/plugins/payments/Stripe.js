@@ -28,8 +28,6 @@ StripeGateway.prototype.createOrder = async function({
       };
     });
 
-    console.log('lineItems', lineItems);
-
     const session = await this.stripe.checkout.sessions.create({
       mode: 'payment',
       line_items: lineItems,
@@ -41,6 +39,13 @@ StripeGateway.prototype.createOrder = async function({
       },
     });
 
+    // const webhook = await this.stripe.webhookEndpoints.create({
+    //   url: `https://walter-clean-marketplace-territory.trycloudflare.com/v1/stores/payments/webhook?storeId=${storeId}&cartReferenceId=${cartReferenceId}`,
+    //   enabled_events: ['checkout.session.completed'],
+    // });
+
+    // console.log('webhook', webhook);
+
     // Match axios-like response shape used by services
     return { data: session };
   } catch (error) {
@@ -48,6 +53,36 @@ StripeGateway.prototype.createOrder = async function({
     throw error;
   }
 }
+
+StripeGateway.prototype.webhook = function (rawBody, signature, secret) {
+  let event;
+
+  try {
+    event = this.stripe.webhooks.constructEvent(
+      rawBody,
+      signature,
+      secret
+    );
+  } catch (err) {
+    logger('PLUGINS-STRIPE-WEBHOOK-ERROR').error(err);
+    return { status: "error", type: event.type };
+  }
+
+  switch (event.type) {
+    case "checkout.session.completed":
+      const session = event.data.object;
+
+      return {
+        status: "success",
+        type: 'completed',
+        metadata: session.metadata,
+        session
+      };
+
+    default:
+      return { status: "ignored", type: event.type };
+  }
+};
 
 function StripeGateway(options = {}) {
   this.name = "stripe";

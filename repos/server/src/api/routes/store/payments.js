@@ -1,4 +1,4 @@
-import {Router} from 'express';
+import {Router, raw } from 'express';
 import {formatFromError, customJoiValidators, makeSwaggerFromJoi} from '../../../utils/helpers';
 import { storeService } from '../../../services';
 import logger from '../../../loaders/logger';
@@ -81,6 +81,19 @@ router.post('/confirm', getStore(), auth(['customer']), requestValidator(confirm
     const {status, ...data} = formatFromError(error);
     res.status(status).send(data);
   }
+});
+
+router.post('/webhook', raw({ type: "*/*" }),
+  async (req, res) => {
+    try{
+      await storeService.paymentWebhook(req.body, req.headers["stripe-signature"], req.query);
+
+      res.status(200).send({message: 'Webhook received', success: true});
+    }catch(error){
+      logger('STORES-PAYMENTS-WEBHOOK-POST-CONTROLLER').error(error);
+      const {status, ...data} = formatFromError(error);
+      res.status(status).send(data);
+    }
 });
 
 export default router;

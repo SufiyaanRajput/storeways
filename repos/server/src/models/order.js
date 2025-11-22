@@ -84,6 +84,11 @@ module.exports = (sequelize, DataTypes) => {
 			type: DataTypes.BOOLEAN,
 			allowNull: true,
 		},
+    metaData: {
+      type: DataTypes.JSON,
+      allowNull: true,
+      field: 'meta_data',
+    },
     razorpayOrderId: {
 			type: DataTypes.TEXT,
 			allowNull: true,
@@ -125,6 +130,13 @@ module.exports = (sequelize, DataTypes) => {
     underscored: true,
 		timestamps: true
   });
+
+  // Associations are defined after all models are initialized
+  Order.associate = (models) => {
+    Order.belongsTo(models.Product, { foreignKey: 'productId' });
+    Order.belongsTo(models.User, { foreignKey: 'userId' });
+    Order.belongsTo(models.ProductVariationStock, { foreignKey: 'productVariationStockId' });
+  };
 
 	return Order;
 };
