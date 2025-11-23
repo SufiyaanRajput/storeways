@@ -138,9 +138,10 @@ export const confirmOrdersAfterPayment = async ({
 };
 
 export const processOrder = async ({
+  status,
   storeId,
   cartReferenceId,
-  paymentMeta = {},
+  metaData = {},
   isVerified = true
 }) => {
   try{
@@ -228,8 +229,8 @@ export const processOrder = async ({
       ...ProductService.updateStock({products, operation: '-'}),
       models.Order.update({
         isSuspicious: !isVerified, 
-        status: 'confirmed',
-        // ...paymentMeta
+        status,
+        metaData,
       }, {
         where: {
           cartReferenceId, 
@@ -255,22 +256,22 @@ export const processOrder = async ({
       return (subTotal * storeSettings[type].value) / 100;
     }
 
-    await sendOrderMail({
-      to: user.email, 
-      storeName,
-      cartReferenceId, 
-      firstName: user.name.split(' ')[0],
-      total: orders[0].amount,
-      subTotal: makeChargeByType('otherCharges') + makeChargeByType('tax'),
-      supportEmail: storeSupport.email,
-      address: user.address,
-      items: products.map((product) => ({
-        productName: product.name,
-        amount: product.price,
-        image: product.images[0],
-        quantity: product.quantity,
-      }))
-    });
+    // await sendOrderMail({
+    //   to: user.email, 
+    //   storeName,
+    //   cartReferenceId, 
+    //   firstName: user.name.split(' ')[0],
+    //   total: orders[0].amount,
+    //   subTotal: makeChargeByType('otherCharges') + makeChargeByType('tax'),
+    //   supportEmail: storeSupport.email,
+    //   address: user.address,
+    //   items: products.map((product) => ({
+    //     productName: product.name,
+    //     amount: product.price,
+    //     image: product.images[0],
+    //     quantity: product.quantity,
+    //   }))
+    // });
   } catch(error){
     throw error;
   }
@@ -339,8 +340,7 @@ export const fetchOrders = async ({storeId, userId, admin, textSearchType, searc
           INNER JOIN users ON orders.user_id = users.id
         ` : ''
       }
-      WHERE orders.store_id = ${storeId} AND 
-      ((orders.payment_mode = 'online' AND orders.razorpay_order_id IS NOT NULL) OR orders.payment_mode = 'cod')
+      WHERE orders.store_id = ${storeId}
       ${userId ? ' AND orders.user_id = ' + userId : ''}
       ${makeFilterQuery({ initialClause: 'AND' })}
   `, { type: QueryTypes.SELECT, replacements: {search: `${search}%`, deliveryStatus} });

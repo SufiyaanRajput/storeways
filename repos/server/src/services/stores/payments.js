@@ -178,7 +178,7 @@ export const createOrder = async ({
       productVariationStockId: product.productVariationStockId,
       source: 'store',
       referenceId: nanoid(11),
-      status: isCod ? 'confirmed' : 'checkout',
+      status: 'order_confirmed',
       deliveryStatus: 0,
       userId: user.id,
       paymentMode,
@@ -240,26 +240,28 @@ export const confirmPayment = async ({
   }
 };
 
-export const paymentWebhook = async (payload, signature, query) => {
+export const paymentWebhook = async (payload, signature) => {
   try{
-    console.log('paymentWebhook', query);
+    console.log('paymentWebhook');
     const paymentGateway = new PaymentGateway();
 
-    const { metadata: eventMetadata, type, status } = await paymentGateway.webhook(
+    const { status, isVerified } = await paymentGateway.webhook(
       payload,
       signature,
-      'whsec_moWrvAm8BBPHnA1gwgIr8i5BDa0GmfYd',
+      'whsec_VuDNNH9QKrXbK9pJJrNNnIXdvnjsir8X',
     );
 
-    const isVerified = status === "success";
+    const parsedPayload = JSON.parse(payload.toString("utf8"));
 
-    if (type === "completed") {
-      await processOrder({
-        cartReferenceId: eventMetadata.cartReferenceId,
-        storeId: Number(eventMetadata.storeId),
-        isVerified,
-      });
-    }
+    const { cartReferenceId, storeId, ...rest } = parsedPayload.data.object.metadata;
+
+    await processOrder({ 
+      cartReferenceId, 
+      storeId: Number(storeId), 
+      isVerified, 
+      status, 
+      metaData: { gatewayReferenceId: parsedPayload.data.object.id, ...rest }
+    });
   } catch(error){
     throw error;
   }

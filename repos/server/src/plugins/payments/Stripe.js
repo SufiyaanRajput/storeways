@@ -37,11 +37,22 @@ StripeGateway.prototype.createOrder = async function({
         cartReferenceId: cartReferenceId || '',
         storeId: String(storeId || ''),
       },
+      payment_intent_data: {
+        metadata: {
+          cartReferenceId: cartReferenceId || '',
+          storeId: String(storeId || ''),
+        }
+      }
     });
 
     // const webhook = await this.stripe.webhookEndpoints.create({
-    //   url: `https://walter-clean-marketplace-territory.trycloudflare.com/v1/stores/payments/webhook?storeId=${storeId}&cartReferenceId=${cartReferenceId}`,
-    //   enabled_events: ['checkout.session.completed'],
+    //   url: `https://christopher-bruce-skirt-trans.trycloudflare.com/v1/stores/payments/webhook`,
+    //   enabled_events: [
+    //     'payment_intent.succeeded', 
+    //     'payment_intent.canceled', 
+    //     'payment_intent.payment_failed', 
+    //     'checkout.session.expired'
+    //   ],
     // });
 
     // console.log('webhook', webhook);
@@ -65,23 +76,38 @@ StripeGateway.prototype.webhook = function (rawBody, signature, secret) {
     );
   } catch (err) {
     logger('PLUGINS-STRIPE-WEBHOOK-ERROR').error(err);
-    return { status: "error", type: event.type };
+    return { status: "verification_failed", type: 'error', isVerified: false };
   }
+
+  const response = {
+    metadata: event.data.object.metadata,
+    isVerified: true,
+  };  
 
   switch (event.type) {
-    case "checkout.session.completed":
-      const session = event.data.object;
-
-      return {
-        status: "success",
-        type: 'completed',
-        metadata: session.metadata,
-        session
-      };
-
+    case "payment_intent.succeeded":
+      response.type = "success";
+      response.status = 'order_confirmed';
+      break;
+    case "payment_intent.canceled":
+      response.type = "error";
+      response.status = 'canceled';
+      break;
+    case "payment_intent.payment_failed":
+      response.type = "error";
+      response.status = 'failed';
+      break;
+    case "checkout.session.expired":
+      response.type = "error";
+      response.status = 'expired';
+      break;
     default:
-      return { status: "ignored", type: event.type };
+      response.type = "error";
+      response.status = 'error';
+      break;
   }
+
+  return response;
 };
 
 function StripeGateway(options = {}) {
