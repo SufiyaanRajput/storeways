@@ -248,19 +248,19 @@ export const paymentWebhook = async (payload, signature) => {
     const { status, isVerified } = await paymentGateway.webhook(
       payload,
       signature,
-      'whsec_VuDNNH9QKrXbK9pJJrNNnIXdvnjsir8X',
     );
 
-    const parsedPayload = JSON.parse(payload.toString("utf8"));
+    const { cartReferenceId, storeId, gatewayReferenceId } = paymentGateway.getMetaData(payload);
 
-    const { cartReferenceId, storeId, ...rest } = parsedPayload.data.object.metadata;
+    console.log('cartReferenceId', cartReferenceId);
+    console.log('storeId', storeId);
 
     await processOrder({ 
       cartReferenceId, 
       storeId: Number(storeId), 
       isVerified, 
       status, 
-      metaData: { gatewayReferenceId: parsedPayload.data.object.id, ...rest }
+      metaData: { gatewayReferenceId }
     });
   } catch(error){
     throw error;

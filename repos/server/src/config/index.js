@@ -9,6 +9,7 @@ export default {
   JWTSecret: process.env.JWT_SECRET,
   paymentGateway: {
     keyId: process.env.PAYMENT_GATEWAY_KEY_ID,
-    keySecret: process.env.PAYMENT_GATEWAY_KEY_SECRET
+    keySecret: process.env.PAYMENT_GATEWAY_KEY_SECRET,
+    webhookSecret: process.env.PAYMENT_GATEWAY_WEBHOOK_SECRET
   },
 };

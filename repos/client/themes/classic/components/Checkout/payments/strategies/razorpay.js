@@ -13,7 +13,7 @@ const razorpayStrategy = async ({ paymentOrder, amount, store, customer, orderId
   await loadScript("https://checkout.razorpay.com/v1/checkout.js");
 
   const options = {
-    key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+    key: process.env.NEXT_PUBLIC_PAYMENT_GATEWAY_KEY_ID,
     amount,
     currency: 'INR',
     name: store.name,
@@ -39,19 +39,19 @@ const razorpayStrategy = async ({ paymentOrder, amount, store, customer, orderId
 
   const razorpay = new window.Razorpay(options);
   razorpay.on('payment.failed', function (){
-    Modal.error({
-      title: '',
-      wrapClassName: 'modalInstance',
-      content: (
-        <div>
-          <Space direction="vertical">
-            <p>Payment failed. Please try again.</p>
-          </Space>
-        </div>
-      ),
-      maskClosable: true,
-      okButtonProps: {style: {display: 'none'}}
-    });
+    // Modal.error({
+    //   title: '',
+    //   wrapClassName: 'modalInstance',
+    //   content: (
+    //     <div>
+    //       <Space direction="vertical">
+    //         <p>Payment failed. Please try again.</p>
+    //       </Space>
+    //     </div>
+    //   ),
+    //   maskClosable: true,
+    //   okButtonProps: {style: {display: 'none'}}
+    // });
   });
   razorpay.open();
 };

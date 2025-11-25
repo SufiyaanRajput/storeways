@@ -9,10 +9,14 @@ const getConfig = () => ({
         uploadDir: "uploads", // relative to your project root
       },
     },
+      // {
+		// 	key: 'payment-gateway',
+    //   resolve: `./payments/Stripe`,
+    //   packages: ['stripe'],
+    // },
     {
-			key: 'payment-gateway',
-      resolve: `./payments/Stripe`,
-      packages: ['stripe'],
+      key: 'payment-gateway',
+      resolve: `./payments/Razorpay`,
     },
     {
 			key: 'email-service',

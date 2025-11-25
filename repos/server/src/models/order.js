@@ -89,18 +89,6 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true,
       field: 'meta_data',
     },
-    razorpayOrderId: {
-			type: DataTypes.TEXT,
-			allowNull: true,
-		}, 
-    razorpayPaymentId: {
-			type: DataTypes.TEXT,
-			allowNull: true,
-		}, 
-    razorpaySignature: {
-			type: DataTypes.TEXT,
-			allowNull: true,
-		},
     charges: {
 			type: DataTypes.JSON,
 			allowNull: false,

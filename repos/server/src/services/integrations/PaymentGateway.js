@@ -30,6 +30,10 @@ PaymentGateway.prototype.webhook = function(...args) {
   return getPaymentGateway().webhook(...args);
 };
 
+PaymentGateway.prototype.getMetaData = function(...args) {
+  return getPaymentGateway().getMetaData(...args);
+};
+
 function PaymentGateway() {}
 
 export default PaymentGateway;

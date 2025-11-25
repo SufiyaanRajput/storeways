@@ -65,14 +65,28 @@ StripeGateway.prototype.createOrder = async function({
   }
 }
 
-StripeGateway.prototype.webhook = function (rawBody, signature, secret) {
+RazorPay.prototype.getMetaData = function (payload) {
+  try{
+    const parsedPayload = JSON.parse(payload.toString("utf8"));
+    const metadata = parsedPayload?.data?.object?.metadata || {};
+    return {
+      ...metadata,
+      gatewayReferenceId: parsedPayload.data.object.id,
+    };
+  } catch (error) {
+    logger('PLUGINS-STRIPE-GET-META-DATA-ERROR').error(error);
+    throw error;
+  }
+}
+
+StripeGateway.prototype.webhook = function (rawBody, signature) {
   let event;
 
   try {
     event = this.stripe.webhooks.constructEvent(
       rawBody,
       signature,
-      secret
+      config.paymentGateway.webhookSecret
     );
   } catch (err) {
     logger('PLUGINS-STRIPE-WEBHOOK-ERROR').error(err);

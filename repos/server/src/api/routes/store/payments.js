@@ -66,14 +66,14 @@ export const confirmPaymentSwagger = makeSwaggerFromJoi({
 
 router.post('/confirm', getStore(), auth(['customer']), requestValidator(confirmSchema), async (req, res) => {
   try{
-    await storeService.confirmPayment({
-      storeId: req.storeId, 
-      user: req.user, 
-      storeSettings: req.storeSettings,
-      storeName: req.storeName, 
-      storeSupport: req.storeSupport, 
-      ...req.values,
-    });
+    // await storeService.confirmPayment({
+    //   storeId: req.storeId, 
+    //   user: req.user, 
+    //   storeSettings: req.storeSettings,
+    //   storeName: req.storeName, 
+    //   storeSupport: req.storeSupport, 
+    //   ...req.values,
+    // });
 
     res.status(200).send({message: 'Order confirmed succesfully', success: true});
   }catch(error){
