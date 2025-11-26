@@ -10,6 +10,6 @@ pnpm docs:build  # build static site
 pnpm docs:serve  # serve the build locally
 ```
 
-Docs are available at the `/docs` route (e.g., http://localhost:3000/docs when running locally in this package).
+Docs are available at the `/docs` route (e.g., http://localhost:3002/docs when running locally in this package).
 
 

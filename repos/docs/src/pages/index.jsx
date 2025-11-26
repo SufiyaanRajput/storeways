@@ -73,12 +73,19 @@ export default function Home() {
             </div>
           </div>
           <div className={styles.showcaseImage}>
-            <img
-              src={useBaseUrl('/img/storefront-placeholder.svg')}
-              alt="Sample screenshot of the included client storefront"
-              className={styles.screenshot}
-              loading="lazy"
-            />
+            <picture>
+              <source
+                type="image/webp"
+                srcSet={useBaseUrl('/img/storefront-screenshot.webp')}
+              />
+              <img
+                src={useBaseUrl('/img/storefront-placeholder.svg')}
+                alt="Storeways storefront — Classic theme product detail page (screenshot)"
+                className={styles.screenshot}
+                loading="lazy"
+                decoding="async"
+              />
+            </picture>
           </div>
         </div>
         <div className={`${styles.showcaseRow} ${styles.reverse}`}>
@@ -100,12 +107,19 @@ export default function Home() {
             </div>
           </div>
           <div className={styles.showcaseImage}>
-            <img
-              src={useBaseUrl('/img/admin-ui-placeholder.svg')}
-              alt="Sample screenshot of the admin dashboard"
-              className={styles.screenshot}
-              loading="lazy"
-            />
+            <picture>
+              <source
+                type="image/webp"
+                srcSet={useBaseUrl('/img/admin-screenshot.webp')}
+              />
+              <img
+                src={useBaseUrl('/img/storefront-placeholder.svg')}
+                alt="Storeways storefront — Classic theme product detail page (screenshot)"
+                className={styles.screenshot}
+                loading="lazy"
+                decoding="async"
+              />
+            </picture>
           </div>
         </div>
         <div className={styles.titleWrapper}>
