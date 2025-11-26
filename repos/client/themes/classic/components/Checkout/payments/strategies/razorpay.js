@@ -9,7 +9,7 @@ const loadScript = (src) => {
   });
 };
 
-const razorpayStrategy = async ({ paymentOrder, amount, store, customer, orderIds, cart, reconfirmPayment, Modal, Space }) => {
+const razorpayStrategy = async ({ paymentOrder, amount, store, customer, callback }) => {
   await loadScript("https://checkout.razorpay.com/v1/checkout.js");
 
   const options = {
@@ -20,15 +20,7 @@ const razorpayStrategy = async ({ paymentOrder, amount, store, customer, orderId
     description: ``,
     order_id: paymentOrder.id,
     handler: function (response){
-      const payload = {
-        razorpayPaymentId: response.razorpay_payment_id, 
-        razorpayOrderId: response.razorpay_order_id,
-        razorpaySignature: response.razorpay_signature,
-        orderIds,
-        products: cart.items
-      };
-
-      reconfirmPayment(payload);
+      callback?.(response);
     },
     prefill: {
       name: customer.name,

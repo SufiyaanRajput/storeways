@@ -67,6 +67,11 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
+    internalStatus: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      field: 'internal_status',
+    },
     deliveryStatus: {
       type: DataTypes.INTEGER,
       allowNull: false,

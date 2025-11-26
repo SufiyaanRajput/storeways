@@ -179,6 +179,7 @@ export const createOrder = async ({
       source: 'store',
       referenceId: nanoid(11),
       status: 'order_confirmed',
+      internalStatus: isCod ? 'order_confirmed' : 'checkout_initiated',
       deliveryStatus: 0,
       userId: user.id,
       paymentMode,
@@ -193,7 +194,7 @@ export const createOrder = async ({
     
     return {
       paymentOrder: orderSessionResponse.data,
-      paymentGateway: paymentMode === 'cod' ? 'cod' : paymentGateway.getName(),
+      paymentGateway: paymentMode === 'cod' ? 'cod' : paymentGateway.getInstance()?.name,
       amount,
       orderIds: orders.map(order => order.get({plain:true}).id),
       user,
@@ -204,46 +205,11 @@ export const createOrder = async ({
   }
 };
 
-export const confirmPayment = async ({
-  storeName, 
-  storeSupport, 
-  razorpayOrderId, 
-  razorpayPaymentId, 
-  razorpaySignature, 
-  storeId, 
-  user, 
-  orderIds, 
-  products,
-  storeSettings
-}) => {
-  try{
-    const paymentGateway = new PaymentGateway();
-    const verfied = paymentGateway.verifySignature({razorpayOrderId, razorpayPaymentId, razorpaySignature});
-
-    await confirmOrdersAfterPayment({
-      storeName,
-      storeSupport,
-      storeId,
-      user,
-      orderIds,
-      products,
-      storeSettings,
-      paymentMeta: {
-        razorpayOrderId,
-        razorpayPaymentId,
-        razorpaySignature,
-      },
-      isVerified: verfied,
-    });
-   } catch(error){
-    throw error;
-  }
-};
-
-export const paymentWebhook = async (payload, signature) => {
+export const paymentWebhook = async (payload, headers, query) => {
   try{
     console.log('paymentWebhook');
     const paymentGateway = new PaymentGateway();
+    const signature = headers[paymentGateway.getInstance()?.signatureKey];
 
     const { status, isVerified } = await paymentGateway.webhook(
       payload,
@@ -251,9 +217,6 @@ export const paymentWebhook = async (payload, signature) => {
     );
 
     const { cartReferenceId, storeId, gatewayReferenceId } = paymentGateway.getMetaData(payload);
-
-    console.log('cartReferenceId', cartReferenceId);
-    console.log('storeId', storeId);
 
     await processOrder({ 
       cartReferenceId, 

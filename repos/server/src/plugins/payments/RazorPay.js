@@ -38,9 +38,11 @@ RazorPay.prototype.getMetaData = function (payload) {
     const parsedPayload = JSON.parse(payload.toString("utf8"));
     const metadata = parsedPayload?.payload?.payment?.entity?.notes || {};
 
+    console.log('metadata', JSON.stringify(parsedPayload, null, 2));
+
     return {
       ...metadata,
-      gatewayReferenceId: parsedPayload.data.object.id,
+      gatewayReferenceId: parsedPayload?.payload?.payment?.entity?.id,
     };
   } catch (error) {
     logger('PLUGINS-RAZORPAY-GET-META-DATA-ERROR').error(error);
@@ -49,15 +51,17 @@ RazorPay.prototype.getMetaData = function (payload) {
 }
 
 RazorPay.prototype.webhook = function (payload, signature) {
-  let event;
-
   try {
-    event = this.verifySignature(
+    const isVerified = this.verifySignature(
       {
         signature,
         payload
       }
     );
+
+    if (!isVerified) {
+      throw new Error('Invalid signature');
+    }
   } catch (err) {
     logger('PLUGINS-RAZORPAY-WEBHOOK-ERROR').error(err);
     return { status: "verification_failed", type: 'error', isVerified: false };
@@ -68,7 +72,9 @@ RazorPay.prototype.webhook = function (payload, signature) {
     isVerified: true,
   };  
 
-  switch (event.type) {
+  const parsedPayload = JSON.parse(payload.toString("utf8"));
+
+  switch (parsedPayload.event) {
     case "payment.captured":
       response.type = "success";
       response.status = 'order_confirmed';
@@ -101,6 +107,7 @@ RazorPay.prototype.verifySignature = function({ signature, payload }) {
 
 function RazorPay(options = {}) {
   this.name = "razorpay";
+  this.signatureKey = 'x-razorpay-signature';
   this.options = options;
 }
 

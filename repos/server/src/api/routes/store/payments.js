@@ -47,46 +47,10 @@ router.post('/orders', getStore(), requestValidator(schema), async (req, res) =>
   }
 });
 
-const confirmSchema = Joi.object({
-  products: Joi.array().items(Joi.object()).required(),
-  razorpayPaymentId: Joi.string().required(), 
-  razorpayOrderId: Joi.string().required(), 
-  razorpaySignature: Joi.string().required(), 
-  orderIds: Joi.array().items(Joi.number().integer().positive()).required()
-});
-
-export const confirmPaymentSwagger = makeSwaggerFromJoi({ 
-  JoiSchema: confirmSchema, 
-  route: '/confirm', 
-  method: 'post', 
-  summary: 'Confirm payment', 
-  tags: ['Payments'],
-  roles: ['customer'],
-});
-
-router.post('/confirm', getStore(), auth(['customer']), requestValidator(confirmSchema), async (req, res) => {
-  try{
-    // await storeService.confirmPayment({
-    //   storeId: req.storeId, 
-    //   user: req.user, 
-    //   storeSettings: req.storeSettings,
-    //   storeName: req.storeName, 
-    //   storeSupport: req.storeSupport, 
-    //   ...req.values,
-    // });
-
-    res.status(200).send({message: 'Order confirmed succesfully', success: true});
-  }catch(error){
-    logger('STORES-PAYMENTS-CONFIRM-POST-CONTROLLER').error(error);
-    const {status, ...data} = formatFromError(error);
-    res.status(status).send(data);
-  }
-});
-
 router.post('/webhook', raw({ type: "*/*" }),
   async (req, res) => {
     try{
-      await storeService.paymentWebhook(req.body, req.headers["stripe-signature"], req.query);
+      await storeService.paymentWebhook(req.body, req.headers, req.query);
 
       res.status(200).send({message: 'Webhook received', success: true});
     }catch(error){

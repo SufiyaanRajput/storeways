@@ -8,7 +8,7 @@ import { fetchStoreSwagger } from "./src/api/routes/store/fetchStore";
 import { productsSwagger } from "./src/api/routes/store/fechProducts";
 import { shopFiltersSwagger } from "./src/api/routes/store/fechShopFilters";
 import { myOrdersSwagger, cancelStoreOrdersSwagger } from "./src/api/routes/store/orders";
-import { createOrderSwagger, confirmPaymentSwagger } from "./src/api/routes/store/payments";
+import { createOrderSwagger } from "./src/api/routes/store/payments";
 import { reviewsSwagger } from "./src/api/routes/store/reviews";
 import { addSubscriberSwagger } from "./src/api/routes/store/newsletter";
 import { supportSwagger } from "./src/api/routes/support/createTicket";
@@ -65,7 +65,6 @@ const swaggerDocument = {
     ...prefixPaths(reviewsSwagger, '/v1/stores'),
     ...prefixPaths(addSubscriberSwagger, '/v1/stores'),
     ...prefixPaths(createOrderSwagger, '/v1/stores/payments'),
-    ...prefixPaths(confirmPaymentSwagger, '/v1/stores/payments'),
     // Users
     ...prefixPaths(registerSwagger, '/v1/users'),
     ...prefixPaths(loginSwagger, '/v1/users'),

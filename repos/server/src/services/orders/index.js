@@ -231,6 +231,7 @@ export const processOrder = async ({
         isSuspicious: !isVerified, 
         status,
         metaData,
+        internalStatus: status,
       }, {
         where: {
           cartReferenceId, 

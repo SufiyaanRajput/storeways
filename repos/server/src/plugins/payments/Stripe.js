@@ -127,6 +127,7 @@ StripeGateway.prototype.webhook = function (rawBody, signature) {
 function StripeGateway(options = {}) {
   this.name = "stripe";
   this.options = options;
+  this.signatureKey = 'stripe-signature';
   const secretKey = config.paymentGateway.keySecret;
 
   if (!secretKey) {

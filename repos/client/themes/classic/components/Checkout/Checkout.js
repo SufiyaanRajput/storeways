@@ -10,7 +10,7 @@ import storeContext from '../../../../store/store';
 import { useState, useContext, useEffect } from "react";
 import { useRouter } from "next/router";
 import {useAsyncFetch} from 'themes/utils/hooks';
-import {createOrder, confirmPayment} from './api';
+import {createOrder} from './api';
 import { cancelOrders } from "../Orders/api";
 import { observer } from "mobx-react-lite";
 import { toJS } from "mobx";
@@ -37,14 +37,6 @@ const Checkout = () => {
   } = useAsyncFetch(false, createOrder);
 
   const {
-    isLoading: confirmingPayment,
-    error: confirmingPaymentError, 
-    success: confirmingPaymentSuccess,
-    refetch: reconfirmPayment,
-  } = useAsyncFetch(false, confirmPayment);
-
-
-  const {
     refetch: recancelOrders
   } = useAsyncFetch(false, cancelOrders);
 
@@ -63,36 +55,6 @@ const Checkout = () => {
     }
     form.setFieldsValue({paymentMode: hasPaymentGateway ? 'online' : 'cod'});
   }, [form, user, hasPaymentGateway]);
-
-  useEffect(() => {
-    if (confirmingPaymentSuccess) {
-      cart.clearStore();
-      router.push('/orders');
-    }
-  }, [cart, confirmingPaymentSuccess, router]);
-
-  useEffect(() => {
-    if (confirmingPaymentError) {
-      const onClose = () => {
-        modal.destroy();
-      }
-
-      const modal = Modal.error({
-        title: '',
-        wrapClassName: 'modalInstance',
-        content: (
-          <div>
-            <Space direction="vertical">
-              <p>Couldn't verify payment!</p>
-              <Button type="primary" onClick={onClose}>Close</Button>
-            </Space>
-          </div>
-        ),
-        maskClosable: true,
-        okButtonProps: {style: {display: 'none'}}
-      });
-    }
-  }, [confirmingPaymentError]);
 
   useEffect(() => {
     if (createOrderSuccess && cart.items.length) {
@@ -133,13 +95,13 @@ const Checkout = () => {
             paymentGateway: createOrderResponse.data?.paymentGateway,
             paymentOrder,
             amount,
-            orderIds,
             cart,
             customer,
             store,
-            reconfirmPayment,
-            Modal,
-            Space
+            callback: (response) => {
+              cart.clearStore();
+              router.push('/orders');
+            }
           }).catch((error) => {
             console.log('error', error);
             Modal.error({
@@ -159,7 +121,7 @@ const Checkout = () => {
         }
       }
     }
-  }, [checkout, user, createOrderResponse.data, createOrderSuccess, form, store.name, store, otpForm, reconfirmPayment, router, cart]);
+  }, [checkout, user, createOrderResponse.data, createOrderSuccess, form, store.name, store, otpForm, router, cart]);
 
   useEffect(() => {
     if (sendOTPSuccess || sendOTPError) {
@@ -167,7 +129,7 @@ const Checkout = () => {
     }
   }, [sendOTPSuccess, sendOTPError]);
 
-  if (!confirmingPaymentSuccess && !createOrderSuccess && !cart.items.length) {
+  if (!createOrderSuccess && !cart.items.length) {
     router.push('/cart');
     return null;
   };
@@ -228,7 +190,7 @@ const Checkout = () => {
         }}
         title="Please enter 6 digits OTP sent to your mobile"
         footer={[
-          <Button key="submit" type="primary" size="large" loading={creatingOrder || confirmingPayment} onClick={verifyOTP}>
+          <Button key="submit" type="primary" size="large" loading={creatingOrder} onClick={verifyOTP}>
             Verify
           </Button>
         ]}

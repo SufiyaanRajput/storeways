@@ -1841,63 +1841,6 @@
         }
       }
     },
-    "/v1/stores/payments/confirm": {
-      "post": {
-        "summary": "Confirm payment",
-        "tags": [
-          "Payments"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "products": {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "properties": {},
-                      "additionalProperties": false
-                    }
-                  },
-                  "razorpayPaymentId": {
-                    "type": "string"
-                  },
-                  "razorpayOrderId": {
-                    "type": "string"
-                  },
-                  "razorpaySignature": {
-                    "type": "string"
-                  },
-                  "orderIds": {
-                    "type": "array",
-                    "items": {
-                      "type": "integer",
-                      "minimum": 1
-                    }
-                  }
-                },
-                "required": [
-                  "products",
-                  "razorpayPaymentId",
-                  "razorpayOrderId",
-                  "razorpaySignature",
-                  "orderIds"
-                ],
-                "additionalProperties": false
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "description": "🔒 Requires JWT token. Accessible only by users with the \"customer\" role."
-      }
-    },
     "/v1/users/register": {
       "post": {
         "summary": "Register store owner",

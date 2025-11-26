@@ -21,9 +21,8 @@ PaymentGateway.prototype.verifySignature = async function(...args) {
   return getPaymentGateway().verifySignature(...args);
 };  
 
-PaymentGateway.prototype.getName = function() {
-  const instance = getPaymentGateway();
-  return instance?.name;
+PaymentGateway.prototype.getInstance = function() {
+  return getPaymentGateway();
 };
 
 PaymentGateway.prototype.webhook = function(...args) {
