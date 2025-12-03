@@ -160,6 +160,44 @@ export default function Home() {
             </picture>
           </div>
         </div>
+        <div className={styles.pluginsGrid} role="list">
+          <div
+            className={styles.pluginCard}
+          >
+            <img
+              className={styles.pluginLogo}
+              src={useBaseUrl('/img/stripe.webp')}
+              alt="Stripe logo"
+              loading="lazy"
+              decoding="async"
+            />
+            <div className={styles.pluginTag}>Payment Gateway</div>
+          </div>
+          <div
+            className={styles.pluginCard}
+          >
+            <img
+              className={styles.pluginLogo}
+              src={useBaseUrl('/img/razorpay.webp')}
+              alt="Razorpay logo"
+              loading="lazy"
+              decoding="async"
+            />
+            <div className={styles.pluginTag}>Payment Gateway</div>
+          </div>
+          <div
+            className={styles.pluginCard}
+          >
+            <img
+              className={styles.pluginLogo}
+              src={useBaseUrl('/img/sendgrid.webp')}
+              alt="SendGrid logo"
+              loading="lazy"
+              decoding="async"
+            />
+            <div className={styles.pluginTag}>Email</div>
+          </div>
+        </div>
         <div className={styles.titleWrapper}>
           <h2 className={styles.featuresTitle}>Why Storeways</h2>
           <div className={styles.titleBorderBottom} />

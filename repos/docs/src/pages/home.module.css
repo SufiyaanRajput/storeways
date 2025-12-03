@@ -459,6 +459,52 @@ main.main {
   margin-top: 8px;
 }
 
+.pluginsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  max-width: 920px;
+  margin: 28px auto 52px;
+}
+
+.pluginCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+  background: #ffffff;
+  border: 1px solid #eef0f4;
+  border-radius: 16px;
+  padding: 18px 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+  transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+}
+
+.pluginCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.08);
+  border-color: #e5e7eb;
+}
+
+.pluginLogo {
+  height: 36px;
+  width: auto;
+  display: block;
+}
+
+.pluginName {
+  font-weight: 700;
+  color: #18112E;
+  margin-top: 4px;
+}
+
+.pluginTag {
+  font-size: 12px;
+  color: #6b7280;
+}
+
 @media (max-width: 1024px) {
   .row {
     flex-direction: column;
@@ -484,6 +530,9 @@ main.main {
   .showcaseContent {
     width: 100%;
   }
+  .pluginsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 585px) {
@@ -499,6 +548,9 @@ main.main {
   }
   .showcaseRow {
     margin: 36px auto;
+  }
+  .pluginsGrid {
+    grid-template-columns: 1fr;
   }
 }
 
