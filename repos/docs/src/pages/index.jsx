@@ -1,19 +1,57 @@
 import React from 'react';
+import Head from '@docusaurus/Head';
+import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Link from '@docusaurus/Link';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import styles from './home.module.css';
 
 export default function Home() {
+  const { siteConfig } = useDocusaurusContext();
+  const canonicalUrl = `${siteConfig?.url || ''}${siteConfig?.baseUrl || ''}`;
+  const seoTitle = 'Fork. Deploy. Sell. | Storeways — The Open-Source alternative to Shopify';
+  const seoDescription = 'A production-ready self hosted ecommerce platforms built with Node, React & Postgres.';
+  const seoImage = `${canonicalUrl}img/storefront-screenshot.webp`;
+
   return (
-    <main className={styles.main}>
+    <>
+      <Head>
+        <title>{seoTitle}</title>
+        <meta name="description" content={seoDescription} />
+        <link rel="canonical" href={canonicalUrl} />
+
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content={seoTitle} />
+        <meta property="og:description" content={seoDescription} />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:image" content={seoImage} />
+        <meta property="og:image:alt" content="Storeways storefront screenshot" />
+
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={seoTitle} />
+        <meta name="twitter:description" content={seoDescription} />
+        <meta name="twitter:image" content={seoImage} />
+
+        <script type="application/ld+json">
+          {JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'WebSite',
+            name: 'Storeways',
+            alternateName: 'Storeways — The Open-Source alternative to Shopify',
+            url: canonicalUrl,
+            description: seoDescription,
+          })}
+        </script>
+      </Head>
+      <main className={styles.main}>
       <section className={styles.header}>
         <div className={styles.transformedRect} />
         <div className={styles.transformedRect} />
         <div className={styles.row}>
           <div className={styles.colLeft}>
             <h1 className={styles.title}>
-              Build, launch, and self-host your commerce.
+              Fork. Deploy. Sell.
             </h1>
+            <p>Storeways — The Open-Source alternative to Shopify</p>
             <ul className={styles.bullets}>
               <li><span>Ready to use out of the box, client storefront, and admin dashboard.</span></li>
               <li><span>Setup your own DB and infrastructure. Deploy anywhere.</span></li>
@@ -46,7 +84,7 @@ export default function Home() {
         </div>
         <div className={styles.sectionIntro}>
           <p className={styles.sectionLead}>
-            Production-ready the moment you fork it. Skip the 100-page setup guides—just fork, run, and start selling.
+            Production-ready open source ecommerce platform the moment you fork it. Skip the 100-page setup guides—just fork, run, and start selling.
           </p>
           <ul className={styles.pillRow} role="list">
             <li>Start in minutes</li>
@@ -215,5 +253,6 @@ export default function Home() {
         </div>
       </section>
     </main>
+    </>
   );
 }

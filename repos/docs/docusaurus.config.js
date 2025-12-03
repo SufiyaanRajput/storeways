@@ -2,7 +2,7 @@
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: 'Storeways',
-  tagline: 'Open-source e-commerce platform',
+  tagline: 'Fork. Deploy. Sell.',
   url: 'https://SufiyaanRajput.github.io',
   baseUrl: '/storeways/',
   onBrokenLinks: 'throw',
@@ -35,6 +35,14 @@ const config = {
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
+      image: 'img/storefront-screenshot.webp',
+      metadata: [
+        {
+          name: 'description',
+          content:
+            'A production-ready self hosted ecommerce platforms built with Node, React & Postgres.',
+        },
+      ],
       navbar: {
         title: 'Storeways',
         logo: {
