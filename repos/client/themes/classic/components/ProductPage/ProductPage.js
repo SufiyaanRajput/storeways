@@ -62,8 +62,15 @@ const ProductPage = () => {
   const { productId } = router.query;
   const { CheckableTag } = Tag;
 
-  const { success, error, response, isLoading, refetch: refetchProduct } = useAsyncFetch(false, fetchProduct);
+  const { success: productFetched, error, response, isLoading, refetch: refetchProduct } = useAsyncFetch(false, fetchProduct);
   const { name, description, returnPolicy='', price, stock, maxOrderQuantity, images=[], variations, productVariationStocks=[] } = response?.data?.product || {};
+  const [productImages, setProductImages] = useState([]);
+
+  useEffect(() => {
+    if (productFetched) {
+      setProductImages([...images]);
+    }
+  }, [images, productFetched]);
 
   const makeVariationGroupByIndex = useCallback((variationGroup, index, parents=[]) => {
     return variationGroup.reduce((groups, pvs) => {
@@ -235,7 +242,7 @@ const ProductPage = () => {
       allowedQuantity: (hasVaritionGroup ? (variationGroupMaxOrderQuantity || variationGroupStock) : maxOrderQuantity) || stock,
       stock: hasVaritionGroup ? variationGroupStock : stock,
       quantity,
-      image: images[0]
+      image: productImages[0]
     });
 
     const onGoToCart = () => {
@@ -293,6 +300,8 @@ const ProductPage = () => {
         ...nextVariationGroups,
         ...nextOptionsFormatted
       ]);
+
+      setProductImages(images.filter(image => image.variation[variationName.toLowerCase()] === option));
     } else {
       var selectedVariationOptions = selectedVariations.filter(sv => {
         if ((sv.variationName === variationName && sv.option === option)) return false;
@@ -305,6 +314,7 @@ const ProductPage = () => {
       const nextOptionsFormatted = variationGroups.filter(g => !g.parents.includes(option));
 
       setVariationGroups(nextOptionsFormatted);
+      setProductImages([...images]);
     }
 
     if (nextOptions.length === 1 && selectedVariationOptions.length === nextOptions[0].variationGroup.length) {
@@ -367,6 +377,8 @@ const ProductPage = () => {
     return stock;
   };
 
+  console.log(productImages);
+
   return(
     <main style={{ position: 'relative' }}>
       {
@@ -381,7 +393,7 @@ const ProductPage = () => {
                     ref={e => slider.current = e}
                     afterChange={setCurrentSlide}>
                     {
-                      images.map((image, i) => (
+                      productImages.map((image, i) => (
                         <div key={i}>
                           <ImageWrapper>
                             <Image src={image.url} alt={i} layout="fill"/>
@@ -392,7 +404,7 @@ const ProductPage = () => {
                   </Carousel>
                     <ThumbsWrapper>
                       {
-                        images.length > 1 && images.map((image, i) => (
+                        productImages.length > 1 && productImages.map((image, i) => (
                           <Thumb key={i} 
                             className={currentSlide == i ? 'selected' : ''}
                             onClick={() => onThumbClick(i)}>

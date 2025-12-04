@@ -170,6 +170,21 @@ const Orders = () => {
       width: 170,
     },
     {
+      title: 'Payment status',
+      dataIndex: 'paymentStatus',
+      key: 'paymentStatus',
+      width: 150,
+    },
+    {
+      title: 'Is suspicious',
+      dataIndex: 'isSuspicious',
+      key: 'isSuspicious',
+      width: 150,
+      render: (text, record) => {
+        return <Tag color={text ? 'red' : 'green'}>{text ? 'Yes' : 'No'}</Tag>;
+      },
+    },
+    {
       title: 'Name',
       dataIndex: 'name',
       key: 'name',

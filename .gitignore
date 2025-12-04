@@ -71,3 +71,5 @@ coverage-final.json
 
 # Optional: custom generated assets
 public/uploads/
+
+*.code-workspace
