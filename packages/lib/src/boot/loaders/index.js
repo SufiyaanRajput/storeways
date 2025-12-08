@@ -4,7 +4,8 @@ import swaggerLoader from '@storeways/lib/loaders/swagger';
 
 export default async ({app, config}) => {
   try{
-    await databaseLoader({dbConnectionUrl: config.dbConnectionUrl});
+    const { database, domains } = config;
+    await databaseLoader({dbConnectionUrl: database.connectionUrl, domains});
     swaggerLoader({app});
     expressLoader({app});
   }catch(error){

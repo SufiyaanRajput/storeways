@@ -6,7 +6,7 @@
   "author": "Sufiyaan Rajput",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "pnpm --filter @storeways/lib run build && nodemon --exec babel-node src/app.js",
+    "dev": "nodemon --watch src --watch ../../packages/lib/src --ignore ../../packages/lib/dist --ext js,json --exec \"pnpm --filter @storeways/lib run build && babel-node src/app.js\"",
     "start": "babel-node src/app.js",
     "migrate": "pnpm --filter @storeways/lib run build && babel-node src/migrate.js"
   },

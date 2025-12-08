@@ -1,8 +1,8 @@
 import loadModels from '@storeways/lib/db/models/index';
 
-export default async ({ dbConnectionUrl }) => {
+export default async ({ dbConnectionUrl, domains }) => {
   try{
-    const database = await loadModels({ dbConnectionUrl });
+    const database = await loadModels({ dbConnectionUrl, domains });
     await database.sequelize.authenticate();
     console.log(`
       ++++++++++++++++++++++++++++++++++++++++++++++++

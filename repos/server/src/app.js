@@ -8,7 +8,10 @@ import config from './config';
 const startServer = async () => {
   try{
     const appConfig = {
-      dbConnectionUrl: config.databaseURL,
+      database: {
+        connectionUrl: config.databaseURL,
+      },
+      domains: ['products'],
     }
 
     const app = await createStorewaysApp(appConfig);

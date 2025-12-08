@@ -1,13 +1,10 @@
 'use strict';
 
-import fs from 'fs';
-import path from 'path';
 import Sequelize from 'sequelize';
-const basename = path.basename(__filename);
 
 const db = {};
 
-const loadModels = async ({ dbConnectionUrl }) => {
+const loadModels = async ({ dbConnectionUrl, domains }) => {
   try{
     const sequelize = new Sequelize(dbConnectionUrl, {
       pool: {
@@ -16,16 +13,19 @@ const loadModels = async ({ dbConnectionUrl }) => {
         idle: 5000
       },
     });
-  
-    fs
-    .readdirSync(__dirname)
-    .filter(file => {
-      return (file.indexOf('.') !== 0) && (file !== basename) && (file.slice(-3) === '.js');
-    })
-    .forEach(file => {
-      const model = require(path.join(__dirname, file))(sequelize, Sequelize.DataTypes);
-      db[model.name] = model;
-    });
+
+    console.log('domains ======>', domains);
+
+    for (const fn of domains) {
+      const models = await import(`@storeways/lib/domain/${fn}/models/index.js`);
+
+      for (const model of Object.values(models)) {
+        if (typeof model === 'function') {
+          const definedModel = await model(sequelize, Sequelize.DataTypes);
+          db[definedModel.name] = definedModel;
+        }
+      }
+    }
   
   Object.keys(db).forEach(modelName => {
     if (db[modelName].associate) {
