@@ -1,26 +1,29 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import logger from './loaders/logger.js';
+// import logger from './loaders/logger.js';
 import path from 'path';
+import { createStorewaysApp } from "@storeways/lib";
+import config from './config';
 
 const startServer = async () => {
   try{
-    dotenv.config();
-    const app = express();
-    await require('./loaders').default({app});
+    const appConfig = {
+      dbConnectionUrl: config.databaseURL,
+    }
+
+    const app = await createStorewaysApp(appConfig);
     app.use("/uploads", express.static(path.resolve("uploads")));
 
-    const PORT = process.env.PORT || 8080;
-  
-    app.listen(PORT, () => {
+    app.listen(config.port, () => {
       console.log(`
       ################################################
-        Server listening on port: ${PORT}
+        Storeways server listening on port: ${config.port}
       ################################################
       `);
     });
   }catch(error){
-    logger('App').fatal(error);
+    // logger('App').fatal(error);
+    console.error(error);
   }
 }
 

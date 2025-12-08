@@ -1,6 +1,11 @@
+import dotenv from 'dotenv';
+
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 
+dotenv.config();
+
 export default {
+  port: process.env.PORT || 8080,
   endpointBaseUrl: process.env.NODE_ENV != 'production' ? 'http://localhost:8080' : 'api.storeways.io',
   isProduction: process.env.NODE_ENV == 'production',
   clientbaseUrl: process.env.CLIENT_URL || 'http://store.localhost:3000',

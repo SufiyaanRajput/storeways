@@ -1,5 +1,5 @@
 import express from 'express';
-import routes from '../api/routes';
+// import routes from '../api/routes';
 import loggerInstance from './logger';
 
 export default ({app}) => {
@@ -25,5 +25,5 @@ export default ({app}) => {
     logger.info(reqSerializer(req));
     next();
   });
-  app.use(routes);
+  // app.use(routes);
 }

@@ -1,0 +1,29 @@
+{
+    "name": "@storeways/lib",
+    "version": "1.0.0",
+    "main": "dist/index.js",
+    "exports": {
+        ".": "./dist/index.js",
+        "./db/models/*": "./dist/db/models/*.js",
+        "./loaders/*": "./dist/boot/loaders/*.js",
+        "./boot/*": "./dist/boot/*.js",
+        "./db/migrations": "./dist/db/migrations/index.js"
+    },
+    "devDependencies": {
+        "@babel/cli": "^7.28.3",
+        "@babel/core": "^7.28.5",
+        "@babel/node": "^7.28.0",
+        "@babel/preset-env": "^7.28.5"
+    },
+    "dependencies": {
+        "@babel/runtime": "^7.28.4",
+        "pg": "^8.16.3",
+        "pg-hstore": "^2.3.4",
+        "sequelize": "^6.37.7",
+        "umzug": "^3.8.2"
+    },
+    "scripts": {
+        "build": "rm -rf dist && babel src --out-dir dist --extensions \".js\"",
+        "dev": "nodemon --exec babel-node src/index.js"
+    }
+}
