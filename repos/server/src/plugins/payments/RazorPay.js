@@ -1,5 +1,4 @@
 import axios from "axios";
-import logger from "../../loaders/logger";
 import crypto from 'crypto';
 import config from "../../config";
 
@@ -28,7 +27,7 @@ RazorPay.prototype.createOrder = async function({
       }
     })
   } catch (error) {
-    logger('PLUGINS-RAZORPAY-CREATE-ORDER-ERROR').error(error);
+    console.error('[PLUGINS-RAZORPAY-CREATE-ORDER-ERROR]', error);
     throw error;
   }
 }
@@ -45,7 +44,7 @@ RazorPay.prototype.getMetaData = function (payload) {
       gatewayReferenceId: parsedPayload?.payload?.payment?.entity?.id,
     };
   } catch (error) {
-    logger('PLUGINS-RAZORPAY-GET-META-DATA-ERROR').error(error);
+    console.error('[PLUGINS-RAZORPAY-GET-META-DATA-ERROR]', error);
     throw error;
   }
 }
@@ -63,7 +62,7 @@ RazorPay.prototype.webhook = function (payload, signature) {
       throw new Error('Invalid signature');
     }
   } catch (err) {
-    logger('PLUGINS-RAZORPAY-WEBHOOK-ERROR').error(err);
+    console.error('[PLUGINS-RAZORPAY-WEBHOOK-ERROR]', err);
     return { status: "verification_failed", type: 'error', isVerified: false };
   }
 

@@ -1,4 +1,5 @@
-import models from '../../models';
+import { getDatabase } from '@storeways/lib/db/models';
+const models = getDatabase();
 import jwt from 'jsonwebtoken';
 import config from '../../config';
 import bcrypt from 'bcryptjs';

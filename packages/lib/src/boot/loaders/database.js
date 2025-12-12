@@ -1,4 +1,4 @@
-import loadModels from '@storeways/lib/db/models/index';
+import { loadModels } from '../../db/models/index';
 
 export default async ({ dbConnectionUrl, domains }) => {
   try{

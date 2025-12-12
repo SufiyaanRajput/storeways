@@ -1,7 +1,6 @@
 import {Router} from 'express';
 import {formatFromError, makeSwaggerFromJoi} from '../../../utils/helpers';
 import { storeService } from '../../../services';
-import logger from '../../../loaders/logger';
 import { getStore, requestValidator } from '../../middlewares';
 import cors from 'cors';
 
@@ -31,7 +30,7 @@ router.get('/filters', cors(corsOptions), getStore(), async (req, res) => {
     const filters = await storeService.fechShopFilters({storeId: req.storeId});
     res.status(200).send({filters, success: true});
   }catch(error){
-    logger('STORE-FILTERS-GET-CONTROLLER').error(error);
+    console.error('[STORE-FILTERS-GET-CONTROLLER]', error);
     const {status, ...data} = formatFromError(error);
     res.status(status).send(data);
   }

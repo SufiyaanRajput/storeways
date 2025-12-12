@@ -1,5 +1,6 @@
 import { QueryTypes } from 'sequelize';
-import models from '../../models';
+import { getDatabase } from '@storeways/lib/db/models';
+const models = getDatabase();
 
 const fechShopFilters = async ({storeId, categoryIds, source}) => {
   try{

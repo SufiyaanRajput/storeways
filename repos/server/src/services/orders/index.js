@@ -1,4 +1,5 @@
-import models from '../../models';
+import { getDatabase } from '@storeways/lib/db/models';
+const models = getDatabase();
 import { QueryTypes } from 'sequelize';
 import { DELIVERY_STATUSES } from '../../utils/constants';
 import Email from '../integrations/Email';

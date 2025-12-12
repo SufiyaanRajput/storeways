@@ -4,6 +4,10 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { createStorewaysApp } from "@storeways/lib";
 import config from './config';
+import routes from './api/routes';
+import LocalFileStorage from './plugins/storage/LocalFileStorage';
+
+export let app = null;
 
 const startServer = async () => {
   try{
@@ -11,11 +15,17 @@ const startServer = async () => {
       database: {
         connectionUrl: config.databaseURL,
       },
-      domains: ['products'],
+      domains: ['products', 'stores', 'users'],
+      adapters: {
+        fileStorage: new LocalFileStorage({
+          uploadDir: 'uploads',
+        }),
+      },
     }
 
-    const app = await createStorewaysApp(appConfig);
+    app = await createStorewaysApp(appConfig);
     app.use("/uploads", express.static(path.resolve("uploads")));
+    app.use(routes)
 
     app.listen(config.port, () => {
       console.log(`

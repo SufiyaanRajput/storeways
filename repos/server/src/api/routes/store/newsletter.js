@@ -1,7 +1,6 @@
 import {Router} from 'express';
 import {formatFromError, makeSwaggerFromJoi} from '../../../utils/helpers';
 import { newsletterService } from '../../../services';
-import logger from '../../../loaders/logger';
 import { getStore, requestValidator } from '../../middlewares';
 import Joi from 'joi';
 
@@ -27,7 +26,7 @@ router.post('/newsletter', requestValidator(schema), getStore(), async (req, res
 
     res.status(201).send({message: 'Subscriber added!', success: true});
   }catch(error){
-    logger('STORES-NEWSLETTER-POST-CONTROLLER').error(error);
+    console.error('[STORES-NEWSLETTER-POST-CONTROLLER]', error);
     const {status, ...data} = formatFromError(error);
     res.status(status).send(data);
   }

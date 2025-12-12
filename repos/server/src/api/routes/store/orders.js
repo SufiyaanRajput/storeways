@@ -1,7 +1,6 @@
 import {Router} from 'express';
 import {formatFromError, customJoiValidators, makeSwaggerFromJoi} from '../../../utils/helpers';
 import { orderService } from '../../../services';
-import logger from '../../../loaders/logger';
 import { getStore, auth, requestValidator } from '../../middlewares';
 import Joi from 'joi';
 
@@ -22,7 +21,7 @@ router.get('/orders', auth(['customer']), getStore(), async (req, res) => {
 
     res.status(200).send({orders, success: true});
   }catch(error){
-    logger('STORES-ORDERS-GET-CONTROLLER').error(error);
+    console.error('[STORES-ORDERS-GET-CONTROLLER]', error);
     const {status, ...data} = formatFromError(error);
     res.status(status).send(data);
   }
@@ -48,7 +47,7 @@ router.put('/orders/cancel', auth(['customer', 'owner']), requestValidator(schem
 
     res.status(200).send({message: 'Orders cancelled!', success: true});
   }catch(error){
-    logger('STORES-ORDERS-POST-CONTROLLER').error(error);
+    console.error('[STORES-ORDERS-POST-CONTROLLER]', error);
     const {status, ...data} = formatFromError(error);
     res.status(status).send(data);
   }

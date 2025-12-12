@@ -1,4 +1,5 @@
-import models from '../../models';
+import { getDatabase } from '@storeways/lib/db/models';
+const models = getDatabase();
 import { Op, QueryTypes } from 'sequelize';
 
 export const createUpdateReview = async ({id, storeId, userId, productId, ratings, content}) => {

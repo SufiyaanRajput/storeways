@@ -1,5 +1,5 @@
 import { Umzug, SequelizeStorage } from 'umzug'
-import loadModels from '@storeways/lib/db/models/index';
+import { loadModels } from '../models/index';
 
 const migrate = async ({ dbConnectionUrl }) => {
   try{

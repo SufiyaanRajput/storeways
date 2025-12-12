@@ -2,7 +2,6 @@ import {Router} from 'express';
 import {formatFromError, customJoiValidators, makeSwaggerFromJoi} from '../../../utils/helpers';
 import { auth, getStore, requestValidator } from '../../middlewares';
 import { userService } from '../../../services';
-import logger from '../../../loaders/logger';
 import Joi from 'joi';
 import { adminCorsOptions } from '../config.js';
 import cors from 'cors';
@@ -33,7 +32,7 @@ router.post('/register', cors(adminCorsOptions), requestValidator(schema), async
     const user = await userService.register(req.values);
     res.status(201).send({success: true, user});
   }catch(error){
-    logger('USERS-REGISTER-POST-CONTROLLER').error(error)
+    console.error('[USERS-REGISTER-POST-CONTROLLER]', error)
     const {status, ...data} = formatFromError(error);
     res.status(status).send(data);
   }
@@ -58,7 +57,7 @@ router.post('/login', cors(adminCorsOptions), requestValidator(loginschema), asy
     const user = await userService.login({...req.values, userType: 'owner'});
     res.status(200).send({success: true, user});
   }catch(error){
-    logger('USERS-REGISTER-POST-CONTROLLER').error(error)
+    console.error('[USERS-REGISTER-POST-CONTROLLER]', error)
     const {status, ...data} = formatFromError(error);
     res.status(status).send(data);
   }
@@ -82,7 +81,7 @@ router.post('/password-reset-email', cors(adminCorsOptions), requestValidator(pa
     await userService.sendPasswordResetEmail({...req.values, userType: 'owner'});
     res.status(200).send({success: true});
   }catch(error){
-    logger('USERS-PASSWORD-RESET-EMAIL-POST-CONTROLLER').error(error)
+    console.error('[USERS-PASSWORD-RESET-EMAIL-POST-CONTROLLER]', error)
     const {status, ...data} = formatFromError(error);
     res.status(status).send(data);
   }
@@ -108,7 +107,7 @@ router.post('/password-reset', cors(adminCorsOptions), requestValidator(password
     await userService.passwordReset({...req.values, userType: 'owner'});
     res.status(200).send({success: true});
   }catch(error){
-    logger('USERS-PASSWORD-RESET-POST-CONTROLLER').error(error)
+    console.error('[USERS-PASSWORD-RESET-POST-CONTROLLER]', error)
     const {status, ...data} = formatFromError(error);
     res.status(status).send(data);
   }
@@ -133,7 +132,7 @@ router.post('/customer-login', requestValidator(customerLoginschema), async (req
     const user = await userService.login({...req.values, userType: 'customer'});
     res.status(200).send({success: true, user});
   }catch(error){
-    logger('USERS-REGISTER-POST-CONTROLLER').error(error)
+    console.error('[USERS-REGISTER-POST-CONTROLLER]', error)
     const {status, ...data} = formatFromError(error);
     res.status(status).send(data);
   }
@@ -152,7 +151,7 @@ router.post('/logout', cors(adminCorsOptions), auth(['owner']), async (req, res)
     const user = await userService.logout({userId: req.user.id, token: req.authToken});
     res.status(200).send({success: true, user});
   }catch(error){
-    logger('USERS-REGISTER-POST-CONTROLLER').error(error)
+    console.error('[USERS-REGISTER-POST-CONTROLLER]', error)
     const {status, ...data} = formatFromError(error);
     res.status(status).send(data);
   }
@@ -177,7 +176,7 @@ router.post('/customer', requestValidator(customerSchema), getStore(), async (re
     const user = await userService.registerLoginCustomer({...req.values, storeId: req.storeId});
     res.status(201).send({success: true, user});
   }catch(error){
-    logger('USERS-CUSTOMER-POST-CONTROLLER').error(error)
+    console.error('[USERS-CUSTOMER-POST-CONTROLLER]', error)
     const {status, ...data} = formatFromError(error);
     res.status(status).send(data);
   }
@@ -201,7 +200,7 @@ router.post('/send-otp', requestValidator(sendOTPSchema), async (req, res) => {
     const response = await userService.sendOTPForLogin({...req.values, ip: req['x-real-ip'] || req.ip});
     res.status(200).send({success: true, response });
   }catch(error){
-    logger('USERS-SEND-OTP-FOR-LOGIN-POST-CONTROLLER').error(error)
+    console.error('[USERS-SEND-OTP-FOR-LOGIN-POST-CONTROLLER]', error)
     const {status, ...data} = formatFromError(error);
     res.status(status).send(data);
   }

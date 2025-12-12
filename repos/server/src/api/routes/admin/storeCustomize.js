@@ -2,7 +2,6 @@ import {Router} from 'express';
 import {formatFromError, makeSwaggerFromJoi} from '../../../utils/helpers';
 import { requestValidator, auth } from '../../middlewares';
 import { adminService } from '../../../services';
-import logger from '../../../loaders/logger';
 import multer from 'multer';
 import Joi from 'joi';
 
@@ -37,7 +36,7 @@ router.post('/uploads/logo', auth(['owner']), upload.single('logo'), async (req,
     const logo = await adminService.uploadImageService({fileName: req.body.fileName, file: req.file.buffer, folder: '/logo'});
     res.status(200).send({logo, message: 'Logo uploaded successfully!', success: true});
   }catch(error){
-    logger('ADMIN-UPLOADS-LOGO-POST-CONTROLLER').error(error);
+    console.error('[ADMIN-UPLOADS-LOGO-POST-CONTROLLER]', error);
     const {status, ...data} = formatFromError(error);
     res.status(status).send(data);
   }
@@ -63,7 +62,7 @@ router.delete('/uploads/logo/:imageId', auth(['owner']), requestValidator(imageD
     await adminService.deleteImageService({imageId});
     res.status(200).send({message: 'Logo deleted successfully!', success: true});
   }catch(error){
-    logger('ADMIN-UPLOADS-LOGO-DELETE-CONTROLLER').error(error);
+    console.error('[ADMIN-UPLOADS-LOGO-DELETE-CONTROLLER]', error);
     const {status, ...data} = formatFromError(error);
     res.status(status).send(data);
   }
@@ -102,7 +101,7 @@ router.put('/customize/store', auth(['owner']), requestValidator(storeSettingsSc
     await adminService.updateStoreSettings(req.values);
     res.status(200).send({message: 'Theme updated successfully!', success: true});
   }catch(error){
-    logger('ADMIN-CUSTOMISE-THEME-PUT-CONTROLLER').error(error);
+    console.error('[ADMIN-CUSTOMISE-THEME-PUT-CONTROLLER]', error);
     const {status, ...data} = formatFromError(error);
     res.status(status).send(data);
   }
@@ -142,7 +141,7 @@ router.put('/customize/footer', auth(['owner']), requestValidator(footerSchema),
     await adminService.updateFooter(req.values);
     res.status(200).send({message: 'Footer updated successfully!', success: true});
   }catch(error){
-    logger('ADMIN-CUSTOMISE-FOOTER-PUT-CONTROLLER').error(error);
+    console.error('[ADMIN-CUSTOMISE-FOOTER-PUT-CONTROLLER]', error);
     const {status, ...data} = formatFromError(error);
     res.status(status).send(data);
   }
@@ -161,7 +160,7 @@ router.get('/customize/settings', auth(['owner']), async (req, res) => {
     const store = await adminService.getSettingByKey({ storeId: req.user.storeId, key: 'store' });
     res.status(200).send({store, message: 'Fetched theme successfully!', success: true});
   }catch(error){
-    logger('ADMIN-CUSTOMISE-THEME-GET-CONTROLLER').error(error);
+    console.error('[ADMIN-CUSTOMISE-THEME-GET-CONTROLLER]', error);
     const {status, ...data} = formatFromError(error);
     res.status(status).send(data);
   }
@@ -180,7 +179,7 @@ router.get('/customize/footer', auth(['owner']), async (req, res) => {
     const footer = await adminService.getSettingByKey({ storeId: req.user.storeId, key: ['footer'] });
     res.status(200).send({footer, message: 'Fetched theme successfully!', success: true});
   }catch(error){
-    logger('ADMIN-CUSTOMISE-FOOTER-GET-CONTROLLER').error(error);
+    console.error('[ADMIN-CUSTOMISE-FOOTER-GET-CONTROLLER]', error);
     const {status, ...data} = formatFromError(error);
     res.status(status).send(data);
   }
@@ -203,7 +202,7 @@ router.get('/customize/layout/:page', auth(['owner']), requestValidator(pageLayo
     const layout = await adminService.getLayout({ storeId: req.user.storeId, ...req.values });
     res.status(200).send({layout, message: 'Fetched layout successfully!', success: true});
   }catch(error){
-    logger('ADMIN-CUSTOMISE-LAYOUT-GET-CONTROLLER').error(error);
+    console.error('[ADMIN-CUSTOMISE-LAYOUT-GET-CONTROLLER]', error);
     const {status, ...data} = formatFromError(error);
     res.status(status).send(data);
   }
@@ -227,7 +226,7 @@ router.put('/customize/layout/:page', auth(['owner']), requestValidator(updatePa
     await adminService.updateLayout({ storeId: req.user.storeId, ...req.values });
     res.status(200).send({message: 'Update layout successfull!', success: true});
   }catch(error){
-    logger('ADMIN-CUSTOMISE-LAYOUT-PUT-CONTROLLER').error(error);
+    console.error('[ADMIN-CUSTOMISE-LAYOUT-PUT-CONTROLLER]', error);
     const {status, ...data} = formatFromError(error);
     res.status(status).send(data);
   }
@@ -259,7 +258,7 @@ router.post('/uploads/banner', auth(['owner']), upload.single('banner'), async (
     const banner = await adminService.uploadImageService({fileName: req.body.fileName, file: req.file.buffer, folder: '/banners'});
     res.status(200).send({banner, message: 'Banner uploaded successfully!', success: true});
   }catch(error){
-    logger('ADMIN-UPLOADS-BANNER-POST-CONTROLLER').error(error);
+    console.error('[ADMIN-UPLOADS-BANNER-POST-CONTROLLER]', error);
     const {status, ...data} = formatFromError(error);
     res.status(status).send(data);
   }
@@ -281,7 +280,7 @@ router.delete('/uploads/banner/:imageId', auth(['owner']), requestValidator(imag
     await adminService.deleteImageService({imageId});
     res.status(200).send({message: 'Banner deleted successfully!', success: true});
   }catch(error){
-    logger('ADMIN-UPLOADS-BANNER-DELETE-CONTROLLER').error(error);
+    console.error('[ADMIN-UPLOADS-BANNER-DELETE-CONTROLLER]', error);
     const {status, ...data} = formatFromError(error);
     res.status(status).send(data);
   }
@@ -320,7 +319,7 @@ router.put('/customize/layout/:page/sections/:sectionId', auth(['owner']), reque
     await adminService.updateSection({ storeId: req.user.storeId, ...req.values });
     res.status(200).send({message: 'Update layout successfull!', success: true});
   }catch(error){
-    logger('ADMIN-CUSTOMISE-LAYOUT-PUT-CONTROLLER').error(error);
+    console.error('[ADMIN-CUSTOMISE-LAYOUT-PUT-CONTROLLER]', error);
     const {status, ...data} = formatFromError(error);
     res.status(status).send(data);
   }
@@ -352,7 +351,7 @@ router.post('/uploads/poster', auth(['owner']), upload.single('poster'), async (
     const poster = await adminService.uploadImageService({fileName: req.body.fileName, file: req.file.buffer, folder: '/posters'});
     res.status(200).send({poster, message: 'Poster uploaded successfully!', success: true});
   }catch(error){
-    logger('ADMIN-UPLOADS-POSTER-POST-CONTROLLER').error(error);
+    console.error('[ADMIN-UPLOADS-POSTER-POST-CONTROLLER]', error);
     const {status, ...data} = formatFromError(error);
     res.status(status).send(data);
   }
@@ -374,7 +373,7 @@ router.delete('/uploads/poster/:imageId', auth(['owner']), requestValidator(imag
     await adminService.deleteImageService({imageId});
     res.status(200).send({message: 'Poster deleted successfully!', success: true});
   }catch(error){
-    logger('ADMIN-UPLOADS-POSTER-DELETE-CONTROLLER').error(error);
+    console.error('[ADMIN-UPLOADS-POSTER-DELETE-CONTROLLER]', error);
     const {status, ...data} = formatFromError(error);
     res.status(status).send(data);
   }
@@ -390,7 +389,7 @@ router.post('/uploads/footer/logo', auth(['owner']), upload.single('logo'), asyn
     const logo = await adminService.uploadImageService({fileName: req.body.fileName, file: req.file.buffer, folder: '/logo'});
     res.status(200).send({logo, message: 'Logo uploaded successfully!', success: true});
   }catch(error){
-    logger('ADMIN-UPLOADS-LOGO-POST-CONTROLLER').error(error);
+    console.error('[ADMIN-UPLOADS-LOGO-POST-CONTROLLER]', error);
     const {status, ...data} = formatFromError(error);
     res.status(status).send(data);
   }
@@ -402,7 +401,7 @@ router.delete('/uploads/footer/logo/:imageId', auth(['owner']), requestValidator
     await adminService.deleteImageService({imageId});
     res.status(200).send({message: 'Logo deleted successfully!', success: true});
   }catch(error){
-    logger('ADMIN-UPLOADS-LOGO-DELETE-CONTROLLER').error(error);
+    console.error('[ADMIN-UPLOADS-LOGO-DELETE-CONTROLLER]', error);
     const {status, ...data} = formatFromError(error);
     res.status(status).send(data);
   }
@@ -428,7 +427,7 @@ router.put('/stores', auth(['owner']), requestValidator(storeSchema), async (req
     await adminService.updateStore(req.values);
     res.status(200).send({message: 'Footer updated successfully!', success: true});
   }catch(error){
-    logger('ADMIN-CUSTOMISE-FOOTER-PUT-CONTROLLER').error(error);
+    console.error('[ADMIN-CUSTOMISE-FOOTER-PUT-CONTROLLER]', error);
     const {status, ...data} = formatFromError(error);
     res.status(status).send(data);
   }

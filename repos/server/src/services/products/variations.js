@@ -1,4 +1,5 @@
-import models from '../../models';
+import { getDatabase } from '@storeways/lib/db/models';
+const models = getDatabase();
 
 export const fetchVariations = async ({storeId}) => {
   try{

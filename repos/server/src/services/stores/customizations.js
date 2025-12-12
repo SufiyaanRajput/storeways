@@ -1,4 +1,5 @@
-import models from '../../models';
+import { getDatabase } from '@storeways/lib/db/models';
+const models = getDatabase();
 import FileStorage from '../integrations/FileStorage';
 
 export const uploadImageService = async ({ file, fileName, ext }) => {

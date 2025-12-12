@@ -1,6 +1,7 @@
 import express from 'express';
 // import routes from '../api/routes';
 import loggerInstance from './logger';
+import cors from 'cors';
 
 export default ({app}) => {
   const logger = loggerInstance({name: 'Incoming Request'});
@@ -14,6 +15,7 @@ export default ({app}) => {
   }
 
   app.enable('trust proxy');
+  app.use(cors());
   app.use((req, res, next) => {
     console.log('req.originalUrl', req.originalUrl, req.originalUrl.includes('/payments/webhook'));
     if (req.originalUrl.includes('/payments/webhook')) {

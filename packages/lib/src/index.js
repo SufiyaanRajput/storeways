@@ -1,1 +1,1 @@
-export { createStorewaysApp } from "@storeways/lib/boot/app";
+export { createStorewaysApp } from "./boot/app";

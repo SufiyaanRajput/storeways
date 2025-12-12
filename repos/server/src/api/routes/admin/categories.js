@@ -2,7 +2,6 @@ import {Router} from 'express';
 import {formatFromError, makeSwaggerFromJoi} from '../../../utils/helpers';
 import { requestValidator, auth } from '../../middlewares';
 import { adminService } from '../../../services';
-import logger from '../../../loaders/logger';
 import Joi from 'joi';
 import _ from 'lodash';
 
@@ -26,7 +25,7 @@ router.post('/categories', auth(['owner']), requestValidator(addSchema), async (
     const category = await adminService.addCategory({...req.values, storeId: req.user.storeId});
     res.status(201).send({category, success: true});
   }catch(error){
-    logger('ADMIN-CATEGORIES-POST-CONTROLLER').error(error);
+    console.error('[ADMIN-CATEGORIES-POST-CONTROLLER]', error);
     const {status, ...data} = formatFromError(error);
     res.status(status).send(data);
   }
@@ -54,7 +53,7 @@ router.put('/categories/:id', auth(['owner']), requestValidator(updateSchema), a
     await adminService.editCategory({...req.values, storeId: req.user.storeId});
     res.status(200).send({message: 'Category updated!', success: true});
   }catch(error){
-    logger('ADMIN-CATEGORIES-PUT-CONTROLLER').error(error);
+    console.error('[ADMIN-CATEGORIES-PUT-CONTROLLER]', error);
     const {status, ...data} = formatFromError(error);
     res.status(status).send(data);
   }
@@ -79,7 +78,7 @@ router.delete('/categories/:id', auth(['owner']), requestValidator(deleteSchema)
     await adminService.deleteCategory({...req.values, storeId: req.user.storeId});
     res.status(200).send({message: 'Category deleted!', success: true});
   }catch(error){
-    logger('ADMIN-CATEGORIES-DELETE-CONTROLLER').error(error);
+    console.error('[ADMIN-CATEGORIES-DELETE-CONTROLLER]', error);
     const {status, ...data} = formatFromError(error);
     res.status(status).send(data);
   }
@@ -98,7 +97,7 @@ router.get('/categories', auth(['owner']), async (req, res) => {
     const categories = await adminService.fetchCategories({storeId: req.user.storeId});
     res.status(200).send({categories, success: true});
   }catch(error){
-    logger('ADMIN-CATEGORIES-GET-CONTROLLER').error(error);
+    console.error('[ADMIN-CATEGORIES-GET-CONTROLLER]', error);
     const {status, ...data} = formatFromError(error);
     res.status(status).send(data);
   }

@@ -1,5 +1,4 @@
 import sgMail from "@sendgrid/mail";
-import logger from "../../loaders/logger";
 sgMail.setApiKey(process.env.EMAIL_API_KEY);
 
 SendGrid.prototype.send = async function (payload) {
@@ -9,7 +8,7 @@ SendGrid.prototype.send = async function (payload) {
 			...payload,
 		});
   } catch (error) {
-		logger('SENDGRID-send').error(error);
+		console.error('[SENDGRID-send]', error);
 	}
 };
 

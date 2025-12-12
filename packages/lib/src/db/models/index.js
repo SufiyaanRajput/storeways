@@ -4,7 +4,7 @@ import Sequelize from 'sequelize';
 
 const db = {};
 
-const loadModels = async ({ dbConnectionUrl, domains }) => {
+export const loadModels = async ({ dbConnectionUrl, domains }) => {
   try{
     const sequelize = new Sequelize(dbConnectionUrl, {
       pool: {
@@ -17,7 +17,7 @@ const loadModels = async ({ dbConnectionUrl, domains }) => {
     console.log('domains ======>', domains);
 
     for (const fn of domains) {
-      const models = await import(`@storeways/lib/domain/${fn}/models/index.js`);
+      const models = await import(`${__dirname}/../../domain/${fn}/models/index.js`);
 
       for (const model of Object.values(models)) {
         if (typeof model === 'function') {
@@ -40,6 +40,10 @@ const loadModels = async ({ dbConnectionUrl, domains }) => {
   }catch(error){
     throw error;
   }
+}
+
+export const getDatabase = () => {
+  return db;
 }
 
 export default loadModels;

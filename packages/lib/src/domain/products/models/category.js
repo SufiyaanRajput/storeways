@@ -46,5 +46,12 @@ module.exports = (sequelize, DataTypes) => {
 		timestamps: true
   });
 
+  Category.associate = models => {
+    Category.hasMany(models.Variation, {
+      as: 'variations',
+      foreignKey: 'categoryId'
+    });
+  };
+
 	return Category;
 };

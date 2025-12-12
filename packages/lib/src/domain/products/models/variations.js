@@ -50,13 +50,11 @@ module.exports = (sequelize, DataTypes) => {
 		timestamps: true
   });
 
-  Variation.belongsTo(sequelize.models.Category, {
-    as: 'category'
-  });
-
-  sequelize.models.Category.hasMany(Variation, {
-    as: 'variations'
-  });
+  Variation.associate = models => {
+    Variation.belongsTo(models.Category, {
+      as: 'category'
+    });
+  };
 
 	return Variation;
 };

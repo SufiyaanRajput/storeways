@@ -1,7 +1,6 @@
 import {Router} from 'express';
 import {formatFromError, makeSwaggerFromJoi} from '../../../utils/helpers';
 import { reviewSrvice } from '../../../services';
-import logger from '../../../loaders/logger';
 import { getStore, auth, requestValidator } from '../../middlewares';
 import Joi from 'joi';
 
@@ -29,7 +28,7 @@ router.post('/reviews', auth(['customer']), requestValidator(schema), getStore()
 
     res.status(201).send({message: 'Review added!', success: true});
   }catch(error){
-    logger('STORES-REVIEWS-POST-CONTROLLER').error(error);
+    console.error('[STORES-REVIEWS-POST-CONTROLLER]', error);
     const {status, ...data} = formatFromError(error);
     res.status(status).send(data);
   }
@@ -56,7 +55,7 @@ router.get('/reviews/:productId', requestValidator(getByProductschema), getStore
 
     res.status(200).send({reviews, success: true});
   }catch(error){
-    logger('STORES-REVIEWS-GET-CONTROLLER').error(error);
+    console.error('[STORES-REVIEWS-GET-CONTROLLER]', error);
     const {status, ...data} = formatFromError(error);
     res.status(status).send(data);
   }

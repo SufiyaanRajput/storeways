@@ -1,5 +1,4 @@
 import Stripe from 'stripe';
-import logger from "../../loaders/logger";
 import { get } from 'lodash';
 import config from '../../config';
 
@@ -60,7 +59,7 @@ StripeGateway.prototype.createOrder = async function({
     // Match axios-like response shape used by services
     return { data: session };
   } catch (error) {
-    logger('PLUGINS-STRIPE-CREATE-CHECKOUT-ERROR').error(error);
+    console.error('[PLUGINS-STRIPE-CREATE-CHECKOUT-ERROR]', error);
     throw error;
   }
 }
@@ -74,7 +73,7 @@ RazorPay.prototype.getMetaData = function (payload) {
       gatewayReferenceId: parsedPayload.data.object.id,
     };
   } catch (error) {
-    logger('PLUGINS-STRIPE-GET-META-DATA-ERROR').error(error);
+    console.error('[PLUGINS-STRIPE-GET-META-DATA-ERROR]', error);
     throw error;
   }
 }
@@ -89,7 +88,7 @@ StripeGateway.prototype.webhook = function (rawBody, signature) {
       config.paymentGateway.webhookSecret
     );
   } catch (err) {
-    logger('PLUGINS-STRIPE-WEBHOOK-ERROR').error(err);
+    console.error('[PLUGINS-STRIPE-WEBHOOK-ERROR]', err);
     return { status: "verification_failed", type: 'error', isVerified: false };
   }
 

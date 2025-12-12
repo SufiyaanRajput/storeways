@@ -1,7 +1,6 @@
 import {Router} from 'express';
 import {formatFromError, customJoiValidators, makeSwaggerFromJoi} from '../../../utils/helpers';
 import { orderService } from '../../../services';
-import logger from '../../../loaders/logger';
 import { getStore, auth, requestValidator } from '../../middlewares';
 import Joi from 'joi';
 
@@ -28,7 +27,7 @@ router.get('/orders', auth(['owner']), requestValidator(getSchema), async (req, 
 
     res.status(200).send({orders, deliveryStatuses, success: true});
   }catch(error){
-    logger('ADMIN-ORDERS-GET-CONTROLLER').error(error);
+    console.error('[ADMIN-ORDERS-GET-CONTROLLER]', error);
     const {status, ...data} = formatFromError(error);
     res.status(status).send(data);
   }
@@ -56,7 +55,7 @@ router.put('/orders/cancel', auth(['owner']), requestValidator(schema), getStore
 
     res.status(200).send({message: 'Orders cancelled!', success: true});
   }catch(error){
-    logger('ADMIN-ORDERS-CANCEL-PUT-CONTROLLER').error(error);
+    console.error('[ADMIN-ORDERS-CANCEL-PUT-CONTROLLER]', error);
     const {status, ...data} = formatFromError(error);
     res.status(status).send(data);
   }
@@ -82,7 +81,7 @@ router.put('/orders', auth(['owner']), requestValidator(updateOrderSchema), getS
 
     res.status(200).send({message: 'Order updated!', success: true});
   }catch(error){
-    logger('ADMIN-ORDER-PUT-CONTROLLER').error(error);
+    console.error('[ADMIN-ORDER-PUT-CONTROLLER]', error);
     const {status, ...data} = formatFromError(error);
     res.status(status).send(data);
   }

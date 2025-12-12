@@ -1,8 +1,9 @@
 import {formatFromError} from '../../utils/helpers';
-import models from '../../models';
+import { getDatabase } from '@storeways/lib/db/models';
 
 const getStore = () => async (req, res, next) => {
   try{
+    const models = getDatabase();
     const storeOptions = {
       attributes: ['id', 'settings', 'name', 'subDomain'], 
       raw: true

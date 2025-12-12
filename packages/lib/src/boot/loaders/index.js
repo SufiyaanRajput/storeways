@@ -1,6 +1,6 @@
-import expressLoader from '@storeways/lib/loaders/express';
-import databaseLoader from '@storeways/lib/loaders/database';
-import swaggerLoader from '@storeways/lib/loaders/swagger';
+import expressLoader from './express';
+import databaseLoader from './database';
+import swaggerLoader from './swagger';
 
 export default async ({app, config}) => {
   try{

@@ -1,7 +1,6 @@
 import {Router} from 'express';
 import {formatFromError, makeSwaggerFromJoi} from '../../../utils/helpers';
 import { storeService } from '../../../services';
-import logger from '../../../loaders/logger';
 import { getStore, requestValidator } from '../../middlewares';
 import { auth } from '../../middlewares';
 import Joi from 'joi';
@@ -34,7 +33,7 @@ router.post('/', auth(['customer']), requestValidator(schema), getStore(), async
 
     res.status(200).send({products, product, success: true});
   }catch(error){
-    logger('STORES-PRODUCTS-GET-CONTROLLER').error(error);
+    console.error('[STORES-PRODUCTS-GET-CONTROLLER]', error);
     const {status, ...data} = formatFromError(error);
     res.status(status).send(data);
   }

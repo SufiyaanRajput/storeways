@@ -2,12 +2,11 @@ import fs from "fs/promises";
 import path from "path";
 import config from "../../config";
 
-LocalFileStorage.prototype.upload = async function(fileBuffer, filename) {
-  const uploadDir = this.options.uploadDir || "uploads";
-  await fs.mkdir(uploadDir, { recursive: true });
-  const filePath = path.join(uploadDir, filename);
+LocalFileStorage.prototype.upload = async function(fileBuffer, filename, uploadPath) {
+  await fs.mkdir(uploadPath, { recursive: true });
+  const filePath = path.join(uploadPath, filename);
   await fs.writeFile(filePath, fileBuffer);
-  return { url: `${config.endpointBaseUrl}/uploads/${filename}`, fileId: filename };
+  return { url: `${config.endpointBaseUrl}/${uploadPath}/${filename}`, fileId: filename };
 }
 
 LocalFileStorage.prototype.delete = async (filename) => {}

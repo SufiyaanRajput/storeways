@@ -2,7 +2,6 @@ import {Router} from 'express';
 import {formatFromError, makeSwaggerFromJoi} from '../../../utils/helpers';
 import { requestValidator, auth } from '../../middlewares';
 import { adminService } from '../../../services';
-import logger from '../../../loaders/logger';
 import Joi from 'joi';
 
 const router = Router();
@@ -20,7 +19,7 @@ router.get('/variations', auth(['owner']), async (req, res) => {
     const variations = await adminService.fetchVariations({storeId: req.user.storeId});
     res.status(200).send({variations, success: true});
   }catch(error){
-    logger('ADMIN-VARIATIONS-GET-CONTROLLER').error(error);
+    console.error('[ADMIN-VARIATIONS-GET-CONTROLLER]', error);
     const {status, ...data} = formatFromError(error);
     res.status(status).send(data);
   }
@@ -45,7 +44,7 @@ router.post('/variations', auth(['owner']), requestValidator(schema), async (req
     const variation = await adminService.addVariation({...req.values, storeId: req.user.storeId});
     res.status(201).send({variation, success: true});
   }catch(error){
-    logger('ADMIN-VARIATION-POST-CONTROLLER').error(error);
+    console.error('[ADMIN-VARIATION-POST-CONTROLLER]', error);
     const {status, ...data} = formatFromError(error);
     res.status(status).send(data);
   }
@@ -71,7 +70,7 @@ router.put('/variations/:id', auth(['owner']), requestValidator(updateSchema), a
     const variation = await adminService.updateVariation({...req.values, storeId: req.user.storeId});
     res.status(200).send({variation, success: true});
   }catch(error){
-    logger('ADMIN-VARIATION-PUT-CONTROLLER').error(error);
+    console.error('[ADMIN-VARIATION-PUT-CONTROLLER]', error);
     const {status, ...data} = formatFromError(error);
     res.status(status).send(data);
   }
@@ -94,7 +93,7 @@ router.delete('/variations/:id', auth(['owner']), requestValidator(deleteSchema)
     await adminService.deleteVariation({...req.values, storeId: req.user.storeId});
     res.status(200).send({message: 'Variation deleted!', success: true});
   }catch(error){
-    logger('ADMIN-VARIATION-DELETE-CONTROLLER').error(error);
+    console.error('[ADMIN-VARIATION-DELETE-CONTROLLER]', error);
     const {status, ...data} = formatFromError(error);
     res.status(status).send(data);
   }

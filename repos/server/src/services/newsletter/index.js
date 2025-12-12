@@ -1,4 +1,5 @@
-import models from '../../models';
+import { getDatabase } from '@storeways/lib/db/models';
+const models = getDatabase();
 
 export const addSubscriber = async ({name, email, storeId}) => {
   try{

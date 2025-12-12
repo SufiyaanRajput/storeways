@@ -1,7 +1,9 @@
 import jwt from 'jsonwebtoken';
-import models from '../../models';
+import { getDatabase } from '@storeways/lib/db/models';
 import {formatFromError} from '../../utils/helpers';
 import config from '../../config';
+
+const models = getDatabase();
 
 const removeTokenFromUser = async (token) => {
   try{

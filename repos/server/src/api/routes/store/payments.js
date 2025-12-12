@@ -1,7 +1,6 @@
 import {Router, raw } from 'express';
 import {formatFromError, customJoiValidators, makeSwaggerFromJoi} from '../../../utils/helpers';
 import { storeService } from '../../../services';
-import logger from '../../../loaders/logger';
 import { getStore, auth, requestValidator } from '../../middlewares';
 import Joi from 'joi';
 
@@ -41,7 +40,7 @@ router.post('/orders', getStore(), requestValidator(schema), async (req, res) =>
 
     res.status(200).send({...response, success: true});
   }catch(error){
-    logger('STORES-PAYMENTS-ORDERS-POST-CONTROLLER').error(error);
+    console.error('[STORES-PAYMENTS-ORDERS-POST-CONTROLLER]', error);
     const {status, ...data} = formatFromError(error);
     res.status(status).send(data);
   }
@@ -54,7 +53,7 @@ router.post('/webhook', raw({ type: "*/*" }),
 
       res.status(200).send({message: 'Webhook received', success: true});
     }catch(error){
-      logger('STORES-PAYMENTS-WEBHOOK-POST-CONTROLLER').error(error);
+      console.error('[STORES-PAYMENTS-WEBHOOK-POST-CONTROLLER]', error);
       const {status, ...data} = formatFromError(error);
       res.status(status).send(data);
     }

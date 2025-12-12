@@ -1,7 +1,7 @@
-import models from '../../models';
+import { getDatabase } from '@storeways/lib/db/models';
+const models = getDatabase();
 import { makeAuthToken } from '../users/account';
 import { customAlphabet } from 'nanoid';
-import logger from '../../loaders/logger';
 import { getVariationGroupBySelection } from '../../utils/helpers';
 import PaymentGateway from '../integrations/PaymentGateway';
 import * as ProductService from '../products';
