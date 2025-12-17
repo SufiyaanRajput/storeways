@@ -7,6 +7,16 @@
       "repos/*",
       "packages/*"
     ],
+    "pnpm": {
+      "publicHoistPattern": [
+        "react",
+        "react-dom"
+      ],
+      "overrides": {
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0"
+      }
+    },
     "scripts": {
       "install:all": "pnpm install -r",
       "dev": "pnpm --parallel --stream run dev",
