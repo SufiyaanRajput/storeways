@@ -5,7 +5,7 @@ import {
   SubmitWrapper,
   FormSectionHeader,
   FullPageSpinner,
-} from "../../styles";
+} from "../../styles/common";
 import {
   Button,
   Form,

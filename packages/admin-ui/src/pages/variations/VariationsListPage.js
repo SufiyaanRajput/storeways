@@ -1,6 +1,6 @@
 import { Button, Layout, Table, notification, Modal, Tag } from "antd";
 import { useEffect, useState } from "react";
-import { PageHeader, ActionText } from "../../styles";
+import { PageHeader, ActionText } from "../../styles/common";
 import QueryBoundary from "../../internals/QueryBoundary";
 import { TopActionWrapper } from "./styles";
 import { useQuery, useMutation } from "@tanstack/react-query";

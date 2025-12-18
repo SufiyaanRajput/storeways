@@ -1,4 +1,4 @@
-import { PageHeader, LayoutContent, FullPageSpinner, SubmitWrapper } from "../../../styles";
+import { PageHeader, LayoutContent, FullPageSpinner, SubmitWrapper } from "../../../styles/common";
 import { Form, Input, Button, Space, Row, Col, Card, Collapse, notification, Upload } from "antd";
 import ImgCrop from "antd-img-crop";
 import { useForm } from "antd/lib/form/Form";

@@ -5,10 +5,10 @@ import Container from "./Container";
 import { Header, Main } from "./styles";
 import { register } from "./api";
 import { useSetAtom } from "jotai";
-import { userAtom } from "../../store/userAtom";
+import { setUserAtom } from "../../store/userAtom";
 
 const RegisterPage = () => {
-  const setUser = useSetAtom(userAtom);
+  const setUser = useSetAtom(setUserAtom);
 
   const registerMutation = useMutation({
     mutationFn: register,

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { PageHeader, LayoutContent, FullPageSpinner } from "../../../styles";
+import { PageHeader, LayoutContent, FullPageSpinner } from "../../../styles/common";
 import { Button, notification } from "antd";
 import QueryBoundary from "../../../internals/QueryBoundary";
 import { useQuery, useMutation } from "@tanstack/react-query";

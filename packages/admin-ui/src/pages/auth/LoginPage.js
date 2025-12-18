@@ -5,10 +5,10 @@ import Container from "./Container";
 import { Header, Main } from "./styles";
 import { login } from "./api";
 import { useSetAtom } from "jotai";
-import { userAtom } from "../../store/userAtom";
+import { setUserAtom } from "../../store/userAtom";
 
 const LoginPage = () => {
-  const setUser = useSetAtom(userAtom);
+  const setUser = useSetAtom(setUserAtom);
 
   const loginMutation = useMutation({
     mutationFn: login,

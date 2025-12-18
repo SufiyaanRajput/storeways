@@ -2,7 +2,7 @@ import { Button, Layout, Modal, Table, Tag, notification } from "antd";
 import { useEffect } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import QueryBoundary from "../../internals/QueryBoundary";
-import { ActionText, PageHeader } from "../../styles";
+import { ActionText, PageHeader } from "../../styles/common";
 import { TopActionWrapper } from "./styles";
 import ProductVariations from "./components/ProductVariations";
 import { useNavigate } from "react-router-dom";

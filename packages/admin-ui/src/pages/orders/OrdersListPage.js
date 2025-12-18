@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 // import { MenuOutlined } from "@ant-design/icons";
 // import { useEffect, useState } from "react";
 // import { useAsyncFetch } from '../../../utils/hooks';
-import { PageHeader } from "../../styles";
+import { PageHeader } from "../../styles/common";
 import { Table, ShippingAddress, AddressCard } from "./styles";
 import { fetchOrders, cancelOrders, updateOrder } from "./api";
 const { Content } = Layout;

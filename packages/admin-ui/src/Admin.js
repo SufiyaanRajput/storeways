@@ -22,15 +22,18 @@ import {
   HomeLayoutPage,
   FooterLayoutPage,
 } from "./pages";
-import { LogoutButton, Sider } from "./styles";
+import { LogoutButton, Sider } from "./styles/common";
 import QueryBoundary from "./internals/QueryBoundary";
 import { logout as logoutApi } from "./internals/auth/api";
+import { useSetAtom } from "jotai";
+import { clearUserAtom } from "./store/userAtom";
 
 const { Header } = Layout;
 
 const Admin = () => {
   const [siderCollapsed, setSiderCollapsed] = useState(false);
   const location = useLocation();
+  const clearUser = useSetAtom(clearUserAtom);
 
   const logoutMutation = useMutation({
     mutationFn: logoutApi,
@@ -64,7 +67,14 @@ const Admin = () => {
   };
 
   const handleLogout = async () => {
-    logoutMutation.mutate();
+    logoutMutation.mutate(undefined, {
+      onSuccess: () => {
+        clearUser();
+      },
+      onSettled: () => {
+        clearUser();
+      },
+    });
   };
 
   return (
