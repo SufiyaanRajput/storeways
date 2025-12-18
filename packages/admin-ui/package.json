@@ -27,6 +27,10 @@
         "styled-components": "^5.3.3",
         "@tanstack/react-query": "^5.0.0"
     },
+    "dependencies": {
+        "axios": "^1.7.9",
+        "jotai": "^2.7.1"
+    },
     "devDependencies": {
         "@babel/cli": "^7.28.3",
         "@babel/core": "^7.28.5",

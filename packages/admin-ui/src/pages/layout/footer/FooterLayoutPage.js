@@ -7,8 +7,13 @@ import { SketchPicker } from "react-color";
 import QueryBoundary from "../../../internals/QueryBoundary";
 import { Panel } from "./styles";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import {
+  getFooterSettings,
+  updateFooter,
+  uploadFooterLogoImage,
+} from "../api";
 
-const FooterLayout = ({ getFooterSettings, updateFooter, uploadFooterLogoImage }) => {
+const FooterLayout = () => {
   const [form] = useForm();
   const [logo, setLogo] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
@@ -21,25 +26,14 @@ const FooterLayout = ({ getFooterSettings, updateFooter, uploadFooterLogoImage }
   } = useQuery({
     queryKey: ["adminFooterSettings"],
     queryFn: async () => {
-      if (!getFooterSettings) return { data: { footer: {} } };
       return await getFooterSettings();
     },
     select: (response) => response?.data?.footer || response?.footer || {},
     keepPreviousData: true,
   });
 
-  useEffect(() => {
-    if (!getFooterSettings) {
-      notification.warning({
-        message: "getFooterSettings not provided",
-        placement: "bottomRight",
-      });
-    }
-  }, [getFooterSettings]);
-
   const updateFooterMutation = useMutation({
     mutationFn: async (payload) => {
-      if (!updateFooter) throw new Error("updateFooter not provided");
       return await updateFooter(payload);
     },
     onSuccess: () => {
@@ -60,7 +54,6 @@ const FooterLayout = ({ getFooterSettings, updateFooter, uploadFooterLogoImage }
 
   const uploadLogoMutation = useMutation({
     mutationFn: async (formData) => {
-      if (!uploadFooterLogoImage) throw new Error("uploadFooterLogoImage not provided");
       return await uploadFooterLogoImage(formData);
     },
     onSuccess: (response) => {
@@ -106,13 +99,6 @@ const FooterLayout = ({ getFooterSettings, updateFooter, uploadFooterLogoImage }
   };
 
   const uploadImage = ({ file }) => {
-    if (!uploadFooterLogoImage) {
-      notification.error({
-        message: "uploadFooterLogoImage not provided",
-        placement: "bottomRight",
-      });
-      return;
-    }
     const formData = new FormData();
     formData.append("fileName", new Date().getTime());
     formData.append("logo", file);

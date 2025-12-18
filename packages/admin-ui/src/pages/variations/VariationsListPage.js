@@ -5,16 +5,17 @@ import QueryBoundary from "../../internals/QueryBoundary";
 import { TopActionWrapper } from "./styles";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import AddEditVariation from "./AddEditVariationComponent/AddEditVariationComponent";
+import {
+  fetchVariations,
+  deleteVariation,
+  addVariation,
+  updateVariation,
+} from "./api";
+import { fetchCategories as fetchCategoriesApi } from "../categories/api";
 
 const { Content } = Layout;
 
-const Variations = ({
-  fetchVariations,
-  deleteVariation,
-  fetchCategories,
-  addVariation,
-  updateVariation,
-}) => {
+const Variations = () => {
   const [showAddModal, toggleAddModal] = useState(false);
   const [showEditModal, toggleEditModal] = useState(false);
   const [variationToEdit, setVariationToEdit] = useState(null);
@@ -27,8 +28,8 @@ const Variations = ({
   } = useQuery({
     queryKey: ["adminCategoriesForVariations"],
     queryFn: async () => {
-      if (!fetchCategories) return { data: { categories: [] } };
-      return await fetchCategories();
+      if (!fetchCategoriesApi) return { data: { categories: [] } };
+      return await fetchCategoriesApi();
     },
     select: (response) =>
       response?.data?.categories ||
@@ -36,15 +37,6 @@ const Variations = ({
       (Array.isArray(response) ? response : []),
     keepPreviousData: true,
   });
-
-  useEffect(() => {
-    if (!fetchCategories) {
-      notification.warning({
-        message: "fetchCategories not provided",
-        placement: "bottomRight",
-      });
-    }
-  }, [fetchCategories]);
 
   const {
     data: variations = [],

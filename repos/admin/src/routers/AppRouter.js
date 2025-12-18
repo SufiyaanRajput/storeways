@@ -1,10 +1,10 @@
 import {Routes, BrowserRouter as Router, Route} from 'react-router-dom';
 import PrivateRoute from './PrivateRoute';
 import PublicRoute from './PublicRoute';
-import Admin from '../components/Admin/Admin';
 import Register from '../components/RegisterLogin/Register';
 import Login from '../components/RegisterLogin/Login';
 import ForgotPassword from '../components/RegisterLogin/ForgotPassword';
+import { Admin } from '@storeways/admin-ui';
 
 const AppRouter = () => {
   return(

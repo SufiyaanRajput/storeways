@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 // import { useAsyncFetch } from '../../../utils/hooks';
 import { PageHeader } from "../../styles";
 import { Table, ShippingAddress, AddressCard } from "./styles";
-// import { fetchOrders, cancelOrders, updateOrder } from "./api";
+import { fetchOrders, cancelOrders, updateOrder } from "./api";
 const { Content } = Layout;
 
 // dnd-kit for sortable column ordering
@@ -158,11 +158,7 @@ const ProductTable = ({ record, refetchOrders, deliveryStatuses, cancelOrders, u
   return <Table columns={columns} dataSource={record} pagination={false} />;
 };
 
-const Orders = ({
-  fetchOrders,
-  cancelOrders,
-  updateOrder,
-}) => {
+const Orders = () => {
   const DEFAULT_COLUMNS_CONFIG = useMemo(() => ([
     { id: 'cartReferenceId', field: 'cartReferenceId', title: 'Cart reference ID', enabled: true, width: 170 },
     { id: 'paymentStatus', field: 'paymentStatus', title: 'Payment status', enabled: true, width: 150 },

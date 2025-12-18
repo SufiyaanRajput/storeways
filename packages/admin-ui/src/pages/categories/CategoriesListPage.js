@@ -5,14 +5,15 @@ import QueryBoundary from "../../internals/QueryBoundary";
 import { TopActionWrapper } from "./styles";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import AddEditCategory from "./AddEditCategoryComponent/AddEditCategoryComponent";
-const { Content } = Layout;
-
-const Categories = ({
+import {
   fetchCategories,
   deleteCategory,
   addCategory,
   updateCategory,
-}) => {
+} from "./api";
+const { Content } = Layout;
+
+const Categories = () => {
   const [showAddModal, toggleAddModal] = useState(false);
   const [showEditModal, toggleEditModal] = useState(false);
   const [categoryToEdit, setCategoryToEdit] = useState(null);
@@ -40,15 +41,6 @@ const Categories = ({
     },
     keepPreviousData: true,
   });
-
-  useEffect(() => {
-    if (!fetchCategories) {
-      notification.warning({
-        message: "fetchCategories not provided",
-        placement: "bottomRight",
-      });
-    }
-  }, [fetchCategories]);
 
   const handleEdit = (record) => {
     setCategoryToEdit(record);

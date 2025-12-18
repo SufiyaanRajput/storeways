@@ -5,14 +5,15 @@ import QueryBoundary from "../../../internals/QueryBoundary";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import DragAndDrop from "./DragAndDrop/DragAndDrop";
 import { ButtonWrapper } from "./styles";
+import {
+  fetchLayout as fetchLayoutApi,
+  updateLayout as updateLayoutApi,
+  updateLayoutSection as updateLayoutSectionApi,
+  uploadBannerImage as uploadBannerImageApi,
+  uploadPosterImage as uploadPosterImageApi,
+} from "../api";
 
-const HomeLayout = ({
-  fetchLayout,
-  updateLayout,
-  updateLayoutSection,
-  uploadBannerImage,
-  uploadPosterImage,
-}) => {
+const HomeLayout = () => {
   const [items, setItems] = useState([]);
 
   const {
@@ -22,21 +23,11 @@ const HomeLayout = ({
   } = useQuery({
     queryKey: ["adminLayout", "home"],
     queryFn: async () => {
-      if (!fetchLayout) return { data: { layout: { layout: [] } } };
-      return await fetchLayout({ page: "home" });
+      return await fetchLayoutApi({ page: "home" });
     },
     select: (response) => response?.data?.layout?.layout || response?.layout?.layout || [],
     keepPreviousData: true,
   });
-
-  useEffect(() => {
-    if (!fetchLayout) {
-      notification.warning({
-        message: "fetchLayout not provided",
-        placement: "bottomRight",
-      });
-    }
-  }, [fetchLayout]);
 
   useEffect(() => {
     setItems(layoutItems || []);
@@ -44,8 +35,7 @@ const HomeLayout = ({
 
   const updateLayoutMutation = useMutation({
     mutationFn: async (payload) => {
-      if (!updateLayout) throw new Error("updateLayout not provided");
-      return await updateLayout(payload);
+      return await updateLayoutApi(payload);
     },
     onSuccess: async () => {
       notification.success({

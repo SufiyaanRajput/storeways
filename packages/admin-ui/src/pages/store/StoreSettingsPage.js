@@ -23,14 +23,14 @@ import ReactQuill from "react-quill";
 import QueryBoundary from "../../internals/QueryBoundary";
 import { Upload } from "./styles";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import {
+  getStoreSettings as getStoreSettingsApi,
+  updateStoreSettings as updateStoreSettingsApi,
+  uploadLogo as uploadLogoApi,
+  updateStore as updateStoreApi,
+} from "./api";
 
-const StoreSettings = ({
-  getStoreSettings,
-  updateStoreSettings,
-  uploadLogo,
-  updateStore,
-  storeUrl,
-}) => {
+const StoreSettings = ({ storeUrl }) => {
   const [form] = Form.useForm();
   const [termsForm] = Form.useForm();
   const [logo, setLogo] = useState(null);
@@ -44,27 +44,16 @@ const StoreSettings = ({
   } = useQuery({
     queryKey: ["adminStoreSettings"],
     queryFn: async () => {
-      if (!getStoreSettings) return { data: { store: {} } };
-      return await getStoreSettings();
+      return await getStoreSettingsApi();
     },
     select: (response) =>
       response?.data?.store || response?.store || {},
     keepPreviousData: true,
   });
 
-  useEffect(() => {
-    if (!getStoreSettings) {
-      notification.warning({
-        message: "getStoreSettings not provided",
-        placement: "bottomRight",
-      });
-    }
-  }, [getStoreSettings]);
-
   const updateStoreSettingsMutation = useMutation({
     mutationFn: async (payload) => {
-      if (!updateStoreSettings) throw new Error("updateStoreSettings not provided");
-      return await updateStoreSettings(payload);
+      return await updateStoreSettingsApi(payload);
     },
     onSuccess: async () => {
       setFilesToDelete([]);
@@ -84,8 +73,7 @@ const StoreSettings = ({
 
   const updateStoreMutation = useMutation({
     mutationFn: async (payload) => {
-      if (!updateStore) throw new Error("updateStore not provided");
-      return await updateStore(payload);
+      return await updateStoreApi(payload);
     },
     onSuccess: () => {
       notification.success({
@@ -103,8 +91,7 @@ const StoreSettings = ({
 
   const uploadLogoMutation = useMutation({
     mutationFn: async (formData) => {
-      if (!uploadLogo) throw new Error("uploadLogo not provided");
-      return await uploadLogo(formData);
+      return await uploadLogoApi(formData);
     },
     onSuccess: (response) => {
       setLogo(response?.data?.logo || null);
@@ -157,13 +144,6 @@ const StoreSettings = ({
   }, [storeSettings, form, termsForm]);
 
   const uploadImage = ({ file }) => {
-    if (!uploadLogo) {
-      notification.error({
-        message: "uploadLogo not provided",
-        placement: "bottomRight",
-      });
-      return;
-    }
     const formData = new FormData();
     formData.append("fileName", new Date().getTime());
     formData.append("logo", file);
