@@ -1,13 +1,13 @@
 import { notification } from "antd";
-import { useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import Container from "./Container";
 import { Header, Main } from "./styles";
 import { register } from "./api";
 import { useSetAtom } from "jotai";
 import { setUserAtom } from "../../store/userAtom";
+import QueryBoundary from "../../internals/QueryBoundary";
 
-const RegisterPage = () => {
+let RegisterPage = () => {
   const setUser = useSetAtom(setUserAtom);
 
   const registerMutation = useMutation({
@@ -58,6 +58,12 @@ const RegisterPage = () => {
     </>
   );
 };
+
+RegisterPage = (props) => (
+  <QueryBoundary>
+    <RegisterPage {...props} />
+  </QueryBoundary>
+);
 
 export default RegisterPage;
 

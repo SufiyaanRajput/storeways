@@ -6,8 +6,9 @@ import { Header, Main } from "./styles";
 import { login } from "./api";
 import { useSetAtom } from "jotai";
 import { setUserAtom } from "../../store/userAtom";
+import QueryBoundary from "../../internals/QueryBoundary";
 
-const LoginPage = () => {
+let LoginPage = () => {
   const setUser = useSetAtom(setUserAtom);
 
   const loginMutation = useMutation({
@@ -49,6 +50,12 @@ const LoginPage = () => {
     </>
   );
 };
+
+LoginPage = (props) => (
+  <QueryBoundary>
+    <LoginPage {...props} />
+  </QueryBoundary>
+);
 
 export default LoginPage;
 

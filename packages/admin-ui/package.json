@@ -4,7 +4,8 @@
     "main": "dist/index.js",
     "exports": {
         ".": "./dist/index.js",
-        "./pages": "./dist/pages/index.js"
+        "./pages": "./dist/pages/index.js",
+        "./extensions/layout": "./dist/extensions/layout.js"
     },
     "scripts": {
         "build": "babel src --out-dir dist --extensions .js",

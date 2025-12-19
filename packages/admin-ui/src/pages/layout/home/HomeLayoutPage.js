@@ -8,9 +8,9 @@ import { ButtonWrapper } from "./styles";
 import {
   fetchLayout as fetchLayoutApi,
   updateLayout as updateLayoutApi,
-  updateLayoutSection as updateLayoutSectionApi,
-  uploadBannerImage as uploadBannerImageApi,
-  uploadPosterImage as uploadPosterImageApi,
+  updateLayoutSection,
+  uploadBannerImage,
+  uploadPosterImage,
 } from "../api";
 
 const HomeLayout = () => {

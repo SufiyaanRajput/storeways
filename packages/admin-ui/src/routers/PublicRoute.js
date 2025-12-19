@@ -4,6 +4,7 @@ import { userAtom } from "../store/userAtom";
 
 const PublicRoute = ({ component }) => {
   const user = useAtomValue(userAtom);
+  console.log(user);
   const isAuthenticated = Boolean(user?.authToken);
 
   return isAuthenticated ? <Navigate replace to="/" /> : component;

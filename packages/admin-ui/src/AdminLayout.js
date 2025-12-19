@@ -2,31 +2,14 @@ import { useEffect, useState } from "react";
 import { Layout, Menu, notification } from "antd";
 import { Routes, Route, Link, useLocation } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faShoppingBag,
-  faSitemap,
-  faBarcode,
-  faStore,
-  faSwatchbook,
-  faTh,
-  faSignOutAlt,
-} from "@fortawesome/free-solid-svg-icons";
+import { faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
 import { useMutation } from "@tanstack/react-query";
-import {
-  OrdersListPage,
-  CategoriesListPage,
-  VariationsListPage,
-  ProductsListPage,
-  AddEditProductPage,
-  StoreSettingsPage,
-  HomeLayoutPage,
-  FooterLayoutPage,
-} from "./pages";
 import { LogoutButton, Sider } from "./styles/common";
 import QueryBoundary from "./internals/QueryBoundary";
 import { logout as logoutApi } from "./internals/auth/api";
 import { useSetAtom } from "jotai";
 import { clearUserAtom } from "./store/userAtom";
+import { getLayoutExtensions } from "./extensions/layout";
 
 const { Header } = Layout;
 
@@ -34,6 +17,7 @@ const Admin = () => {
   const [siderCollapsed, setSiderCollapsed] = useState(false);
   const location = useLocation();
   const clearUser = useSetAtom(clearUserAtom);
+  const layoutExtensions = getLayoutExtensions();
 
   const logoutMutation = useMutation({
     mutationFn: logoutApi,
@@ -49,21 +33,24 @@ const Admin = () => {
     // no-op; kept for parity with previous behaviour
   }, [logoutMutation.isError]);
 
+  const defaultExtension = layoutExtensions.find((extension) => extension.default);
+
   const getSelectedKey = () => {
-    const keys = [
-      "dashboard",
-      "products",
-      "categories",
-      "variations",
-      "store",
-      "home",
-      "footer",
-      "orders",
-    ];
-    for (const key of keys) {
-      if (location.pathname.includes(key)) return [key];
+    for (const extension of layoutExtensions) {
+      if (extension.children) {
+        for (const child of extension.children) {
+          if (location.pathname.includes(child.path)) {
+            return [child.id];
+          }
+        }
+      }
+
+      if (location.pathname.includes(extension.path)) {
+        return [extension.id];
+      }
     }
-    return ["orders"];
+
+    return [defaultExtension.id];
   };
 
   const handleLogout = async () => {
@@ -100,45 +87,28 @@ const Admin = () => {
             mode="inline"
             defaultSelectedKeys={getSelectedKey()}
           >
-            <Menu.Item
-              key="orders"
-              icon={<FontAwesomeIcon icon={faShoppingBag} />}
-            >
-              <Link to="/orders">Orders</Link>
-            </Menu.Item>
-            <Menu.Item
-              key="categories"
-              icon={<FontAwesomeIcon icon={faSitemap} />}
-            >
-              <Link to="/categories">Categories</Link>
-            </Menu.Item>
-            <Menu.Item
-              key="products"
-              icon={<FontAwesomeIcon icon={faBarcode} />}
-            >
-              <Link to="/products">Products</Link>
-            </Menu.Item>
-            <Menu.Item
-              key="variations"
-              icon={<FontAwesomeIcon icon={faSwatchbook} />}
-            >
-              <Link to="/variations">Variations</Link>
-            </Menu.Item>
-            <Menu.Item key="store" icon={<FontAwesomeIcon icon={faStore} />}>
-              <Link to="/store">Store</Link>
-            </Menu.Item>
-            <Menu.SubMenu
-              key="layout"
-              title="Layout"
-              icon={<FontAwesomeIcon icon={faTh} />}
-            >
-              <Menu.Item key="home">
-                <Link to="/layout/home">Home</Link>
+            {layoutExtensions.map((extension) => (
+             extension.children ? (
+              <Menu.SubMenu
+                key={extension.id}
+                title={extension.title}
+                icon={<FontAwesomeIcon icon={extension.icon} />}
+              >
+                {extension.children.map((child) => (
+                  <Menu.Item key={child.id}>
+                    <Link to={child.path}>{child.title}</Link>
+                  </Menu.Item>
+                ))}
+              </Menu.SubMenu>
+             ) : (
+              <Menu.Item
+                key={extension.id}
+                icon={<FontAwesomeIcon icon={extension.icon} />}
+              >
+                <Link to={extension.path}>{extension.title}</Link>
               </Menu.Item>
-              <Menu.Item key="footer">
-                <Link to="/layout/footer">Footer</Link>
-              </Menu.Item>
-            </Menu.SubMenu>
+              )
+            ))}
           </Menu>
           <LogoutButton
             loading={logoutMutation.isPending}
@@ -157,16 +127,30 @@ const Admin = () => {
             <div></div>
           </Header>
           <Routes>
-            <Route path="/orders" element={<OrdersListPage />} />
-            <Route path="/layout/home" element={<HomeLayoutPage />} />
-            <Route path="/layout/footer" element={<FooterLayoutPage />} />
-            <Route path="/categories" element={<CategoriesListPage />} />
-            <Route path="/products/create" element={<AddEditProductPage />} />
-            <Route path="/products/:id" element={<AddEditProductPage />} />
-            <Route path="/products" element={<ProductsListPage />} />
-            <Route path="/variations" element={<VariationsListPage />} />
-            <Route path="/store" element={<StoreSettingsPage />} />
-            <Route path="/" element={<OrdersListPage />} />
+            {layoutExtensions.reduce((routes, extension) => {
+              if (extension.children) {
+                extension.children.forEach((child) => (
+                  routes.push(<Route key={child.id} path={child.path} element={<child.component />} />)
+                ));
+
+                return routes;
+              }
+
+              if (extension.routes) {
+                routes.push(<Route key={extension.path} path={extension.path} element={<extension.component />} />);
+
+                extension.routes.forEach((route) => (
+                  routes.push(<Route key={route.path} path={route.path} element={<route.component />} />)
+                ));
+
+                return routes;
+              }
+
+              routes.push(<Route key={extension.id} path={extension.path} element={<extension.component />} />);
+
+              return routes;
+            }, [])}
+            <Route path="/" element={<defaultExtension.component />} />
           </Routes>
         </Layout>
       </Layout>

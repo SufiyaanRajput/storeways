@@ -1,13 +1,13 @@
 import { notification } from "antd";
-import { useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
+import QueryBoundary from "../../internals/QueryBoundary";
 import Container from "./Container";
 import { Header, Main } from "./styles";
 import { sendPasswordResetEmail, resetPassword } from "./api";
 import { useLocation, useNavigate } from "react-router-dom";
 import queryString from "query-string";
 
-const ForgotPasswordPage = () => {
+let ForgotPasswordPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const parsedQueryStrings = queryString.parse(location.search);
@@ -71,6 +71,12 @@ const ForgotPasswordPage = () => {
     </>
   );
 };
+
+ForgotPasswordPage = (props) => (
+  <QueryBoundary>
+    <ForgotPasswordPage {...props} />
+  </QueryBoundary>
+);
 
 export default ForgotPasswordPage;
 

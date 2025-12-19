@@ -1,24 +1,20 @@
 import { Routes, BrowserRouter as Router, Route } from "react-router-dom";
-import Admin from "../Admin";
+import Admin from "../AdminLayout";
 import PublicRoute from "./PublicRoute";
 import PrivateRoute from "./PrivateRoute";
 import RegisterPage from "../pages/auth/RegisterPage";
 import LoginPage from "../pages/auth/LoginPage";
 import ForgotPasswordPage from "../pages/auth/ForgotPasswordPage";
 
-const AppRouter = ({
-  Register = RegisterPage,
-  Login = LoginPage,
-  ForgotPassword = ForgotPasswordPage,
-}) => {
+const AppRouter = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/register" element={<PublicRoute component={<Register />} />} />
-        <Route path="/login" element={<PublicRoute component={<Login />} />} />
+        <Route path="/register" element={<PublicRoute component={<RegisterPage />} />} />
+        <Route path="/login" element={<PublicRoute component={<LoginPage />} />} />
         <Route
           path="/password-reset"
-          element={<PublicRoute component={<ForgotPassword />} />}
+          element={<PublicRoute component={<ForgotPasswordPage />} />}
         />
         <Route path="/*" element={<PrivateRoute component={<Admin />} />} />
       </Routes>

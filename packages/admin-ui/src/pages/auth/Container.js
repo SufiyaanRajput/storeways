@@ -101,28 +101,6 @@ const Container = ({ fields, onSubmitCb, title, isLoading }) => {
         </Space>
       </Form>
       <Space direction="vertical" align="center" style={{ width: "100%" }}>
-        {title === "Register" && (
-          <p>
-            By registering you agree to the{" "}
-            <a
-              href="https://www.storeways.io/terms-of-service"
-              target="_blank"
-              rel="noreferrer"
-            >
-              terms
-            </a>{" "}
-            and{" "}
-            <a
-              href="https://www.storeways.io/privacy-policy"
-              target="_blank"
-              rel="noreferrer"
-            >
-              privacy policy
-            </a>
-          </p>
-        )}
-      </Space>
-      <Space direction="vertical" align="center" style={{ width: "100%" }}>
         {title === "Login" && (
           <p>
             <Link to="/password-reset">Forgot password?</Link>
