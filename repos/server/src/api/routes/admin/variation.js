@@ -1,23 +1,16 @@
 import {Router} from 'express';
-import {formatFromError, makeSwaggerFromJoi} from '../../../utils/helpers';
+import {formatFromError} from '../../../utils/helpers';
 import { requestValidator, auth } from '../../middlewares';
-import { adminService } from '../../../services';
+import { Variations } from '@storeways/lib/domain';
 import Joi from 'joi';
 
 const router = Router();
-
-const fetchVariationsSwagger = makeSwaggerFromJoi({ 
-  JoiSchema: {}, 
-  route: '/variations', 
-  method: 'get', 
-  summary: 'Fetch variations', 
-  tags: ['Variations'] 
-});
+const variations = new Variations();
 
 router.get('/variations', auth(['owner']), async (req, res) => {
   try{
-    const variations = await adminService.fetchVariations({storeId: req.user.storeId});
-    res.status(200).send({variations, success: true});
+    const data = await variations.fetch({storeId: req.user.storeId});
+    res.status(200).send({variations: data, success: true});
   }catch(error){
     console.error('[ADMIN-VARIATIONS-GET-CONTROLLER]', error);
     const {status, ...data} = formatFromError(error);
@@ -31,17 +24,9 @@ const schema = Joi.object({
   options: Joi.array().items(Joi.string().required()).required()
 });
 
-const addVariationSwagger = makeSwaggerFromJoi({ 
-  JoiSchema: schema, 
-  route: '/variations', 
-  method: 'post', 
-  summary: 'Create a variation', 
-  tags: ['Variations'] 
-});
-
 router.post('/variations', auth(['owner']), requestValidator(schema), async (req, res) => {
   try{
-    const variation = await adminService.addVariation({...req.values, storeId: req.user.storeId});
+    const variation = await variations.create({...req.values, storeId: req.user.storeId});
     res.status(201).send({variation, success: true});
   }catch(error){
     console.error('[ADMIN-VARIATION-POST-CONTROLLER]', error);
@@ -54,20 +39,13 @@ const updateSchema = Joi.object({
   id: Joi.number().integer().positive().required(),
   name: Joi.string().trim().required(),
   categoryId: Joi.number().integer().positive().allow(null),
-  options: Joi.array().items(Joi.string().required()).required()
-});
-
-const updateVariationSwagger = makeSwaggerFromJoi({ 
-  JoiSchema: updateSchema.keys({ id: Joi.forbidden() }), 
-  route: '/variations/:id', 
-  method: 'put', 
-  summary: 'Update a variation', 
-  tags: ['Variations'] 
+  options: Joi.array().items(Joi.string().required()).required(),
+  active: Joi.boolean().required()
 });
 
 router.put('/variations/:id', auth(['owner']), requestValidator(updateSchema), async (req, res) => {
   try{
-    const variation = await adminService.updateVariation({...req.values, storeId: req.user.storeId});
+    const variation = await variations.update({...req.values, storeId: req.user.storeId});
     res.status(200).send({variation, success: true});
   }catch(error){
     console.error('[ADMIN-VARIATION-PUT-CONTROLLER]', error);
@@ -80,17 +58,9 @@ const deleteSchema = Joi.object({
   id: Joi.number().integer().positive().required()
 });
 
-const deleteVariationSwagger = makeSwaggerFromJoi({ 
-  JoiSchema: deleteSchema.keys({ id: Joi.forbidden() }), 
-  route: '/variations/:id', 
-  method: 'delete', 
-  summary: 'Delete a variation', 
-  tags: ['Variations'] 
-});
-
 router.delete('/variations/:id', auth(['owner']), requestValidator(deleteSchema), async (req, res) => {
   try{
-    await adminService.deleteVariation({...req.values, storeId: req.user.storeId});
+    await variations.delete({...req.values, storeId: req.user.storeId});
     res.status(200).send({message: 'Variation deleted!', success: true});
   }catch(error){
     console.error('[ADMIN-VARIATION-DELETE-CONTROLLER]', error);
@@ -98,39 +68,5 @@ router.delete('/variations/:id', auth(['owner']), requestValidator(deleteSchema)
     res.status(status).send(data);
   }
 });
-
-export const variationsSwagger = {
-  '/variations': {
-    ...fetchVariationsSwagger['/variations'],
-    ...addVariationSwagger['/variations'],
-  },
-  '/variations/{id}': {
-    put: {
-      ...updateVariationSwagger['/variations/:id'].put,
-      parameters: [
-        {
-          name: 'id',
-          in: 'path',
-          required: true,
-          description: 'The unique ID of the variation',
-          schema: { type: 'integer' },
-        },
-      ],
-    },
-    delete: {
-      ...deleteVariationSwagger['/variations/:id'].delete,
-      requestBody: undefined,
-      parameters: [
-        {
-          name: 'id',
-          in: 'path',
-          required: true,
-          description: 'The unique ID of the variation',
-          schema: { type: 'integer' },
-        },
-      ],
-    },
-  },
-}
 
 export default router;

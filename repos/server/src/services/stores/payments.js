@@ -4,10 +4,11 @@ import { makeAuthToken } from '../users/account';
 import { customAlphabet } from 'nanoid';
 import { getVariationGroupBySelection } from '../../utils/helpers';
 import PaymentGateway from '../integrations/PaymentGateway';
-import * as ProductService from '../products';
+import { Product } from '@storeways/lib/domain';
 import config from '../../config';
 import { sendOrderMail, confirmOrdersAfterPayment, processOrder } from '../orders';
 
+const product = new Product();
 
 export const createOrder = async ({
   amount, 
@@ -75,7 +76,7 @@ export const createOrder = async ({
 
     if (isCod) {
       promises = [
-        ProductService.updateStock({products}),
+        product.updateStock({products}),
         sendOrderMail({
           to: user.email, 
           storeName,

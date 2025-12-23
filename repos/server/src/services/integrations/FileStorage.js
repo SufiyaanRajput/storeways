@@ -1,13 +1,10 @@
-import getConfig from "../../../config";
-import { getPlugin } from "../../plugins/registry";
+import LocalFileStorage from '../../plugins/storage/LocalFileStorage';
 
 let storage = null;
 
 const getStorage = () => {
   if (!storage) {
-    const pluginConfig = getConfig().plugins.find(plugin => plugin.key === 'storage');
-    const UploadService = getPlugin('storage'); 
-    storage = new UploadService(pluginConfig.options);
+    storage = new LocalFileStorage();
   }
 
   return storage;

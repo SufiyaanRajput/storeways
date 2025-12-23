@@ -46,4 +46,8 @@ export const getDatabase = () => {
   return db;
 }
 
+export const getTransaction = () => {
+  return db.sequelize.transaction();
+}
+
 export default loadModels;

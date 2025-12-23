@@ -1,9 +1,10 @@
 import {Router} from 'express';
-import {formatFromError, customJoiValidators, makeSwaggerFromJoi} from '../../../utils/helpers';
-import { orderService } from '../../../services';
+import {formatFromError} from '../../../utils/helpers';
+import { Order } from '@storeways/lib/domain';
 import { getStore, auth, requestValidator } from '../../middlewares';
 import Joi from 'joi';
 
+const orderService = new Order();
 const router = Router();
 
 const getSchema = Joi.object({
@@ -13,17 +14,9 @@ const getSchema = Joi.object({
   page: Joi.number().integer().required(),
 });
 
-const getOrdersSwagger = makeSwaggerFromJoi({ 
-  JoiSchema: getSchema, 
-  route: '/orders', 
-  method: 'get', 
-  summary: 'Fetch orders', 
-  tags: ['Orders'] 
-});
-
 router.get('/orders', auth(['owner']), requestValidator(getSchema), async (req, res) => {
   try{
-    const { orders, deliveryStatuses } = await orderService.fetchOrders({storeId: req.storeId, admin: true, ...req.values});
+    const { orders, deliveryStatuses } = await orderService.fetchAll({storeId: req.storeId, admin: true, ...req.values});
 
     res.status(200).send({orders, deliveryStatuses, success: true});
   }catch(error){
@@ -39,19 +32,9 @@ const schema = Joi.object({
   products: Joi.array().items(Joi.object()).required(),
 });
 
-const cancelOrdersSwagger = makeSwaggerFromJoi({ 
-  JoiSchema: schema.keys({
-    products: Joi.forbidden(),
-  }), 
-  route: '/orders/cancel', 
-  method: 'put', 
-  summary: 'Cancel orders', 
-  tags: ['Orders'] 
-});
-
 router.put('/orders/cancel', auth(['owner']), requestValidator(schema), getStore(), async (req, res) => {
   try{
-    await orderService.cancelOrders({storeId: req.storeId, storeSupport: req.storeSupport, admin: true, ...req.values});
+    await orderService.cancel({storeId: req.storeId, storeSupport: req.storeSupport, admin: true, ...req.values});
 
     res.status(200).send({message: 'Orders cancelled!', success: true});
   }catch(error){
@@ -67,17 +50,9 @@ const updateOrderSchema = Joi.object({
   deliveryStatus: Joi.number().integer().positive().allow(0).required(),
 });
 
-const updateOrdersSwagger = makeSwaggerFromJoi({ 
-  JoiSchema: updateOrderSchema, 
-  route: '/orders', 
-  method: 'put', 
-  summary: 'Update orders', 
-  tags: ['Orders'] 
-});
-
 router.put('/orders', auth(['owner']), requestValidator(updateOrderSchema), getStore(), async (req, res) => {
   try{
-    await orderService.updateOrder({storeId: req.storeId, storeSupport: req.storeSupport, ...req.values});
+    await orderService.update({storeId: req.storeId, storeSupport: req.storeSupport, ...req.values});
 
     res.status(200).send({message: 'Order updated!', success: true});
   }catch(error){
@@ -86,14 +61,6 @@ router.put('/orders', auth(['owner']), requestValidator(updateOrderSchema), getS
     res.status(status).send(data);
   }
 });
-
-export const ordersSwagger = {
-  '/orders': {
-    ...getOrdersSwagger['/orders'],
-    ...updateOrdersSwagger['/orders'],
-  },
-  ...cancelOrdersSwagger,
-}
 
 
 export default router;

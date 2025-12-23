@@ -8,7 +8,7 @@ import { useSetAtom } from "jotai";
 import { setUserAtom } from "../../store/userAtom";
 import QueryBoundary from "../../internals/QueryBoundary";
 
-let LoginPage = () => {
+const LoginPage = () => {
   const setUser = useSetAtom(setUserAtom);
 
   const loginMutation = useMutation({
@@ -51,11 +51,11 @@ let LoginPage = () => {
   );
 };
 
-LoginPage = (props) => (
+const LoginPageContainer = (props) => (
   <QueryBoundary>
     <LoginPage {...props} />
   </QueryBoundary>
 );
 
-export default LoginPage;
+export default LoginPageContainer;
 

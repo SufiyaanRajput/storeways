@@ -9,26 +9,14 @@ module.exports = (sequelize, DataTypes) => {
     productId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: {
-        model: 'products',
-        key: 'id'
-      }
     },
     userId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: {
-        model: 'users',
-        key: 'id'
-      }
     },
     productVariationStockId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: {
-        model: 'productVariationStocks',
-        key: 'id'
-      }
     },
     storeId: {
 			type: DataTypes.INTEGER,
@@ -123,13 +111,6 @@ module.exports = (sequelize, DataTypes) => {
     underscored: true,
 		timestamps: true
   });
-
-  // Associations are defined after all models are initialized
-  Order.associate = (models) => {
-    Order.belongsTo(models.Product, { foreignKey: 'productId' });
-    Order.belongsTo(models.User, { foreignKey: 'userId' });
-    Order.belongsTo(models.ProductVariationStock, { foreignKey: 'productVariationStockId' });
-  };
 
 	return Order;
 };

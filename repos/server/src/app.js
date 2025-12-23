@@ -6,6 +6,7 @@ import { createStorewaysApp } from "@storeways/lib";
 import config from './config';
 import routes from './api/routes';
 import LocalFileStorage from './plugins/storage/LocalFileStorage';
+import Email from './services/integrations/Email';
 
 export let app = null;
 
@@ -15,11 +16,12 @@ const startServer = async () => {
       database: {
         connectionUrl: config.databaseURL,
       },
-      domains: ['products', 'stores', 'users'],
+      domains: ['products', 'stores', 'users', 'orders'],
       adapters: {
         fileStorage: new LocalFileStorage({
           uploadDir: 'uploads',
         }),
+        emailService: new Email(),
       },
     }
 

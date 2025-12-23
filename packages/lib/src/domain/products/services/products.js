@@ -1,5 +1,5 @@
 import ProductsRepository from '../repositories/products';
-import getDatabase from '../../../db';
+import { getDatabase } from '../../../db';
 
 class ProductService {
   constructor() {

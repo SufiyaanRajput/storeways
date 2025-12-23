@@ -7,7 +7,7 @@ import { useSetAtom } from "jotai";
 import { setUserAtom } from "../../store/userAtom";
 import QueryBoundary from "../../internals/QueryBoundary";
 
-let RegisterPage = () => {
+const RegisterPage = () => {
   const setUser = useSetAtom(setUserAtom);
 
   const registerMutation = useMutation({
@@ -59,11 +59,11 @@ let RegisterPage = () => {
   );
 };
 
-RegisterPage = (props) => (
+const RegisterPageContainer = (props) => (
   <QueryBoundary>
     <RegisterPage {...props} />
   </QueryBoundary>
 );
 
-export default RegisterPage;
+export default RegisterPageContainer;
 

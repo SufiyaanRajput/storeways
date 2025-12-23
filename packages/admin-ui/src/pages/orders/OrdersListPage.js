@@ -42,7 +42,7 @@ const ProductTable = ({ record, refetchOrders, deliveryStatuses, cancelOrders, u
   const cancelOrdersMutation = useMutation({
     mutationFn: async (payload) => {
       if (!cancelOrders) throw new Error('cancelOrders not provided');
-      return await cancelOrders(payload);
+      return cancelOrders(payload);
     },
     onSuccess: () => {
       setCancellingId(null);
@@ -605,7 +605,7 @@ const Orders = () => {
             <div>
               <ProductTable
                 deliveryStatuses={ordersResponse.data.deliveryStatuses || []}
-                record={record.items}
+                record={record.items.map(item => ({...item, customerId: record.customerId}))}
                 refetchOrders={refetch}
                 cancelOrders={cancelOrders}
                 updateOrder={updateOrder}

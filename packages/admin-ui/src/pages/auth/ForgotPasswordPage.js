@@ -7,7 +7,7 @@ import { sendPasswordResetEmail, resetPassword } from "./api";
 import { useLocation, useNavigate } from "react-router-dom";
 import queryString from "query-string";
 
-let ForgotPasswordPage = () => {
+const ForgotPasswordPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const parsedQueryStrings = queryString.parse(location.search);
@@ -72,11 +72,11 @@ let ForgotPasswordPage = () => {
   );
 };
 
-ForgotPasswordPage = (props) => (
+const ForgotPasswordPageContainer = (props) => (
   <QueryBoundary>
     <ForgotPasswordPage {...props} />
   </QueryBoundary>
 );
 
-export default ForgotPasswordPage;
+export default ForgotPasswordPageContainer;
 

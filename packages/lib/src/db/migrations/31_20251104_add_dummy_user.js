@@ -24,10 +24,6 @@ const { createProduct } = require('../src/services/products');
       { returning: ['id'] } // for Postgres; ensures we get inserted ID
     );
 
-
-    
-    console.log('created-store', store)
-
     const passwordHash = await bcrypt.hash('password123', 8);
 
     await queryInterface.bulkInsert('users', [

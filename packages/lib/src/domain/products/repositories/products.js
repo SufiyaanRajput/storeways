@@ -336,11 +336,11 @@ class ProductsRepository extends BaseRepository {
       `;
   
       if (hasVariations) {
-        promises.push(models.sequelize.query(variationStockUpdateQuery, { type: QueryTypes.UPDATE, transaction }));
+        promises.push(this.models.sequelize.query(variationStockUpdateQuery, { type: QueryTypes.UPDATE, transaction }));
       }
   
       if (hasNonVariants) {
-        promises.push(models.sequelize.query(stockUpdateQuery, { type: QueryTypes.UPDATE, transaction }));
+        promises.push(this.models.sequelize.query(stockUpdateQuery, { type: QueryTypes.UPDATE, transaction }));
       }
   
       return promises;

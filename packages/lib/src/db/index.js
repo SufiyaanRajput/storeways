@@ -1,3 +1,3 @@
-import { getDatabase } from './models/index';
+import { getDatabase, getTransaction } from './models/index';
 
-export default getDatabase;
+export { getDatabase, getTransaction };

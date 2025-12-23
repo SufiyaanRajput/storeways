@@ -5,7 +5,7 @@ import sanitizeHtml from 'sanitize-html';
 import { Product } from '@storeways/lib/domain';
 import Joi from 'joi';
 import multer from 'multer';
-import LocalFileStorage from '../../../plugins/storage/LocalFileStorage';
+import FileStorage from '../../../services/integrations/FileStorage';
 
 const router = Router();
 
@@ -20,7 +20,7 @@ router.post('/products/image', auth(['owner']), upload.single('productImage'), a
       return res.status(400).send({message: 'Invalid request payload!', success: false});
     }
 
-    const storage = new LocalFileStorage();
+    const storage = new FileStorage();
     const { url, fileId } = await storage.upload(req.file.buffer, `${req.body.fileName}.${req.body.ext}`, 'uploads/products');
     res.status(200).send({image: {
       url,
