@@ -219,10 +219,10 @@ class ProductsRepository extends BaseRepository {
   
       if (!categories.length) throw { status: 400, msgText: 'Category does not exit!', error: new Error() };
   
-      var transaction = await models.sequelize.transaction();
+      var transaction = await this.models.sequelize.transaction();
   
       const promises = [
-        models.Product.update(
+        this.models.Product.update(
           { ...payload },
           {
             where: {

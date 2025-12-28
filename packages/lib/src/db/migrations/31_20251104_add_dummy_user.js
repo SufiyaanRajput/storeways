@@ -118,7 +118,6 @@ const { createProduct } = require('../src/services/products');
         images: imageSources.map((src, j) => ({
           url: src.url,
           alt: src.alt,
-          variation: { size: sizes[j] },
         })),
         variations: sizeStocks.map(({ size, stock, idx }) => ({
           maxOrderQuantity: null,

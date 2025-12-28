@@ -12,11 +12,23 @@ const getSchema = Joi.object({
   search: Joi.string(),
   deliveryStatus: Joi.number().integer().allow(null),
   page: Joi.number().integer().required(),
+  filters: Joi.string(),
 });
 
 router.get('/orders', auth(['owner']), requestValidator(getSchema), async (req, res) => {
   try{
-    const { orders, deliveryStatuses } = await orderService.fetchAll({storeId: req.storeId, admin: true, ...req.values});
+    const { filters: rawFilters, ...rest } = req.values;
+    let filters = [];
+    if (rawFilters) {
+      try {
+        const parsed = typeof rawFilters === 'string' ? JSON.parse(rawFilters) : rawFilters;
+        filters = Array.isArray(parsed) ? parsed : [];
+      } catch (error) {
+        filters = [];
+      }
+    }
+
+    const { orders, deliveryStatuses } = await orderService.fetchAll({storeId: req.storeId, admin: true, filters, ...rest});
 
     res.status(200).send({orders, deliveryStatuses, success: true});
   }catch(error){
@@ -57,6 +69,17 @@ router.put('/orders', auth(['owner']), requestValidator(updateOrderSchema), getS
     res.status(200).send({message: 'Order updated!', success: true});
   }catch(error){
     console.error('[ADMIN-ORDER-PUT-CONTROLLER]', error);
+    const {status, ...data} = formatFromError(error);
+    res.status(status).send(data);
+  }
+});
+
+router.get('/orders/filters', auth(['owner']), async (req, res) => {
+  try{
+    const filters = await orderService.getOrderFilters();
+    res.status(200).send({filters, success: true});
+  }catch(error){
+    console.error('[ADMIN-ORDERS-FILTERS-GET-CONTROLLER]', error);
     const {status, ...data} = formatFromError(error);
     res.status(status).send(data);
   }

@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 // import { useAsyncFetch } from '../../../utils/hooks';
 import { PageHeader } from "../../styles/common";
 import { Table, ShippingAddress, AddressCard } from "./styles";
-import { fetchOrders, cancelOrders, updateOrder } from "./api";
+import { fetchOrders, fetchOrderFilters, cancelOrders, updateOrder } from "./api";
 const { Content } = Layout;
 
 // dnd-kit for sortable column ordering
@@ -159,6 +159,8 @@ const ProductTable = ({ record, refetchOrders, deliveryStatuses, cancelOrders, u
 };
 
 const Orders = () => {
+  const PRODUCT_FILTER_FIELDS = ['referenceId', 'product', 'variations', 'quantity', 'deliveryStatus', 'price', 'status'];
+
   const DEFAULT_COLUMNS_CONFIG = useMemo(() => ([
     { id: 'cartReferenceId', field: 'cartReferenceId', title: 'Cart reference ID', enabled: true, width: 170 },
     { id: 'paymentStatus', field: 'paymentStatus', title: 'Payment status', enabled: true, width: 150 },
@@ -170,6 +172,7 @@ const Orders = () => {
     { id: 'totalItems', field: 'totalItems', title: 'Total items', enabled: true, width: 150 },
     { id: 'createdAt', field: 'createdAt', title: 'Order date', enabled: true, width: 150 },
   ]), []);
+
   const [isColumnsModalOpen, setIsColumnsModalOpen] = useState(false);
   const [draftColumnsConfig, setDraftColumnsConfig] = useState(null);
   const getInitialColumnsConfig = () => {
@@ -209,11 +212,20 @@ const Orders = () => {
   const [filtersConfig, setFiltersConfig] = useState(getInitialFiltersConfig);
   const [draftFiltersConfig, setDraftFiltersConfig] = useState(null);
 
+  const { data: filtersResponse } = useQuery({
+    queryKey: ['adminOrderFilters'],
+    queryFn: async () => {
+      if (!fetchOrderFilters) return { data: { filters: [] } };
+      return fetchOrderFilters();
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+
   const { data: ordersResponse, isFetching, refetch } = useQuery({
-    queryKey: ['adminOrders', { deliveryStatus, search, page, textSearchType }],
+    queryKey: ['adminOrders', { deliveryStatus, search, page, textSearchType, filters: filtersConfig }],
     queryFn: async () => {
       if (!fetchOrders) return { data: { orders: [] } };
-      const res = await fetchOrders({ deliveryStatus, search, page, textSearchType });
+      const res = await fetchOrders({ deliveryStatus, search, page, textSearchType, filters: filtersConfig });
       return res;
     },
     keepPreviousData: true,
@@ -260,29 +272,29 @@ const Orders = () => {
     ordersResponse?.orders ||
     (Array.isArray(ordersResponse) ? ordersResponse : []);
 
+  const remoteFilters = useMemo(
+    () => filtersResponse?.data?.filters || filtersResponse?.filters || [],
+    [filtersResponse]
+  );
+
+  const filtersMap = useMemo(() => {
+    const map = {};
+    remoteFilters.forEach(f => {
+      if (f?.field) map[f.field] = f;
+    });
+    return map;
+  }, [remoteFilters]);
+
   const inferFieldType = (field) => {
-    const sample = orders && orders.length ? orders[0] : null;
-    const value = sample ? sample[field] : undefined;
-    if (value == null) {
-      if (field.toLowerCase().includes('date') || field.toLowerCase().includes('at')) return 'date';
-      return 'text';
-    }
-    if (typeof value === 'number') return 'number';
-    if (typeof value === 'string') {
-      const d = new Date(value);
-      if (!isNaN(d.getTime())) return 'date';
-      return 'text';
-    }
+    if (!field) return 'text';
+    const remoteType = filtersMap[field]?.type;
+    if (remoteType === 'boolean') return 'boolean';
+    if (remoteType === 'select') return 'select';
+    if (remoteType === 'range') return 'date';
+    if (remoteType === 'number') return 'number';
     return 'text';
   };
 
-  const numericOperators = [
-    { label: '<', value: '<' },
-    { label: '<=', value: '<=' },
-    { label: '>', value: '>' },
-    { label: '>=', value: '>=' },
-    { label: '=', value: '=' }
-  ];
   const textOperators = [
     { label: 'equals', value: 'eq' },
     { label: 'contains', value: 'contains' }
@@ -290,65 +302,27 @@ const Orders = () => {
   const dateOperators = [
     { label: 'range', value: 'range' }
   ];
+  const equalsOperators = [
+    { label: 'equals', value: 'eq' }
+  ];
 
-  const applyFilters = (list) => {
-    if (!filtersConfig || filtersConfig.length === 0) return list;
-    return list.filter(item => {
-      return filtersConfig.every(f => {
-        const type = f.type || inferFieldType(f.field);
-        const raw = item[f.field];
-        if (type === 'number') {
-          const val = Number(raw);
-          const cmp = Number(f.value);
-          if (isNaN(val) || isNaN(cmp)) return false;
-          switch (f.operator) {
-            case '<': return val < cmp;
-            case '<=': return val <= cmp;
-            case '>': return val > cmp;
-            case '>=': return val >= cmp;
-            case '=': return val === cmp;
-            default: return true;
-          }
-        }
-        if (type === 'date') {
-          if (!raw || !f.range || !f.range.start || !f.range.end) return true;
-          const v = new Date(raw).getTime();
-          const start = new Date(f.range.start).getTime();
-          const end = new Date(f.range.end).getTime();
-          if (isNaN(v) || isNaN(start) || isNaN(end)) return false;
-          return v >= start && v <= end;
-        }
-        const text = (raw ?? '').toString().toLowerCase();
-        const needle = (f.value ?? '').toString().toLowerCase();
-        if (f.operator === 'eq') return text === needle;
-        if (f.operator === 'contains') return text.includes(needle);
-        return true;
-      });
-    });
+  const getOptionsForField = (field) => {
+    if (filtersMap[field]?.options) return filtersMap[field].options;
+    return [];
   };
-
-  const filteredOrders = applyFilters(orders);
 
   const makeOrders = (list = []) => {
     return list.map(o => ({...o, key: o.id}));
   }
 
-  const onTextSearchChange = (e) => {
-    setSearch(e.target.value);
-    setPage(1);
-  }
-
-  const onDeliveryStatusFilterChange = (deliveryStatus) => {
-    setDeliveryStatus(deliveryStatus || null);
-    setPage(1);
-  }
-
   const availableFields = useMemo(() => {
+    const remoteFields = remoteFilters.map(f => f.field);
+    if (remoteFields.length) return remoteFields;
     const sample = orders && orders.length ? orders[0] : null;
     const keys = sample ? Object.keys(sample) : [];
-    // Fallback to default config fields if no data yet
-    return keys.length ? keys : DEFAULT_COLUMNS_CONFIG.map(c => c.field);
-  }, [orders, DEFAULT_COLUMNS_CONFIG]);
+    const baseFields = keys.length ? keys : DEFAULT_COLUMNS_CONFIG.map(c => c.field);
+    return Array.from(new Set([...baseFields, ...PRODUCT_FILTER_FIELDS]));
+  }, [orders, DEFAULT_COLUMNS_CONFIG, remoteFilters]);
 
   const canAddMoreColumns = useMemo(() => {
     const used = (draftColumnsConfig || []).length;
@@ -493,8 +467,7 @@ const Orders = () => {
                   id: `f-${Date.now()}`,
                   field,
                   type,
-                  operator: type === 'number' ? '<=' : (type === 'date' ? 'range' : 'eq'),
-                  value: type === 'number' ? 0 : '',
+                  operator: type === 'number' ? 'eq' : (type === 'date' ? 'range' : 'eq'),
                   range: type === 'date' ? { start: null, end: null } : undefined,
                 }
               ]));
@@ -510,7 +483,14 @@ const Orders = () => {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {(draftFiltersConfig || []).map(f => {
               const type = f.type || inferFieldType(f.field);
-              const operatorOptions = type === 'number' ? numericOperators : (type === 'date' ? dateOperators : textOperators);
+              const operatorOptions =
+                type === 'number'
+                  ? equalsOperators
+                  : type === 'date'
+                    ? dateOperators
+                    : type === 'boolean' || type === 'select'
+                      ? equalsOperators
+                      : textOperators;
               return (
                 <div key={f.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 0' }}>
                   <Select
@@ -522,8 +502,8 @@ const Orders = () => {
                         ...x,
                         field: val,
                         type: nextType,
-                        operator: nextType === 'number' ? '<=' : (nextType === 'date' ? 'range' : 'eq'),
-                        value: nextType === 'number' ? 0 : '',
+                        options: getOptionsForField(val),
+                        operator: nextType === 'number' ? 'eq' : (nextType === 'date' ? 'range' : 'eq'),
                         range: nextType === 'date' ? { start: null, end: null } : undefined,
                       } : x));
                     }}
@@ -534,7 +514,7 @@ const Orders = () => {
                     value={f.operator}
                     onChange={(val) => setDraftFiltersConfig(prev => (prev || []).map(x => x.id === f.id ? ({ ...x, operator: val }) : x))}
                     options={operatorOptions}
-                    disabled={type === 'date'}
+                    disabled={type === 'date' || type === 'boolean' || type === 'enumNumber' || type === 'enumText'}
                   />
                   <div style={{ minWidth: 240 }}>
                     {type === 'number' && (
@@ -573,6 +553,25 @@ const Orders = () => {
                         }}
                       />
                     )}
+                    {type === 'boolean' && (
+                      <Select
+                        style={{ width: 240 }}
+                        value={f.value}
+                        onChange={(val) => setDraftFiltersConfig(prev => (prev || []).map(x => x.id === f.id ? ({ ...x, value: val }) : x))}
+                        options={[
+                          { label: 'Yes', value: true },
+                          { label: 'No', value: false },
+                        ]}
+                      />
+                    )}
+                    {type === 'select' && (
+                      <Select
+                        style={{ width: 240 }}
+                        value={f.value}
+                        onChange={(val) => setDraftFiltersConfig(prev => (prev || []).map(x => x.id === f.id ? ({ ...x, value: val }) : x))}
+                        options={f.options}
+                      />
+                    )}
                   </div>
                   <span
                     onClick={() => setDraftFiltersConfig(prev => (prev || []).filter(x => x.id !== f.id))}
@@ -594,7 +593,7 @@ const Orders = () => {
           </div>
         </Modal>
         <AntdTable
-          dataSource={makeOrders(filteredOrders)}
+          dataSource={makeOrders(orders)}
           rowKey="cartReferenceId"
           scroll={{ x: 1100 }}
           columns={columns}

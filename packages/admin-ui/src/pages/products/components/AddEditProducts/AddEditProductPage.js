@@ -19,6 +19,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMinusCircle, faPlus } from "@fortawesome/free-solid-svg-icons";
 import ReactQuill from "react-quill";
+import { get, set, cloneDeep } from "lodash";
 import QueryBoundary from "../../../../internals/QueryBoundary";
 import { PageHeader, FormSectionHeader, SubmitWrapper } from "../../../../styles";
 import { VariationGroupCard } from "./styles";
@@ -252,7 +253,7 @@ const AddEditProduct = () => {
   });
 
   const onSubmit = (productPayload) => {
-    const validImages = (images || []).filter((image) => image.fileId);
+    const validImages = (images || []).filter((image) => image.fileId || image.uid);
     if (!validImages.length) {
       notification.error({
         message: "Please upload at least one image",
@@ -272,11 +273,57 @@ const AddEditProduct = () => {
     addProductMutation.mutate({ images: validImages, ...productPayload });
   };
 
-  const uploadImage = ({ file }) => {
+  const uploadImage = async (options, type = "product", meta = {}) => {
+    const { file, onSuccess, onError } = options || {};
+    const { variationIndex, variationGroupIndex } = meta || {};
     const formData = new FormData();
     formData.append("fileName", new Date().getTime());
     formData.append("ext", file.name.split(".").pop());
     formData.append("productImage", file);
+
+    if (type === "variant") {
+      try {
+        const response = await addProductImageMutation.mutateAsync(formData);
+        const image = response?.data?.image || response?.image;
+        if (!image) {
+          throw new Error("Invalid image response");
+        }
+
+        if (
+          typeof variationIndex === "number" &&
+          typeof variationGroupIndex === "number"
+        ) {
+          const variationsValue = cloneDeep(
+            form.getFieldValue(["variations"]) || []
+          );
+          const imagesPath = [
+            variationIndex,
+            "variationGroup",
+            variationGroupIndex,
+            "images",
+          ];
+          const currentImages = get(variationsValue, imagesPath, []);
+          const nextImages = Array.isArray(currentImages)
+            ? currentImages
+            : [currentImages].filter(Boolean);
+
+          image.status = "done";
+
+          set(variationsValue, imagesPath, [...nextImages, image]);
+          form.setFieldsValue({ variations: variationsValue });
+        }
+
+        onSuccess?.({ image }, file);
+      } catch (error) {
+        notification.error({
+          message: "Couldn't add image!",
+          placement: "bottomRight",
+        });
+        onError?.(error);
+      }
+      return;
+    }
+
     setImages((imgs) => [...imgs, { status: "uploading", percent: 50 }]);
     addProductImageMutation.mutate(formData);
   };
@@ -288,6 +335,22 @@ const AddEditProduct = () => {
       deleteProductImageMutation.mutate({
         imageId: file.fileId,
       });
+    }
+  };
+
+  const removeVariantImage = async (file) => {
+    const imageId =
+      file?.fileId || file?.response?.image?.fileId || file?.uid || file?.id;
+    if (!imageId) return true;
+    try {
+      await deleteProductImageApi({ imageId });
+      return true;
+    } catch (error) {
+      notification.error({
+        message: "Couldn't remove image!",
+        placement: "bottomRight",
+      });
+      return false;
     }
   };
 
@@ -311,7 +374,11 @@ const AddEditProduct = () => {
           onFinish={onSubmit}
           labelCol={{ span: 24 }}
           wrapperCol={{ span: 24 }}
-          initialValues={{ maxOrderQuantity: -1, ...defaultProduct, ...product }}
+          initialValues={{
+            maxOrderQuantity: -1,
+            ...defaultProduct,
+            ...product,
+          }}
           autoComplete="off"
         >
           <Row gutter={51}>
@@ -322,7 +389,9 @@ const AddEditProduct = () => {
                   <Form.Item
                     label="Name"
                     name="name"
-                    rules={[{ required: true, message: "Please input product name!" }]}
+                    rules={[
+                      { required: true, message: "Please input product name!" },
+                    ]}
                   >
                     <Input />
                   </Form.Item>
@@ -331,7 +400,9 @@ const AddEditProduct = () => {
                   <Form.Item
                     label="Category"
                     name="categoryIds"
-                    rules={[{ required: true, message: "Please select categories!" }]}
+                    rules={[
+                      { required: true, message: "Please select categories!" },
+                    ]}
                   >
                     <Select
                       loading={fetchingCategories}
@@ -398,12 +469,20 @@ const AddEditProduct = () => {
                   </Form.Item>
                 </Col>
                 <Col md={24}>
-                  <Form.Item label="Description" name="description" initialValue="">
+                  <Form.Item
+                    label="Description"
+                    name="description"
+                    initialValue=""
+                  >
                     <ReactQuill />
                   </Form.Item>
                 </Col>
                 <Col md={24}>
-                  <Form.Item label="Return Policy" name="returnPolicy" initialValue="">
+                  <Form.Item
+                    label="Return Policy"
+                    name="returnPolicy"
+                    initialValue=""
+                  >
                     <ReactQuill />
                   </Form.Item>
                 </Col>
@@ -419,77 +498,168 @@ const AddEditProduct = () => {
                             <Col md={24} style={{ marginBottom: "12px" }}>
                               <Card>
                                 <Form.List name={[name, "variationGroup"]}>
-                                  {(variationFields, { add: addVar, remove: removeVar }, { errors: varErrors }) => (
+                                  {(
+                                    variationFields,
+                                    { add: addVar, remove: removeVar },
+                                    { errors: varErrors }
+                                  ) => (
                                     <>
-                                      {variationFields.map(({ key: vKey, name: vName, ...vRestField }, index) => (
-                                        <Form.Item required key={vKey}>
-                                          <Card>
-                                            <Row gutter={16}>
-                                              <Col md={12}>
-                                                <Form.Item
-                                                  label="Name"
-                                                  {...vRestField}
-                                                  validateTrigger={["onChange", "onBlur"]}
-                                                  name={[vName, "name"]}
-                                                  rules={[
-                                                    {
-                                                      required: true,
-                                                      message:
-                                                        "Please fill a variant or delete this field.",
-                                                    },
-                                                  ]}
-                                                >
-                                                  <Select onChange={(val) => onVariationChange(val, groupIndex, index)}>
-                                                    {(variations || []).map((variation) => (
-                                                      <Select.Option key={variation.name} value={variation.name}>
-                                                        {variation.name}
-                                                      </Select.Option>
-                                                    ))}
-                                                  </Select>
-                                                </Form.Item>
-                                              </Col>
-                                              <Col md={12}>
-                                                <Form.Item
-                                                  label="Option"
-                                                  {...vRestField}
-                                                  name={[vName, "value"]}
-                                                  validateTrigger={["onChange", "onBlur"]}
-                                                  rules={[
-                                                    {
-                                                      required: true,
-                                                      message:
-                                                        "Please fill a variant or delete this field.",
-                                                    },
-                                                  ]}
-                                                >
-                                                  <Select>
-                                                    {variationOptionsByIndex[groupIndex] &&
-                                                    variationOptionsByIndex[groupIndex][index]
-                                                      ? variationOptionsByIndex[groupIndex][index].map((option) => (
-                                                          <Select.Option key={option} value={option}>
-                                                            {option}
-                                                          </Select.Option>
-                                                        ))
-                                                      : []}
-                                                  </Select>
-                                                </Form.Item>
-                                              </Col>
-                                            </Row>
-                                            <Button
-                                              type="link"
-                                              onClick={() => removeVar(vName)}
-                                              icon={<FontAwesomeIcon icon={faMinusCircle} />}
+                                      {variationFields.map(
+                                        (
+                                          {
+                                            key: vKey,
+                                            name: vName,
+                                            ...vRestField
+                                          },
+                                          index
+                                        ) => (
+                                          <Form.Item required key={vKey}>
+                                            <Form.Item
+                                              label="Variant Images"
+                                              {...vRestField}
+                                              name={[vName, "images"]}
+                                              valuePropName="fileList"
+                                              getValueProps={(value) => ({ fileList: value })}
                                             >
-                                              Remove
-                                            </Button>
-                                          </Card>
-                                        </Form.Item>
-                                      ))}
+                                              <ImgCrop aspect={3 / 4}>
+                                                <Upload
+                                                  fileList={form.getFieldValue([
+                                                    "variations",
+                                                    name,
+                                                    "variationGroup",
+                                                    vName,
+                                                    "images",
+                                                  ]) || []}
+                                                  customRequest={(options) =>
+                                                    uploadImage(
+                                                      options,
+                                                  "variant",
+                                                  {
+                                                    variationIndex: name,
+                                                    variationGroupIndex: vName,
+                                                  }
+                                                    )
+                                                  }
+                                                  onRemove={removeVariantImage}
+                                                  listType="picture-card"
+                                                  onPreview={() => {}}
+                                                >
+                                                  <div>
+                                                    <div
+                                                      style={{ marginTop: 8 }}
+                                                    >
+                                                      Upload
+                                                    </div>
+                                                  </div>
+                                                </Upload>
+                                              </ImgCrop>
+                                            </Form.Item>
+                                            <Card>
+                                              <Row gutter={16}>
+                                                <Col md={12}>
+                                                  <Form.Item
+                                                    label="Name"
+                                                    {...vRestField}
+                                                    validateTrigger={[
+                                                      "onChange",
+                                                      "onBlur",
+                                                    ]}
+                                                    name={[vName, "name"]}
+                                                    rules={[
+                                                      {
+                                                        required: true,
+                                                        message:
+                                                          "Please fill a variant or delete this field.",
+                                                      },
+                                                    ]}
+                                                  >
+                                                    <Select
+                                                      onChange={(val) =>
+                                                        onVariationChange(
+                                                          val,
+                                                          groupIndex,
+                                                          index
+                                                        )
+                                                      }
+                                                    >
+                                                      {(variations || []).map(
+                                                        (variation) => (
+                                                          <Select.Option
+                                                            key={variation.name}
+                                                            value={
+                                                              variation.name
+                                                            }
+                                                          >
+                                                            {variation.name}
+                                                          </Select.Option>
+                                                        )
+                                                      )}
+                                                    </Select>
+                                                  </Form.Item>
+                                                </Col>
+                                                <Col md={12}>
+                                                  <Form.Item
+                                                    label="Option"
+                                                    {...vRestField}
+                                                    name={[vName, "value"]}
+                                                    validateTrigger={[
+                                                      "onChange",
+                                                      "onBlur",
+                                                    ]}
+                                                    rules={[
+                                                      {
+                                                        required: true,
+                                                        message:
+                                                          "Please fill a variant or delete this field.",
+                                                      },
+                                                    ]}
+                                                  >
+                                                    <Select>
+                                                      {variationOptionsByIndex[
+                                                        groupIndex
+                                                      ] &&
+                                                      variationOptionsByIndex[
+                                                        groupIndex
+                                                      ][index]
+                                                        ? variationOptionsByIndex[
+                                                            groupIndex
+                                                          ][index].map(
+                                                            (option) => (
+                                                              <Select.Option
+                                                                key={option}
+                                                                value={option}
+                                                              >
+                                                                {option}
+                                                              </Select.Option>
+                                                            )
+                                                          )
+                                                        : []}
+                                                    </Select>
+                                                  </Form.Item>
+                                                </Col>
+                                              </Row>
+                                              <Button
+                                                type="link"
+                                                onClick={() => removeVar(vName)}
+                                                icon={
+                                                  <FontAwesomeIcon
+                                                    icon={faMinusCircle}
+                                                  />
+                                                }
+                                              >
+                                                Remove
+                                              </Button>
+                                            </Card>
+                                          </Form.Item>
+                                        )
+                                      )}
                                       <Form.Item>
                                         <Button
                                           type="dashed"
                                           onClick={() => addVar()}
-                                          icon={<FontAwesomeIcon icon={faPlus} />}
+                                          icon={
+                                            <FontAwesomeIcon icon={faPlus} />
+                                          }
                                         >
                                           Add field
                                         </Button>
@@ -507,7 +677,10 @@ const AddEditProduct = () => {
                                 name={[name, "price"]}
                                 validateTrigger={["onChange", "onBlur"]}
                                 rules={[
-                                  { required: true, message: "Please input price!" },
+                                  {
+                                    required: true,
+                                    message: "Please input price!",
+                                  },
                                   {
                                     pattern: "^[0-9]{1,}(\\.[0-9]{2})?$",
                                     message: "Doesn't seem like a number",
@@ -543,7 +716,12 @@ const AddEditProduct = () => {
                                 label="Stock"
                                 {...restField}
                                 name={[name, "stock"]}
-                                rules={[{ required: true, message: "Please input stock!" }]}
+                                rules={[
+                                  {
+                                    required: true,
+                                    message: "Please input stock!",
+                                  },
+                                ]}
                               >
                                 <InputNumber style={{ width: "100%" }} />
                               </Form.Item>
@@ -560,7 +738,11 @@ const AddEditProduct = () => {
                       </Form.Item>
                     ))}
                     <Form.Item>
-                      <Button type="dashed" onClick={() => add()} icon={<FontAwesomeIcon icon={faPlus} />}>
+                      <Button
+                        type="dashed"
+                        onClick={() => add()}
+                        icon={<FontAwesomeIcon icon={faPlus} />}
+                      >
                         Add field
                       </Button>
                       <Form.ErrorList errors={errors} />
@@ -582,24 +764,24 @@ const AddEditProduct = () => {
               <ImgCrop aspect={3 / 4}>
                 <Upload
                   onChange={handleDeleteImage}
-                  customRequest={uploadImage}
+                  customRequest={(options) => uploadImage(options, "product")}
                   listType="picture-card"
                   fileList={images}
                   disabled={addProductImageMutation.isPending}
                   onPreview={() => {}}
                 >
-                  {images.length >= 9 ? null : (
-                    <div>
-                      <div style={{ marginTop: 8 }}>Upload</div>
-                    </div>
-                  )}
+                  <div>
+                    <div style={{ marginTop: 8 }}>Upload</div>
+                  </div>
                 </Upload>
               </ImgCrop>
             </Col>
           </Row>
           <SubmitWrapper wrapperCol={{ offset: 8, span: 16 }}>
             <Button
-              disabled={addProductMutation.isPending || updateProductMutation.isPending}
+              disabled={
+                addProductMutation.isPending || updateProductMutation.isPending
+              }
               size="large"
               onClick={() => navigate("/products")}
             >
@@ -607,7 +789,9 @@ const AddEditProduct = () => {
             </Button>
             <Button
               type="primary"
-              loading={addProductMutation.isPending || updateProductMutation.isPending}
+              loading={
+                addProductMutation.isPending || updateProductMutation.isPending
+              }
               size="large"
               htmlType="submit"
             >

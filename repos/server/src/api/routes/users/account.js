@@ -5,8 +5,10 @@ import { userService } from '../../../services';
 import Joi from 'joi';
 import { adminCorsOptions } from '../config.js';
 import cors from 'cors';
+import { Users } from '@storeways/lib/domain';
 
 const router = Router();
+const User = new Users();
 
 const schema = Joi.object({
   name: Joi.string().trim().required(),
@@ -54,7 +56,7 @@ export const loginSwagger = makeSwaggerFromJoi({
 
 router.post('/login', cors(adminCorsOptions), requestValidator(loginschema), async (req, res) => {
   try{
-    const user = await userService.login({...req.values, userType: 'owner'});
+    const user = await User.login({...req.values, userType: 'owner'});
     res.status(200).send({success: true, user});
   }catch(error){
     console.error('[USERS-REGISTER-POST-CONTROLLER]', error)
@@ -148,7 +150,7 @@ export const logoutSwagger = makeSwaggerFromJoi({
 
 router.post('/logout', cors(adminCorsOptions), auth(['owner']), async (req, res) => {
   try{
-    const user = await userService.logout({userId: req.user.id, token: req.authToken});
+    const user = await User.logout({userId: req.user.id, token: req.authToken});
     res.status(200).send({success: true, user});
   }catch(error){
     console.error('[USERS-REGISTER-POST-CONTROLLER]', error)

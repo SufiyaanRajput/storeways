@@ -1,6 +1,7 @@
 import { Product, Categories, Variations } from './products/services';
 import { Order } from './orders/services';
 import { Store } from './stores/services';
+import { Users } from './users/services';
 
 export {
   Product,
@@ -8,4 +9,5 @@ export {
   Variations,
   Order,
   Store,
+  Users,
 }

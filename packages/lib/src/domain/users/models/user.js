@@ -65,14 +65,14 @@ module.exports = (sequelize, DataTypes) => {
 	}, {
     underscored: true,
 		timestamps: true,
-    defaultScope: {
-      attributes: { exclude: ['password'] },
-    },
-    scopes: {
-      withPassword: {
-        attributes: { include: ['password'] }
-      }
-    }
+    // defaultScope: {
+    //   attributes: { exclude: ['password'] },
+    // },
+    // scopes: {
+    //   withPassword: {
+    //     attributes: { include: ['password'] }
+    //   }
+    // }
   });
 
 	User.belongsTo(sequelize.models.Store);

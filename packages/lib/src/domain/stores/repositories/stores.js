@@ -6,6 +6,12 @@ class StoresRepository extends BaseRepository {
     this.models = models;
   }
 
+  async create({ storeName, userId, settings, transaction }) {
+    return this.models.Store.create({
+      name: storeName, subDomain: storeName.replace(/\s/g, '').toLowerCase() + userId, settings
+    }, {transaction});
+  }
+
   async updateSettings({ 
     storeId, 
     filesToDelete=[], 

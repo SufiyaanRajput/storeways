@@ -8,3 +8,5 @@ export const DELIVERY_STATUSES = [{
     label: 'Shipped',
     value: 2,
   }];
+
+  export const PAYMENT_STATUSES = ['order_confirmed', 'checkout_initiated', 'failed', 'canceled', 'expired', 'error'];

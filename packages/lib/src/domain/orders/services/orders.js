@@ -4,6 +4,7 @@ import { Users } from "../../users/services";
 import { getAdapter } from "../../../boot/loaders/adapters";
 import { getTransaction, getDatabase } from "../../../db";
 import { DELIVERY_STATUSES } from "../constants";
+import { adminFilters } from "../utils";
 
 class OrderService {
   constructor() {
@@ -17,8 +18,8 @@ class OrderService {
     return productIdsWithMostOrders;
   }
 
-  async fetchAll({storeId, userId, admin, textSearchType, search, deliveryStatus}) {
-    return this.ordersRepository.fetchAll({storeId, userId, admin, textSearchType, search, deliveryStatus});
+  async fetchAll({storeId, userId, admin, textSearchType, search, deliveryStatus, filters}) {
+    return this.ordersRepository.fetchAll({storeId, userId, admin, textSearchType, search, deliveryStatus, filters});
   }
 
   async cancel({referenceIds, storeId, customerId, admin, storeSupport}) {
@@ -64,6 +65,10 @@ class OrderService {
         `,
       });
     }
+  }
+
+  async getOrderFilters() {
+    return adminFilters;
   }
 }
 

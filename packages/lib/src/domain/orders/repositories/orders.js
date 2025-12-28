@@ -1,6 +1,7 @@
 import BaseRepository from '../../base.repository';
 import { QueryTypes } from 'sequelize';
 import { DELIVERY_STATUSES } from '../constants';
+import { filtercolumnFields } from '../utils';
 
 class OrdersRepository extends BaseRepository {
   constructor({ models }) {
@@ -28,27 +29,42 @@ class OrdersRepository extends BaseRepository {
     }
   }
 
-  async fetchAll({storeId, userId, admin, textSearchType, search, deliveryStatus}) {
+  async fetchAll({storeId, userId, admin, filters = []}) {
     try{
-      const makeFilterQuery = ({ initialClause }) => {
-        let query = '';
-        
-        if (admin) {
-          if (search && textSearchType) {
-            if (textSearchType === 'mobile') {
-              query = `${initialClause} u.mobile ILIKE :search`;
-            } else {
-              query = `${initialClause} u.name ILIKE :search`;
-            }
+      const resolveColumn = (field) => {
+        if (!field) return null;
+
+        if (field === 'product') return filtercolumnFields.product[field];
+        if (filtercolumnFields[field]) return filtercolumnFields[field];
+        if (filtercolumnFields.product[field]) return filtercolumnFields.product[field];
+        return null;
+      };
+
+      const makeFilterQuery = () => {
+        return filters.reduce((acc, filter) => {   
+          const column = resolveColumn(filter.field);
+          if (!column) return acc;
+
+          const { operator, value, field, range } = filter;
+
+          if (operator === 'eq') {
+            acc.clauses.push(`${column} = :${field}`);
+            acc.replacements[field] = value;
+          } else if (operator === 'contains') {
+            acc.clauses.push(`${column} ILIKE :${field}`);
+            acc.replacements[field] = `%${value}%`;
+          } else if (operator === 'range') {
+            acc.clauses.push(`${column} BETWEEN DATE_TRUNC('day', TIMESTAMP :start_range AT TIME ZONE 'Asia/Kolkata') AND DATE_TRUNC('day', TIMESTAMP :end_range AT TIME ZONE 'Asia/Kolkata') + INTERVAL '1 day'`);
+            acc.replacements['start_range'] = range.start;
+            acc.replacements['end_range'] = range.end;
           }
-  
-          if (deliveryStatus && !isNaN(deliveryStatus)) {
-            query+= `${query ? ' AND' : initialClause} o.delivery_status = :deliveryStatus`;
-          }
-        }
-  
-        return query;
-      }
+
+          return acc;
+        }, { clauses: [], replacements: {} });
+      };
+
+      const { clauses, replacements } = makeFilterQuery();
+      const whereClause = clauses.length ? ` AND ${clauses.join(' AND ')}` : '';
   
       const groupByColumns = ['o.cart_reference_id', 'o.created_at', ' o.internal_status', 'o.is_suspicious', 'o.amount', 'o.amount_paid'];
   
@@ -97,28 +113,15 @@ class OrdersRepository extends BaseRepository {
         }
         WHERE o.store_id = ${storeId}
         ${userId ? " AND o.user_id = " + userId : ""}
-        ${makeFilterQuery({ initialClause: "AND" })}
+        ${whereClause}
         GROUP BY ${groupByColumns.join(', ')}
         ORDER BY MAX(o.id) DESC;
     `,
         {
           type: QueryTypes.SELECT,
-          replacements: { search: `${search}%`, deliveryStatus },
+          replacements,
         }
       );
-  
-      // orders = orders.reduce((grouped, order) => {
-      //   const index = grouped.findIndex(group => group[0] && group.cartReferenceId === order.cartReferenceId);
-      //   const { cartReferenceId, amount, amountPaid, createdAt, name, mobile, shippingAddress, ...orderRest } = order;
-  
-      //   if (index < 0) {
-      //     grouped.push({cartReferenceId, amount, amountPaid, createdAt, mobile, name, shippingAddress, items: [orderRest]});
-      //   } else {
-      //     grouped[index].items.push(orderRest);
-      //   }
-  
-      //   return grouped;
-      // }, []);
   
       return { orders, deliveryStatuses: DELIVERY_STATUSES };
     }catch(error){
