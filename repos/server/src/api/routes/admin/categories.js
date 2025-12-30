@@ -59,7 +59,7 @@ router.delete('/categories/:id', auth(['owner']), requestValidator(deleteSchema)
 
 router.get('/categories', auth(['owner']), async (req, res) => {
   try{
-    const data = await categories.fetch({storeId: req.user.storeId});
+    const data = await categories.fetchWithVariations({storeId: req.user.storeId});
     res.status(200).send({categories: data, success: true});
   }catch(error){
     console.error('[ADMIN-CATEGORIES-GET-CONTROLLER]', error);

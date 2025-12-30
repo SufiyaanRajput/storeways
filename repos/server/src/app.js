@@ -7,7 +7,7 @@ import config from './config';
 import routes from './api/routes';
 import LocalFileStorage from './plugins/storage/LocalFileStorage';
 import Email from './services/integrations/Email';
-
+import PaymentGateway from './services/integrations/PaymentGateway';
 export let app = null;
 
 const startServer = async () => {
@@ -22,6 +22,7 @@ const startServer = async () => {
           uploadDir: 'uploads',
         }),
         emailService: new Email(),
+        paymentGateway: new PaymentGateway(),
       },
     }
 

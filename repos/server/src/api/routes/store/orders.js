@@ -1,23 +1,16 @@
 import {Router} from 'express';
-import {formatFromError, customJoiValidators, makeSwaggerFromJoi} from '../../../utils/helpers';
-import { orderService } from '../../../services';
+import {formatFromError} from '../../../utils/helpers';
 import { getStore, auth, requestValidator } from '../../middlewares';
 import Joi from 'joi';
+import { Order as OrderService } from '@storeways/lib/domain';
 
 const router = Router();
 
-export const myOrdersSwagger = makeSwaggerFromJoi({ 
-  JoiSchema: {}, 
-  route: '/orders', 
-  method: 'get', 
-  summary: 'Fetch my orders', 
-  tags: ['Orders'],
-  roles: ['customer'],
-});
+const Order = new OrderService();
 
 router.get('/orders', auth(['customer']), getStore(), async (req, res) => {
   try{
-    const orders = await orderService.fetchOrders({storeId: req.storeId, userId: req.user.id});
+    const orders = await Order.fetchAll({storeId: req.storeId, userId: req.user.id});
 
     res.status(200).send({orders, success: true});
   }catch(error){
@@ -32,18 +25,9 @@ const schema = Joi.object({
   products: Joi.array().items(Joi.object()).required(),
 });
 
-export const cancelStoreOrdersSwagger = makeSwaggerFromJoi({ 
-  JoiSchema: schema, 
-  route: '/orders/cancel', 
-  method: 'put', 
-  summary: 'Cancel my orders', 
-  tags: ['Orders'],
-  roles: ['owner', 'customer'],
-});
-
 router.put('/orders/cancel', auth(['customer', 'owner']), requestValidator(schema), getStore(), async (req, res) => {
   try{
-    await orderService.cancelOrders({storeId: req.storeId, customerId: req.user.id, storeSupport: req.storeSupport, ...req.values});
+    await Order.cancel({storeId: req.storeId, customerId: req.user.id, storeSupport: req.storeSupport, ...req.values});
 
     res.status(200).send({message: 'Orders cancelled!', success: true});
   }catch(error){

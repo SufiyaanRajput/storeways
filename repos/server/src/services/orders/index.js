@@ -83,7 +83,7 @@ export const confirmOrdersAfterPayment = async ({
       const realProduct = productsData.find(({id}) => id === Number(product.id));
 
       if (product.variations && product.variations.length) {
-        const vairationGroup = getVariationGroupBySelection(realProduct.get({plain:true}).productVariationStocks, product.variations);
+        const vairationGroup = getVariationGroupBySelection(realProduct.productVariationStocks, product.variations);
         product.productVariationStockId = vairationGroup[0].id;
       }
     }

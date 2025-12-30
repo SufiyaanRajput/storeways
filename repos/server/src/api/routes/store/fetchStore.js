@@ -1,10 +1,12 @@
 import {Router} from 'express';
 import {formatFromError, makeSwaggerFromJoi} from '../../../utils/helpers';
-import { storeService } from '../../../services';
 import { getStore, auth } from '../../middlewares';
 import cors from 'cors';
+import { Store as StoreService } from '@storeways/lib/domain';
 
 const router = Router();
+
+const Store = new StoreService();
 
 var corsOptions = {
   origin: '*',
@@ -21,7 +23,7 @@ export const fetchStoreSwagger = makeSwaggerFromJoi({
 
 router.get('/', cors(corsOptions), auth(['owner'], true), getStore(), async (req, res) => {
   try{
-    const store = await storeService.fetchStore({subDomain: req.subDomain});
+    const store = await Store.fetch({subDomain: req.subDomain});
 
     res.status(200).send({store, success: true});
   }catch(error){

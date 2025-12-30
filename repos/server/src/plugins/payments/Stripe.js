@@ -64,7 +64,7 @@ StripeGateway.prototype.createOrder = async function({
   }
 }
 
-RazorPay.prototype.getMetaData = function (payload) {
+StripeGateway.prototype.getMetaData = function (payload) {
   try{
     const parsedPayload = JSON.parse(payload.toString("utf8"));
     const metadata = parsedPayload?.data?.object?.metadata || {};

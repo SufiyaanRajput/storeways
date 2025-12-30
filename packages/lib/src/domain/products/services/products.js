@@ -1,8 +1,10 @@
 import ProductsRepository from '../repositories/products';
 import { getDatabase } from '../../../db';
+import BaseUtilityService from './base.utility';
 
-class ProductService {
+class ProductService extends BaseUtilityService {
   constructor() {
+    super();
     this.productsRepository = new ProductsRepository({ models: getDatabase() });
   }
 
@@ -15,20 +17,20 @@ class ProductService {
     if (type === 'BEST_SELLING') {
       const productIdsWithMostOrders = await this.productsRepository.getProductIdsWithMostOrders({ storeId, limit });
       const productIds = productIdsWithMostOrders.map(({ productId }) => productId);
-      return this.productsRepository.fetchByIds({ storeId, id: productIds });
+      return this.productsRepository.fetchByIds(productIds);
     }
 
     const products = await this.productsRepository.fetchAll({ storeId, type, limit, categories });
     return products;
   }
 
-  async fetch({ storeId, id }) {
-    const product = await this.productsRepository.fetch({ storeId, id });
+  async fetch(payload) {
+    const product = await this.productsRepository.fetch(payload);
     return product;
   }
 
-  async fetchByIds({ storeId, id }) {
-    const products = await this.productsRepository.fetchByIds({ storeId, id });
+  async fetchByIds(id) {
+    const products = await this.productsRepository.fetchByIds(id);
     return products;
   }
 

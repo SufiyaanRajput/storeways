@@ -1,13 +1,10 @@
-import getConfig from "../../../config";
-import { getPlugin } from "../../plugins/registry";
+import StripeGateway from "../../plugins/payments/Stripe";
 
 let paymentGateway = null;
 
 const getPaymentGateway = () => {
   if (!paymentGateway) {
-    const pluginConfig = getConfig().plugins.find(plugin => plugin.key === 'payment-gateway');
-    const PaymentService = getPlugin('payment-gateway'); 
-    paymentGateway = new PaymentService(pluginConfig.options);
+    paymentGateway = new StripeGateway();
   }
 
   return paymentGateway;
@@ -32,6 +29,8 @@ PaymentGateway.prototype.webhook = function(...args) {
 PaymentGateway.prototype.getMetaData = function(...args) {
   return getPaymentGateway().getMetaData(...args);
 };
+
+PaymentGateway.prototype.name = getPaymentGateway().name;
 
 function PaymentGateway() {}
 

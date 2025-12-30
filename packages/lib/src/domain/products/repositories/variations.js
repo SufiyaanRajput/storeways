@@ -6,10 +6,10 @@ class VariationsRepository extends BaseRepository {
         this.models = models;
     };
 
-    async fetch({storeId}) {
+    async fetch(payload) {
         try{
           return this.models.Variation.findAll({
-            where: {storeId, deletedAt: null},
+            where: payload,
             attributes: ['name', 'id', 'options', 'active', 'deleted_at'],
             include: [{
               model: this.models.Category,

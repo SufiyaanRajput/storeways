@@ -9,17 +9,29 @@ class UsersRepository extends BaseRepository {
   }
 
   async fetchById(id) {
-    return this.models.User.findOne({
+    if (Array.isArray(id)) {
+      const users = await this.models.User.findAll({
+        where: {
+          id: id,
+        },
+      });
+
+      return users.map((user) => (user?.get ? user.get({ plain: true }) : user));
+    }
+
+    const user = await this.models.User.findOne({
       where: {
         id,
       },
     });
+
+    return user.get({ plain: true });
   }
 
   async findUser(payload, withPassword = false) {
     const user = await this.models.User.findOne({ where: payload });
 
-    if (!withPassword) {
+    if (user && !withPassword) {
       delete user.dataValues.password;
     }
 
@@ -189,6 +201,18 @@ class UsersRepository extends BaseRepository {
       throw error;
     }
   }  
+
+  async create(payload) {
+    const user = await this.models.User.create(payload);
+    delete user.dataValues.password;
+    return user.get({ plain: true });
+  }
+
+  async updateById(id, payload) {
+    const user = await this.models.User.update(payload, { where: { id } });
+    delete user.dataValues.password;
+    return user.get({ plain: true });
+  }
 }
 
 export default UsersRepository;

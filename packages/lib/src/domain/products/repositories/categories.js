@@ -17,28 +17,6 @@ class CategoriesRepository extends BaseRepository {
           WHERE c1.store_id = ${storeId} AND c1.deleted_at IS NULL
         `, { type: QueryTypes.SELECT });
       
-        if (categories.length) {
-          const variations = await this.models.Variation.findAll({
-            where: {
-              deletedAt: null,
-              categoryId: categories.map(({id}) => id)
-            }
-          });
-      
-          const groupedVariations = this.groupRelationsByName({
-            source: variations,
-            parentKeyTarget: 'categoryIds',
-            parentKey: 'categoryId',
-            childKey: 'id',
-            optionsKey: 'options'
-          });
-      
-          categories.forEach(category => {
-            const variations = groupedVariations.filter(variation => variation.categoryIds.includes(category.id));
-            category.variations = variations;
-          });
-        }
-      
           return categories;
         }catch(error){
           throw error;
@@ -64,29 +42,29 @@ class CategoriesRepository extends BaseRepository {
       };
       
     async delete({id, storeId}) {
-        try{
-          await this.models.sequelize.transaction(async (transaction) => {
-            try{
-              const deletedProducts = await this.models.ProductCategory.update({deletedAt: new Date()}, { where: {categoryId: id}, transaction, returning: true});
-              let promises = [
-                this.models.Variation.update({deletedAt: new Date()}, { where: {categoryId: id, storeId}, transaction}),
-                this.models.Category.update({deletedAt: new Date()}, { where: {id, storeId} , transaction})
-              ];
-              
-              if (deletedProducts[1] && deletedProducts[1].length) {
-                const productIds = deletedProducts[1].map(product => product.id);
-                promises.push(this.models.ProductVariation.update({deletedAt: new Date()}, {where: {productId: productIds}, transaction}));
-              }
-      
-              return await Promise.all(promises);
-            }catch(error){
-              throw error;
+      try{
+        await this.models.sequelize.transaction(async (transaction) => {
+          try{
+            const deletedProducts = await this.models.ProductCategory.update({deletedAt: new Date()}, { where: {categoryId: id}, transaction, returning: true});
+            let promises = [
+              this.models.Variation.update({deletedAt: new Date()}, { where: {categoryId: id, storeId}, transaction}),
+              this.models.Category.update({deletedAt: new Date()}, { where: {id, storeId} , transaction})
+            ];
+            
+            if (deletedProducts[1] && deletedProducts[1].length) {
+              const productIds = deletedProducts[1].map(product => product.id);
+              promises.push(this.models.ProductVariation.update({deletedAt: new Date()}, {where: {productId: productIds}, transaction}));
             }
-          });
-        }catch(error){
-          throw error;
-        }
-      };
+    
+            return await Promise.all(promises);
+          }catch(error){
+            throw error;
+          }
+        });
+      }catch(error){
+        throw error;
+      }
+    };
 }
 
 export default CategoriesRepository;

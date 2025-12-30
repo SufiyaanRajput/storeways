@@ -1,9 +1,11 @@
 import { Section, Container } from "@/base/index";
 import { SectionTitle } from "@/base/Section/Section";
 import { Table, Button, Modal, notification, Tag } from "antd";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { useRouter } from "next/router";
 import { useAsyncFetch } from "themes/utils/hooks";
 import { cancelOrders, fetchOrders } from "./api";
+import cartStore from "../Cart/store";
 
 const ProductTable = ({ record, refetchOrders, deliveryStatuses }) => {
   const [cancellingId, setCancellingId] = useState(null);
@@ -77,6 +79,10 @@ const ProductTable = ({ record, refetchOrders, deliveryStatuses }) => {
 };
 
 const Orders = () => {
+  const cart = useContext(cartStore);
+  const router = useRouter();
+  const { source } = router.query || {};
+
   const {
     isLoading: fetchingOrders,
     success: fetchingOrdersSuccess,
@@ -84,6 +90,12 @@ const Orders = () => {
     response: fetchOrdersResponse,
     refetch: refetchOrders
   } = useAsyncFetch(true, fetchOrders);
+
+  useEffect(() => {
+    if (source === 'checkout') {
+      cart.clearStore();
+    }
+  }, [cart, source]);
 
   useEffect(() => {
     if (fetchOrdersError) {

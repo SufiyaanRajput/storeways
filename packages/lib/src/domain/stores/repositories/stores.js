@@ -12,6 +12,16 @@ class StoresRepository extends BaseRepository {
     }, {transaction});
   }
 
+  async fetch(payload) {
+    try{
+      return this.models.Store.findOne({
+        where: payload
+      });
+    }catch(error){
+      throw error;
+    }
+  };
+
   async updateSettings({ 
     storeId, 
     filesToDelete=[], 
@@ -105,6 +115,46 @@ class StoresRepository extends BaseRepository {
   async updateStore({storeId, ...updates}) {
     try{
       return this.models.Store.update(updates, {where: {id: storeId}});
+    }catch(error){
+      throw error;
+    }
+  }
+
+  async fetchShopFilters({storeId, categoryIds, source}) {
+    try{
+      const categories = await models.sequelize.query(`
+      SELECT 
+        c1.id, c1.name, c2.name AS "parentName", c2.id AS "parentId"
+      FROM categories AS c1 
+      LEFT JOIN categories AS c2 ON c1.parent_id = c2.id
+      WHERE c1.store_id = ${storeId} AND c1.deleted_at IS NULL AND c1.active = true
+    `, { type: QueryTypes.SELECT });
+  
+      const grouped = [];
+      let parentId = null, parentName = 'Categories';
+      
+      const makeFilters = () => {
+        const children = categories.filter(category => category.parentId == parentId);
+        
+        if (!children.length) return;
+        
+        grouped.push({
+          title: parentName,
+          parentId,
+          options: children
+        });
+        
+         children.forEach(parent => {
+           parentId = parent.id;
+          parentName = parent.name;
+  
+          makeFilters();
+        });
+      }
+      
+      makeFilters();
+  
+      return grouped;
     }catch(error){
       throw error;
     }

@@ -1,10 +1,13 @@
 import {Router, raw } from 'express';
 import {formatFromError, customJoiValidators, makeSwaggerFromJoi} from '../../../utils/helpers';
 import { storeService } from '../../../services';
+import { Order as OrderService } from '@storeways/lib/domain';
 import { getStore, auth, requestValidator } from '../../middlewares';
 import Joi from 'joi';
+import PaymentGateway from '../../../services/integrations/PaymentGateway';
 
 const router = Router();
+const Order = new OrderService();
 
 const schema = Joi.object({
   amount: Joi.number().positive().required(),
@@ -30,7 +33,7 @@ export const createOrderSwagger = makeSwaggerFromJoi({
 
 router.post('/orders', getStore(), requestValidator(schema), async (req, res) => {
   try{
-    const response = await storeService.createOrder({
+    const response = await Order.processCheckout({
       storeId: req.storeId, 
       storeSettings: req.storeSettings, 
       storeName: req.storeName, 
@@ -49,7 +52,23 @@ router.post('/orders', getStore(), requestValidator(schema), async (req, res) =>
 router.post('/webhook', raw({ type: "*/*" }),
   async (req, res) => {
     try{
-      await storeService.paymentWebhook(req.body, req.headers, req.query);
+      const paymentGateway = new PaymentGateway();
+      const signature = req.headers[paymentGateway.getInstance()?.signatureKey];
+  
+      const { status, isVerified } = await paymentGateway.webhook(
+        req.body,
+        signature,
+      );
+  
+      const { cartReferenceId, storeId, gatewayReferenceId } = paymentGateway.getMetaData(req.body);
+
+      await Order.processOrder({ 
+        cartReferenceId, 
+        storeId: Number(storeId), 
+        isVerified, 
+        status, 
+        metaData: { gatewayReferenceId }
+      });
 
       res.status(200).send({message: 'Webhook received', success: true});
     }catch(error){

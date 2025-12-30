@@ -55,15 +55,10 @@ class ProductsRepository extends BaseRepository {
     }
   };
 
-  async fetch({ storeId, id }) {
+  async fetch(payload) {
     try {
       return this.models.Product.findOne({
-        where: {
-          id,
-          storeId,
-          deletedAt: null,
-          active: true,
-        },
+        where: payload,
       });
     } catch (error) {
       throw error;
@@ -194,17 +189,18 @@ class ProductsRepository extends BaseRepository {
     }
   };
 
-  async fetchByIds({ storeId, id }) {
+  async fetchByIds(id) {
     try {
-      return await this.models.Product.findAll({
+      const products = await this.models.Product.findAll({
         where: {
-          storeId,
           id,
           active: true,
           deletedAt: null,
         },
         include: [{ model: this.models.ProductVariationStock, as: 'productVariationStocks', where: { deletedAt: null } }],
       });
+
+      return products.map((product) => (product?.get ? product.get({ plain: true }) : product));
     } catch (error) {
       throw error;
     }

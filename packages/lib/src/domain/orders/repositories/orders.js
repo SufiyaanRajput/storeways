@@ -155,15 +155,33 @@ class OrdersRepository extends BaseRepository {
     }
   };
   
-  async update({user, storeId, referenceId, storeSupport, ...updates}) {
+  async update(clause, updates) {
     try{
-      return this.models.Order.update(updates, {where: { referenceId, storeId }});
+      return this.models.Order.update(updates, {where: clause});
     }catch(error){
       try {
       } catch (error) {}
       throw error;
     }
   };
+
+  async create(entries) {
+    if (Array.isArray(entries)) {
+      const orders = await this.models.Order.bulkCreate(entries, {returning: true, raw: true});
+      return orders;
+    }
+
+    const order = await this.models.Order.create(entries);
+    return order.get({ plain: true });
+  }
+
+  async find(payload) {
+    const orders = await this.models.Order.findAll({
+      where: payload,
+    });
+
+    return orders.map((order) => (order?.get ? order.get({ plain: true }) : order));
+  }
 }
 
 export default OrdersRepository;

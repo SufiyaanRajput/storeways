@@ -86,11 +86,11 @@ router.get('/products/:id?', auth(['owner'], true), requestValidator(fetchProduc
   try{
     if (req.values.id) {
       if (Array.isArray(req.values.id)) {
-        const data = await product.fetchByIds({storeId: req.storeId, id: req.values.id});
+        const data = await product.fetchByIds(req.values.id);
         return res.status(200).send({products: data, success: true});
       } 
 
-      const data = await product.fetch({storeId: req.storeId, id: req.params.id});
+      const data = await product.fetch({storeId: req.storeId, id: req.params.id, deletedAt: null, active: true});
       return res.status(200).send({product: data, success: true});
     } 
 

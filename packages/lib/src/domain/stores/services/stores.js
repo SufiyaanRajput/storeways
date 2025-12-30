@@ -27,6 +27,10 @@ class StoreService {
   async updateStore({storeId, ...updates}) {
     return this.storesRepository.updateStore({storeId, ...updates});
   }
+
+  async fetch(payload) {
+    return this.storesRepository.fetch(payload);
+  }
 }
 
 export default StoreService;

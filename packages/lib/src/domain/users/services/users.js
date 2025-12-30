@@ -62,6 +62,21 @@ class UsersService {
   async logout({ token, userId }) {
     await this.authTokenService.update({ active: false, deletedAt: new Date() }, { token, userId });
   }
+
+  async create(payload) {
+    const user = await this.usersRepository.create(payload);
+    return user;
+  }
+
+  async updateById(id, payload) {
+    const user = await this.usersRepository.updateById(id, payload);
+    return user;
+  }
+
+  async findUser(payload) {
+    const user = await this.usersRepository.findUser(payload);
+    return user;
+  }
 }
 
 export default UsersService;

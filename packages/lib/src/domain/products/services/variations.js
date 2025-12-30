@@ -11,8 +11,8 @@ class VariationsService {
     return variation;
   }
 
-  async fetch({storeId}) {
-    const variations = await this.variationsRepository.fetch({storeId});
+  async fetch(payload) {
+    const variations = await this.variationsRepository.fetch(payload);
     return variations;
   }
 
