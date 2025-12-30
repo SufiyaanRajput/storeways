@@ -1,10 +1,9 @@
 import {Router, raw } from 'express';
 import {formatFromError, customJoiValidators, makeSwaggerFromJoi} from '../../../utils/helpers';
-import { storeService } from '../../../services';
 import { Order as OrderService } from '@storeways/lib/domain';
-import { getStore, auth, requestValidator } from '../../middlewares';
+import { getStore, requestValidator } from '../../middlewares';
 import Joi from 'joi';
-import PaymentGateway from '../../../services/integrations/PaymentGateway';
+import { integrationService } from '../../../services';
 
 const router = Router();
 const Order = new OrderService();
@@ -52,7 +51,7 @@ router.post('/orders', getStore(), requestValidator(schema), async (req, res) =>
 router.post('/webhook', raw({ type: "*/*" }),
   async (req, res) => {
     try{
-      const paymentGateway = new PaymentGateway();
+      const paymentGateway = new integrationService.PaymentGateway();
       const signature = req.headers[paymentGateway.getInstance()?.signatureKey];
   
       const { status, isVerified } = await paymentGateway.webhook(
