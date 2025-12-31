@@ -1,13 +1,15 @@
+import path from 'path';
 import { Umzug, SequelizeStorage } from 'umzug'
 import { loadModels } from '../models/index';
 
 const migrate = async ({ dbConnectionUrl }) => {
   try{
     try{
-      const { sequelize } = await loadModels({ dbConnectionUrl });
+      const domains = ['products', 'stores', 'users', 'orders'];
+      const { sequelize } = await loadModels({ dbConnectionUrl, domains });
     
       const umzug = new Umzug({
-        migrations: { glob: 'migrations/!(*index).js' },
+        migrations: { glob: path.join(__dirname, '!(*index).js') },
         context: sequelize.getQueryInterface(),
         storage: new SequelizeStorage({ sequelize }),
       });

@@ -51,10 +51,10 @@ const createProductSchema = Joi.object({
     maxOrderQuantity: Joi.number().integer().allow(null),
     price: Joi.number().positive().required().allow(0),
     stock: Joi.number().integer().positive().required().allow(0),
+    images: Joi.array(),
     variationGroup: Joi.array().items(Joi.object().keys({
       name: Joi.string().required(),
       value: Joi.string().required(),
-      images: Joi.array(),
     })),
   })),
 });
@@ -133,10 +133,10 @@ const productSchema = Joi.object({
     maxOrderQuantity: Joi.number().integer().allow(null),
     price: Joi.number().positive().required().allow(0),
     stock: Joi.number().integer().positive().required().allow(0),
+    images: Joi.array(),
     variationGroup: Joi.array().items(Joi.object().keys({
       name: Joi.string().required(),
       value: Joi.string().required(),
-      images: Joi.array(),
     })),
   })),
 });

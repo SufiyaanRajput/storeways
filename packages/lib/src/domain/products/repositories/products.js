@@ -134,6 +134,7 @@ class ProductsRepository extends BaseRepository {
             product_variation_stocks.product_id AS "productId", 
             product_variation_stocks.variation_group AS "variationGroup",
             product_variation_stocks.stock AS stock,
+            product_variation_stocks.images AS images,
             product_variation_stocks.max_order_quantity AS "maxOrderQuantity",
             product_variation_stocks.price
           FROM product_variation_stocks
@@ -239,6 +240,7 @@ class ProductsRepository extends BaseRepository {
             price: v.price,
             stock: v.stock,
             variationGroup: v.variationGroup,
+            images: v.images,
             storeId,
             productId: payload.id,
           });

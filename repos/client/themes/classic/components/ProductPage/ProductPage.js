@@ -301,9 +301,11 @@ const ProductPage = () => {
         ...nextOptionsFormatted
       ]);
 
-      console.log(productVariationStocks);
-
-      // setProductImages(images.filter(image => image.variation[variationName.toLowerCase()] === option));
+      if (nextOptions[0].images.length) {
+        setProductImages(nextOptions[0].images);
+      } else {
+        setProductImages([...images]);
+      }
     } else {
       var selectedVariationOptions = selectedVariations.filter(sv => {
         if ((sv.variationName === variationName && sv.option === option)) return false;

@@ -275,7 +275,7 @@ const AddEditProduct = () => {
 
   const uploadImage = async (options, type = "product", meta = {}) => {
     const { file, onSuccess, onError } = options || {};
-    const { variationIndex, variationGroupIndex } = meta || {};
+    const { variationIndex } = meta || {};
     const formData = new FormData();
     formData.append("fileName", new Date().getTime());
     formData.append("ext", file.name.split(".").pop());
@@ -289,19 +289,11 @@ const AddEditProduct = () => {
           throw new Error("Invalid image response");
         }
 
-        if (
-          typeof variationIndex === "number" &&
-          typeof variationGroupIndex === "number"
-        ) {
+        if (typeof variationIndex === "number") {
           const variationsValue = cloneDeep(
             form.getFieldValue(["variations"]) || []
           );
-          const imagesPath = [
-            variationIndex,
-            "variationGroup",
-            variationGroupIndex,
-            "images",
-          ];
+          const imagesPath = [variationIndex, "images"];
           const currentImages = get(variationsValue, imagesPath, []);
           const nextImages = Array.isArray(currentImages)
             ? currentImages
@@ -494,6 +486,37 @@ const AddEditProduct = () => {
                     {fields.map(({ key, name, ...restField }, groupIndex) => (
                       <Form.Item required key={key}>
                         <VariationGroupCard>
+                          <Form.Item
+                            label="Variant Images"
+                            {...restField}
+                            name={[name, "images"]}
+                            valuePropName="fileList"
+                            getValueProps={(value) => ({ fileList: value })}
+                          >
+                            <ImgCrop aspect={3 / 4}>
+                              <Upload
+                                fileList={
+                                  form.getFieldValue([
+                                    "variations",
+                                    name,
+                                    "images",
+                                  ]) || []
+                                }
+                                customRequest={(options) =>
+                                  uploadImage(options, "variant", {
+                                    variationIndex: name,
+                                  })
+                                }
+                                onRemove={removeVariantImage}
+                                listType="picture-card"
+                                onPreview={() => {}}
+                              >
+                                <div>
+                                  <div style={{ marginTop: 8 }}>Upload</div>
+                                </div>
+                              </Upload>
+                            </ImgCrop>
+                          </Form.Item>
                           <Row gutter={16}>
                             <Col md={24} style={{ marginBottom: "12px" }}>
                               <Card>
@@ -514,46 +537,6 @@ const AddEditProduct = () => {
                                           index
                                         ) => (
                                           <Form.Item required key={vKey}>
-                                            <Form.Item
-                                              label="Variant Images"
-                                              {...vRestField}
-                                              name={[vName, "images"]}
-                                              valuePropName="fileList"
-                                              getValueProps={(value) => ({ fileList: value })}
-                                            >
-                                              <ImgCrop aspect={3 / 4}>
-                                                <Upload
-                                                  fileList={form.getFieldValue([
-                                                    "variations",
-                                                    name,
-                                                    "variationGroup",
-                                                    vName,
-                                                    "images",
-                                                  ]) || []}
-                                                  customRequest={(options) =>
-                                                    uploadImage(
-                                                      options,
-                                                  "variant",
-                                                  {
-                                                    variationIndex: name,
-                                                    variationGroupIndex: vName,
-                                                  }
-                                                    )
-                                                  }
-                                                  onRemove={removeVariantImage}
-                                                  listType="picture-card"
-                                                  onPreview={() => {}}
-                                                >
-                                                  <div>
-                                                    <div
-                                                      style={{ marginTop: 8 }}
-                                                    >
-                                                      Upload
-                                                    </div>
-                                                  </div>
-                                                </Upload>
-                                              </ImgCrop>
-                                            </Form.Item>
                                             <Card>
                                               <Row gutter={16}>
                                                 <Col md={12}>

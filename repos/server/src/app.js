@@ -16,7 +16,7 @@ const startServer = async () => {
       database: {
         connectionUrl: config.databaseURL,
       },
-      domains: ['products', 'stores', 'users', 'orders'],
+      domains: ['products', 'stores', 'users', 'orders', 'reviews'],
       adapters: {
         fileStorage: new LocalFileStorage({
           uploadDir: 'uploads',

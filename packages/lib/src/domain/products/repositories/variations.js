@@ -8,15 +8,16 @@ class VariationsRepository extends BaseRepository {
 
     async fetch(payload) {
         try{
-          return this.models.Variation.findAll({
+          const variations = await this.models.Variation.findAll({
             where: payload,
-            attributes: ['name', 'id', 'options', 'active', 'deleted_at'],
             include: [{
               model: this.models.Category,
               as: 'category',
               attributes: ['name', 'id']
             }]
           });
+
+          return variations.map((variation) => variation.get({ plain: true }));
         }catch(error){
           throw error;
         }

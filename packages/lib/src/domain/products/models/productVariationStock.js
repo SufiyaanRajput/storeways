@@ -23,6 +23,11 @@ module.exports = (sequelize, DataTypes) => {
 			allowNull: false,
 			references: { model: 'stores', key: 'id' }
 		},
+    images: {
+      type: DataTypes.JSON,
+      defaultValue: [],
+      allowNull: false,
+    },
     productId: {
       type: DataTypes.INTEGER,
       allowNull: false,
