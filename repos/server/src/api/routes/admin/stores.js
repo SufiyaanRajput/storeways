@@ -310,4 +310,45 @@ router.put('/stores', auth(['owner']), requestValidator(storeSchema), async (req
   }
 });
 
+const switchStoreSchema = Joi.object({
+  storeId: Joi.number().integer().positive().required(),
+});
+
+router.get('/stores/switch/:storeId', auth(['owner']), requestValidator(switchStoreSchema), async (req, res) => {
+  try{
+    const token = await storeService.switch({ storeId: req.values.storeId, user: req.user });
+    res.status(200).send({token, message: 'Store switched successfully!', success: true});
+  }catch(error){
+    console.error('[ADMIN-SWITCH-STORE-GET-CONTROLLER]', error);
+    const {status, ...data} = formatFromError(error);
+    res.status(status).send(data);
+  }
+});
+
+router.get('/stores', auth(['owner']), async (req, res) => {
+  try{
+    const stores = await storeService.fetch({ deletedAt: null });
+    res.status(200).send({stores, message: 'Stores fetched successfully!', success: true});
+  }catch(error){
+    console.error('[ADMIN-GET-STORES-GET-CONTROLLER]', error);
+    const {status, ...data} = formatFromError(error);
+    res.status(status).send(data);
+  }
+});
+
+const createStoreSchema = Joi.object({
+  name: Joi.string().trim().required(),
+});
+
+router.post('/stores', auth(['owner']), requestValidator(createStoreSchema), async (req, res) => {
+  try{
+    const store = await storeService.create({ ...req.values, userId: req.user.id });
+    res.status(200).send({store, message: 'Store created successfully!', success: true});
+  }catch(error){
+    console.error('[ADMIN-CREATE-STORE-POST-CONTROLLER]', error);
+    const {status, ...data} = formatFromError(error);
+    res.status(status).send(data);
+  }
+});
+
 export default router;

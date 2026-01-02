@@ -5,4 +5,6 @@ export const updateStoreSettings = (payload) => privateInstance.put("/v1/admin/c
 export const getStoreSettings = () => privateInstance.get("/v1/admin/customize/settings");
 export const deleteLogo = (fileId) => privateInstance.delete(`/v1/admin/uploads/logo/${fileId}`);
 export const updateStore = (payload) => privateInstance.put("/v1/admin/stores", payload);
-
+export const getStores = () => privateInstance.get("/v1/admin/stores");
+export const createStore = (payload) => privateInstance.post("/v1/admin/stores", payload);
+export const switchStore = ({storeId}) => privateInstance.get(`/v1/admin/stores/switch/${storeId}`);

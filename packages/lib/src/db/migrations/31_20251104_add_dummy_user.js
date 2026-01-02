@@ -1,8 +1,9 @@
 const bcrypt = require('bcryptjs');
-const { default: defaultStoreSettings } = require('../src/services/users/defaultStoreSettings');
-const { createProduct } = require('../src/services/products');
+const { Product: ProductService } = require('../../domain');
+const { default: defaultStoreSettings } = require('../seed/defaultStoreSettings');
 
   async function up({ context: queryInterface }) {
+   try {
     const now = new Date();
     const [store] = await queryInterface.bulkInsert(
       'stores',
@@ -26,20 +27,30 @@ const { createProduct } = require('../src/services/products');
 
     const passwordHash = await bcrypt.hash('password123', 8);
 
-    await queryInterface.bulkInsert('users', [
+    const [user] = await queryInterface.bulkInsert('users', [
       {
         name: 'Test User',
         mobile: '9999999999',
         password: passwordHash,
         role: 'owner',              // valid enum: 'owner' | 'admin' | 'customer'
-        store_id: store.id,             // optional FK; set if you have a store record
         email: 'dummy@example.com',
         address: '123 Example Street',
         landmark: 'Near Central Park',
         pincode: '400001',
         active: true,
-        created_at: new Date(),
-        updated_at: new Date(),
+        created_at: now,
+        updated_at: now,
+        deleted_at: null
+      },
+    ], { returning: ['id'] });
+
+    await queryInterface.bulkInsert('user_stores', [
+      {
+        user_id: user.id,
+        store_id: store.id,
+        active: true,
+        created_at: now,
+        updated_at: now,
         deleted_at: null
       },
     ]);
@@ -102,10 +113,12 @@ const { createProduct } = require('../src/services/products');
       'Nike Air Max 270 Black',
       'Nike Air Max 270 Runner',
     ];
+
+    const Product = new ProductService();
     const skus = ['SHOE-001', 'SHOE-002', 'SHOE-003', 'SHOE-004', 'SHOE-005'];
     // Create 5 demo products using the application service (handles categories and variation stocks)
     for (let i = 0; i < productNames.length; i++) {
-      await createProduct({
+      await Product.create({
         categoryIds: [categoryId],
         name: productNames[i],
         sku: skus[i],
@@ -127,9 +140,19 @@ const { createProduct } = require('../src/services/products');
         })),
       });
     }
+   } catch (error) {
+      // Best-effort cleanup if seeding fails halfway
+      try {
+        await down({ context: queryInterface });
+      } catch (cleanupError) {
+        console.error('Cleanup during migration failed:', cleanupError);
+      }
+      throw error;
+    }
   }
   
   async function down({ context: queryInterface }) {
+    console.log('downnnnnn');
     // Clean product-related seed first
     const [[storeRow] = []] = await Promise.all([
       queryInterface.sequelize.query(`
@@ -188,6 +211,7 @@ const { createProduct } = require('../src/services/products');
     // Finally remove the demo store and user
     await queryInterface.bulkDelete('stores');
     await queryInterface.bulkDelete('users');
+    await queryInterface.bulkDelete('user_stores');
   }
   
   module.exports = { up, down };

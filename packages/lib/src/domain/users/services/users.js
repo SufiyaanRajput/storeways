@@ -1,4 +1,5 @@
 import UsersRepository from "../repositories/users";
+import UserStoresService from "../../stores/services/userStores";
 import AuthTokenService from "./authToken";
 import { getDatabase } from "../../../db";
 import bcrypt from 'bcryptjs';
@@ -6,6 +7,7 @@ import bcrypt from 'bcryptjs';
 class UsersService {
   constructor() {
     this.usersRepository = new UsersRepository({ models: getDatabase() });
+    this.userStoresService = new UserStoresService();
     this.authTokenService = new AuthTokenService();
   }
 
@@ -48,8 +50,14 @@ class UsersService {
       } 
     }
 
+    const [userStore] = await this.userStoresService.findForUser(user.id);
+
+    if(!userStore){
+      throw {status: 400, msgText: 'User store not found!', error: new Error};
+    }
+
     const token = await this.authTokenService.create(
-      { payload: { userId: user.id, role: user.role, mobile: user.mobile, storeId: user.storeId },
+      { payload: { userId: user.id, role: user.role, mobile: user.mobile, storeId: userStore.storeId },
       userId: user.id,
       }
     );

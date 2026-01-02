@@ -24,11 +24,6 @@ module.exports = (sequelize, DataTypes) => {
 			}),
 			allowNull: false
 		},
-		storeId: {
-			type: DataTypes.INTEGER,
-			allowNull: true,
-			references: { model: 'stores', key: 'id' }
-		},
 		email: {
 			type: DataTypes.TEXT,
 			allowNull: false
@@ -64,18 +59,8 @@ module.exports = (sequelize, DataTypes) => {
 		}
 	}, {
     underscored: true,
-		timestamps: true,
-    // defaultScope: {
-    //   attributes: { exclude: ['password'] },
-    // },
-    // scopes: {
-    //   withPassword: {
-    //     attributes: { include: ['password'] }
-    //   }
-    // }
+	timestamps: true,
   });
-
-	User.belongsTo(sequelize.models.Store);
 
 	return User;
 };

@@ -24,11 +24,6 @@ module.exports = (sequelize, DataTypes) => {
 			}),
 			allowNull: false
 		},
-		storeId: {
-			type: DataTypes.INTEGER,
-			allowNull: true,
-			references: { model: 'stores', key: 'id' }
-		},
 		email: {
 			type: DataTypes.TEXT,
 			allowNull: false
@@ -74,8 +69,6 @@ module.exports = (sequelize, DataTypes) => {
       }
     }
   });
-
-	User.belongsTo(sequelize.models.Store);
 
 	return User;
 };

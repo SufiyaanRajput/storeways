@@ -23,7 +23,7 @@ export const fetchStoreSwagger = makeSwaggerFromJoi({
 
 router.get('/', cors(corsOptions), auth(['owner'], true), getStore(), async (req, res) => {
   try{
-    const store = await Store.fetch({subDomain: req.subDomain});
+    const [store] = await Store.fetch({subDomain: req.subDomain});
 
     res.status(200).send({store, success: true});
   }catch(error){

@@ -292,7 +292,7 @@ class OrderService extends BaseUtilityService {
 
       console.log('orders => ', orders[0].user);
   
-      const store = await this.storesService.fetch({
+      const [store] = await this.storesService.fetch({
         id: storeId,
         deletedAt: null,
         active: true

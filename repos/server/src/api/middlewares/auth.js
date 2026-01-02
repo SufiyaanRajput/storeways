@@ -1,13 +1,14 @@
 import jwt from 'jsonwebtoken';
-import { getDatabase } from '@storeways/lib/db/models';
 import {formatFromError} from '../../utils/helpers';
 import config from '../../config';
+import { Users as UserService, AuthToken as AuthTokenService } from '@storeways/lib/domain';
 
-const models = getDatabase();
+const User = new UserService();
+const AuthToken = new AuthTokenService();
 
 const removeTokenFromUser = async (token) => {
   try{
-    await models.AuthToken.update({active: false}, {where: {token}});
+    await AuthToken.update({active: false}, {token});
   }catch(error){
     throw error;
   }
@@ -42,14 +43,14 @@ const auth = (authorisedRoles=null, optional=false) => async (req, res, next) =>
       throw {status: 401, msgText: 'Not authorised!', error: new Error()};
     }
 
-    const user = await models.User.findOne({ where: {id: userId, mobile, storeId, role, active: true} });
+    req.user = await User.findUser({ id: userId, mobile, role, active: true} );
 
-    if(!user){
+    if(!req.user){
       throw {status: 401, msgText: 'Not authorised!', error: new Error()};
     }
 
-    req.user = user.toJSON();
-    req.storeId = user.storeId;
+    req.user.storeId = storeId;
+    req.storeId = storeId;
     req.authToken = token;
     next();
   }catch(error){

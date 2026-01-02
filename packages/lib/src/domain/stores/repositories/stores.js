@@ -6,17 +6,21 @@ class StoresRepository extends BaseRepository {
     this.models = models;
   }
 
-  async create({ storeName, userId, settings, transaction }) {
-    return this.models.Store.create({
-      name: storeName, subDomain: storeName.replace(/\s/g, '').toLowerCase() + userId, settings
+  async create({ name, userId, settings, transaction }) {
+    const store = await this.models.Store.create({
+      name, subDomain: name.replace(/\s/g, '').toLowerCase() + userId, settings
     }, {transaction});
+
+    return store.get({ plain: true });
   }
 
   async fetch(payload) {
     try{
-      return this.models.Store.findOne({
+      const stores = await this.models.Store.findAll({
         where: payload
       });
+
+      return stores.map((store) => store.get({ plain: true }));
     }catch(error){
       throw error;
     }

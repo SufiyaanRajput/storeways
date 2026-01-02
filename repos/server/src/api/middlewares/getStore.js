@@ -1,22 +1,19 @@
 import {formatFromError} from '../../utils/helpers';
-import { getDatabase } from '@storeways/lib/db/models';
+import { Store as StoreService } from '@storeways/lib/domain';
+
+const Store = new StoreService();
 
 const getStore = () => async (req, res, next) => {
   try{
-    const models = getDatabase();
-    const storeOptions = {
-      attributes: ['id', 'settings', 'name', 'subDomain'], 
-      raw: true
-    }
     if (!req.storeId) {
       const {origin} = req.headers;
       const parts = origin.split('.');
       const subDomain = parts[0].replace(/http(s)?:\/\//, '');
       const domain = origin.replace(/http(s)?:\/\//, '');
   
-      var store = await models.Store.findOne({ where: {[models.Sequelize.Op.or]: [{subDomain}, {domain}], active: true}, ...storeOptions });
+      var [store] = await Store.fetch({ subDomain, active: true });
     } else {
-      var store = await models.Store.findOne({ where: {id: req.storeId, active: true}, ...storeOptions });
+      var [store] = await Store.fetch({id: req.storeId, active: true});
     }
 
     if (!store) {
