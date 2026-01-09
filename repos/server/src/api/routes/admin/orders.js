@@ -46,7 +46,7 @@ const schema = Joi.object({
 
 router.put('/orders/cancel', auth(['owner']), requestValidator(schema), getStore(), async (req, res) => {
   try{
-    await orderService.cancel({storeId: req.storeId, storeSupport: req.storeSupport, admin: true, ...req.values});
+    await orderService.cancel({storeId: req.storeId, currentUser: req.user, storeSupport: req.storeSupport, ...req.values});
 
     res.status(200).send({message: 'Orders cancelled!', success: true});
   }catch(error){

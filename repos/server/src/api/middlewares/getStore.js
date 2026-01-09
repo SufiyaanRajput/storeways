@@ -9,7 +9,6 @@ const getStore = () => async (req, res, next) => {
       const {origin} = req.headers;
       const parts = origin.split('.');
       const subDomain = parts[0].replace(/http(s)?:\/\//, '');
-      const domain = origin.replace(/http(s)?:\/\//, '');
   
       var [store] = await Store.fetch({ subDomain, active: true });
     } else {

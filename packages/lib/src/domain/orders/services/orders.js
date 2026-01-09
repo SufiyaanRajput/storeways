@@ -2,7 +2,7 @@ import { Product } from "../../products/services";
 import OrdersRepository from "../repositories/orders";
 import { Users } from "../../users/services";
 import { AuthToken } from "../../users/services";
-import { Store } from "../../stores/services";
+import { Store, UserStores } from "../../stores/services";
 import { getAdapter } from "../../../boot/loaders/adapters";
 import { getTransaction, getDatabase } from "../../../db";
 import { DELIVERY_STATUSES } from "../constants";
@@ -18,6 +18,7 @@ class OrderService extends BaseUtilityService {
     this.usersService = new Users();
     this.authTokenService = new AuthToken();
     this.storesService = new Store();
+    this.userStoresService = new UserStores();
   }
 
   async getProductIdsWithMostOrders({ storeId, limit = 10 }) {
@@ -29,26 +30,19 @@ class OrderService extends BaseUtilityService {
     return this.ordersRepository.fetchAll({storeId, userId, admin, textSearchType, search, deliveryStatus, filters});
   }
 
-  async cancel({referenceIds, storeId, customerId, admin, storeSupport}) {
+  async cancel({referenceIds, storeId, customerId, currentUser, storeSupport}) {
     const transaction = await getTransaction();
     const user = await this.usersService.fetchById(customerId);
-    const orders = await this.ordersRepository.cancel({referenceIds, storeId, user, admin, storeSupport, transaction});
+    const orders = await this.ordersRepository.cancel({referenceIds, storeId, currentUser, user, storeSupport, transaction});
     await this.productService.updateStock({products: orders, transaction, operation: '+'});
     await transaction.commit();
 
-    const EmailService = getAdapter('emailService');
+    const EventBus = getAdapter('eventBus');
 
-    await EmailService.send({
-      to: user.email,
-      subject: 'Order CANCELLED',
-      html: `
-        Hey ${user.name.split(' ')[0]},
-
-        <p>Your order with referrence ID: <strong>${referenceIds.join(', ')}</strong> has been <strong>Cancelled</strong>${admin ? ' by the store!' : '!'}</p>
-        <p>Doesn't seem right? You may get in touch by replying to this email</p>
-
-        <p>Hope to see you again!</p>
-      `,
+    EventBus.emit('order.cancelled', {
+      customer: user,
+      currentUser,
+      orders,
     });
   }
 
@@ -99,12 +93,18 @@ class OrderService extends BaseUtilityService {
     storeSettings
   }) {
     try {
-      const [productsData, existingUser] = await Promise.all([
+      let [productsData, user] = await Promise.all([
         this.productService.fetchByIds(products.map(({id}) => id)),
-        this.usersService.findUser({mobile, role: 'customer', storeId, active: true, deletedAt: null})
+        this.usersService.findUser({mobile, role: 'customer', active: true, deletedAt: null})
       ]);
 
       if (productsData.length !== products.length) return {itemRemoved: true};
+
+      let userStore = null;
+
+      if (user) {
+        [userStore] = await this.userStoresService.findForUser(user.id, storeId);
+      }
 
       for (const product of products) {
         const realProduct = productsData.find(({id}) => id === Number(product.id));
@@ -152,19 +152,20 @@ class OrderService extends BaseUtilityService {
           }));
         }
 
-        if (!existingUser) {
-          promises.push(
-            this.usersService.create({
+        if (!userStore) {
+          if (!user) {  
+            user = await this.usersService.create({
               name,
               mobile,
-              email,
-              address,
-              landmark,
-              pincode,
-              storeId,
+              email,  
               role: 'customer'
-            })
-          );
+            });
+          }
+          
+          this.userStoresService.create({
+            userId: user.id,
+            storeId,
+          })
         } else {
           const userDetails = {
             email, 
@@ -172,20 +173,20 @@ class OrderService extends BaseUtilityService {
             landmark, 
             pincode, 
           }
-    
+          
           const updates = Object.keys(userDetails).reduce((updates, key) => {
-            if (existingUser[key] !== userDetails[key]) updates[key] = userDetails[key];
+            if (user[key] !== userDetails[key]) updates[key] = userDetails[key];
             return updates;
           }, {});
     
           if (Object.keys(updates).length) {
-            this.usersService.updateById(existingUser.id, updates);
+            this.usersService.updateById(user.id, updates);
           }
+
+          user = { ...user, ...userDetails };
         }
 
-      let [orderSessionResponse = {}, user] = await Promise.all(promises);
-  
-      if (existingUser) user = existingUser;
+      let [orderSessionResponse = {}] = await Promise.all(promises);
 
       const { tax = {}, otherCharges = {} } = storeSettings || {};
   
@@ -222,6 +223,25 @@ class OrderService extends BaseUtilityService {
 
       user.authToken = token;
 
+      if (isCod) {
+        await this.sendOrderMail({
+          store,
+          user,
+          cartReferenceId,
+          orderDate: new Date().toLocaleDateString(),
+          items: products.map((product) => ({
+            name: product.name,
+          })),
+          subTotal: this.makeTotal(products, storeSettings),
+          shipping: 0,
+          tax: 0,
+          total: amount,
+          shippingAddress: address,
+          orderNote: '',
+          orderUrl: `${process.env.CLIENT_URL}/orders?source=checkout`,
+        });
+      }
+
       return {
         paymentOrder: orderSessionResponse.data,
         paymentGateway: paymentMode === 'cod' ? 'cod' : paymentGateway.name,
@@ -230,6 +250,131 @@ class OrderService extends BaseUtilityService {
         user,
         paymentMode
       };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async sendOrderMail({
+    store,
+    user,
+    cartReferenceId,
+    orderDate,
+    items,
+    subTotal,
+    shipping,
+    tax,
+    total,
+    shippingAddress,
+    orderNote,
+    orderUrl,
+  }) {
+    try {
+      const EmailService = getAdapter('emailService');
+      await EmailService.send({
+        to: user.email,
+        subject: 'Thank you for your order!',
+        html: `
+          <div style="font-family: Arial, Helvetica, sans-serif; background:#f6f6f6; padding:20px;">
+            <div style="max-width:600px; margin:auto; background:#ffffff; border-radius:6px; overflow:hidden;">
+
+              <!-- Header -->
+              <div style="background:#222; padding:20px; text-align:center;">
+                ${
+                  store.logo ? `
+                    <img
+                      src="${store.logo}"
+                      alt="Store Logo"
+                      style="width:140px; margin-bottom:10px;"
+                    />
+                  ` : `<h1 style="color:#ffffff; margin:0;">${store.name}</h1>`
+                }
+                <h2 style="color:#ffffff; margin:0;">Order Confirmation</h2>
+              </div>
+
+              <!-- Greeting -->
+              <div style="padding:20px;">
+                <p>Hey ${user.name.split(' ')[0]},</p>
+                <p>
+                  Thank you for your purchase! Your order has been successfully placed.
+                </p>
+              </div>
+
+              <!-- Order Info -->
+              <div style="padding:20px; background:#f9f9f9;">
+                <p><strong>Order ID:</strong> ${cartReferenceId}</p>
+                <p><strong>Order Date:</strong> ${orderDate}</p>
+              </div>
+
+              <!-- Items -->
+              <div style="padding:20px;">
+                <h2 style="margin-bottom:15px;">Order Items</h2>
+
+                ${items
+                  .map(
+                    (item) => `
+                    <div style="display:flex; gap:12px; margin-bottom:15px; padding-bottom:15px; border-bottom:1px solid #eee;">
+                      <img
+                        src="${item.image}"
+                        alt="${item.name}"
+                        style="width:80px; height:80px; object-fit:cover; border-radius:6px;"
+                      />
+                      <div>
+                        <p style="margin:0 0 6px 0; font-weight:bold;">${item.name}</p>
+                        <p style="margin:0 0 4px 0;">Quantity: ${item.quantity}</p>
+                        <p style="margin:0;">Price: $${item.price}</p>
+                      </div>
+                    </div>
+                  `
+                  )
+                  .join('')}
+              </div>
+
+              <!-- Pricing -->
+              <div style="padding:20px; background:#f9f9f9;">
+                <p>Subtotal: <strong>$${subTotal}</strong></p>
+                <p>Shipping: <strong>$${shipping}</strong></p>
+                <p>Tax: <strong>$${tax}</strong></p>
+                <p style="font-size:18px;">
+                  Total: <strong>$${total}</strong>
+                </p>
+              </div>
+
+              <!-- Shipping Address -->
+              <div style="padding:20px;">
+                <h3>Shipping Address</h3>
+                <p style="white-space:pre-line;">${shippingAddress}</p>
+              </div>
+
+              ${
+                orderNote
+                  ? `
+                <div style="padding:20px; background:#fff8e1;">
+                  <p><strong>Order Note:</strong> ${orderNote}</p>
+                </div>
+              `
+                  : ''
+              }
+
+              <!-- CTA -->
+              <div style="padding:30px; text-align:center;">
+                <a
+                  href="${orderUrl}"
+                  style="background:#007bff; color:#ffffff; padding:14px 24px; text-decoration:none; border-radius:4px; font-weight:bold;"
+                >
+                  View Your Order
+                </a>
+              </div>
+
+              <!-- Footer -->
+              <div style="padding:20px; text-align:center; color:#777; font-size:12px;">
+                <p>Hope to see you again!</p>
+              </div>
+
+            </div>
+          </div>
+        `,
+      });
     } catch (error) {
       throw error;
     }

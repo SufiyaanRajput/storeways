@@ -42,7 +42,7 @@ class StoresRepository extends BaseRepository {
       }
   
       return this.models.Store.update({
-        settings: models.Sequelize.literal(`settings :: jsonb || '${JSON.stringify({
+        settings: this.models.Sequelize.literal(`settings :: jsonb || '${JSON.stringify({
           store: {
             theme: payload, 
             logoText, 

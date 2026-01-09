@@ -35,7 +35,17 @@ class UsersRepository extends BaseRepository {
       delete user.dataValues.password;
     }
 
-    return user.get({ plain: true });
+    return user?.get({ plain: true });
+  }
+
+  async findAll(payload) {
+    const users = await this.models.User.findAll({where: payload});
+
+    return users.map((user) => {
+      const userData = user?.get({ plain: true });
+      delete userData.password;
+      return userData;
+    });
   }
 
   async makeAuthToken({userId, role, storeId, mobile}) {
@@ -44,12 +54,6 @@ class UsersRepository extends BaseRepository {
     } catch (error) {
       throw error;
     }
-  }
-
-  async create({name, mobile, password, storeName, email, transaction}) {
-    const user = await this.models.User.create({name, mobile, password, storeName, email}, {transaction});
-    delete user.dataValues.password;
-    return user.get({ plain: true });
   }
   
   async register({name, mobile, password, storeName, email}) {
@@ -202,16 +206,14 @@ class UsersRepository extends BaseRepository {
     }
   }  
 
-  async create(payload) {
-    const user = await this.models.User.create(payload);
+  async create(payload, transaction) {
+    const user = await this.models.User.create(payload, { transaction });
     delete user.dataValues.password;
     return user.get({ plain: true });
   }
 
   async updateById(id, payload) {
-    const user = await this.models.User.update(payload, { where: { id } });
-    delete user.dataValues.password;
-    return user.get({ plain: true });
+    return this.models.User.update(payload, { where: { id } });
   }
 }
 

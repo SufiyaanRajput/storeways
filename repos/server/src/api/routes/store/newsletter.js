@@ -1,10 +1,11 @@
 import {Router} from 'express';
 import {formatFromError, makeSwaggerFromJoi} from '../../../utils/helpers';
-import { newsletterService } from '../../../services';
 import { getStore, requestValidator } from '../../middlewares';
+import { Subscribers } from '@storeways/lib/domain';
 import Joi from 'joi';
 
 const router = Router();
+const subscribersService = new Subscribers();
 
 const schema = Joi.object({
   name: Joi.string().required(),
@@ -22,7 +23,7 @@ export const addSubscriberSwagger = makeSwaggerFromJoi({
 
 router.post('/newsletter', requestValidator(schema), getStore(), async (req, res) => {
   try{
-    await newsletterService.addSubscriber({storeId: req.storeId, ...req.values});
+    await subscribersService.addNewsletterSubscriber({storeId: req.storeId, ...req.values});
 
     res.status(201).send({message: 'Subscriber added!', success: true});
   }catch(error){

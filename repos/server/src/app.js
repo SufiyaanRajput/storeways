@@ -5,10 +5,9 @@ import path from 'path';
 import { createStorewaysApp } from "@storeways/lib";
 import config from './config';
 import routes from './api/routes';
-import LocalFileStorage from './plugins/storage/LocalFileStorage';
-import Email from './services/integrations/Email';
-import PaymentGateway from './services/integrations/PaymentGateway';
+import { EventBus, EmailService, PaymentGateway, FileStorage } from './services/integrations';
 export let app = null;
+import './events';
 
 const startServer = async () => {
   try{
@@ -18,11 +17,12 @@ const startServer = async () => {
       },
       domains: ['products', 'stores', 'users', 'orders', 'reviews'],
       adapters: {
-        fileStorage: new LocalFileStorage({
+        fileStorage: new FileStorage({
           uploadDir: 'uploads',
         }),
-        emailService: new Email(),
+        emailService: new EmailService(),
         paymentGateway: new PaymentGateway(),
+        eventBus: new EventBus(),
       },
     }
 

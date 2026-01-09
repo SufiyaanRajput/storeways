@@ -1,0 +1,1 @@
+export { default as newsletterSubscriber } from './newsletterSubscriber.js';

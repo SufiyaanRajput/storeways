@@ -6,8 +6,8 @@ class UserStoresService {
     this.userStoresRepository = new UserStoreRepository({ models: getDatabase() });
   }
 
-  async findForUser(userId) {
-    return this.userStoresRepository.findForUser(userId);
+  async findForUser(userId, storeId) {
+    return this.userStoresRepository.findForUser(userId, storeId);
   }
 
   async create({ userId, storeId, transaction }) {

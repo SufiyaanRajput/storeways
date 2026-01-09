@@ -129,24 +129,23 @@ class OrdersRepository extends BaseRepository {
     }
   };
 
-  async cancel({referenceIds, storeId, user, admin, storeSupport, transaction}) {
+  async cancel({referenceIds, storeId, currentUser, user, storeSupport, transaction}) {
     try{
       const orders = await this.models.Order.findAll({
         where: {
           referenceId: referenceIds,
-          status: 'Active',
         },
-        attributes: ['variations', 'quantity', ['product_id', 'id'], 'productVariationStockId']
+        attributes: ['variations', 'quantity', ['product_id', 'id'], 'productVariationStockId', 'referenceId']
       }, transaction);
     
       await this.models.sequelize.query(`
         UPDATE orders SET status = 'Cancelled'
         WHERE orders.store_id = ${storeId}
         AND reference_id IN ('${referenceIds.join(`','`)}')
-        ${!admin ? ' AND orders.user_id = ' + user.id : ''};
-      `, { type: QueryTypes.UPDATE, transaction })
+        ${!currentUser.admin ? ' AND orders.user_id = ' + user.id : ''};
+      `, { type: QueryTypes.UPDATE, transaction });
 
-      return orders;
+      return orders.map((order) => order.get({ plain: true }));
     }catch(error){
       try {
         await transaction.rollback(); 

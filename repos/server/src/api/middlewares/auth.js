@@ -49,6 +49,10 @@ const auth = (authorisedRoles=null, optional=false) => async (req, res, next) =>
       throw {status: 401, msgText: 'Not authorised!', error: new Error()};
     }
 
+    if (role !== 'customer') {
+      req.user.admin = true;
+    }
+
     req.user.storeId = storeId;
     req.storeId = storeId;
     req.authToken = token;

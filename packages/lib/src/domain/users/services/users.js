@@ -18,7 +18,7 @@ class UsersService {
 
   async register({ name, mobile, password, storeName, email }) {
     const transaction = await this.models.sequelize.transaction();
-    const user = await this.usersRepository.create({ name, mobile, password, storeName, email, transaction });
+    const user = await this.usersRepository.create({ name, mobile, password, storeName, email }, transaction);
     const store = await this.storesRepository.create({ storeName, userId: user.id, settings: defaultStoreSettings, transaction });
     const token = await this.authTokenRepository.create({ userId: user.id, role: 'owner', storeId: store.id, mobile, transaction });
     user.authToken = token;
@@ -77,13 +77,17 @@ class UsersService {
   }
 
   async updateById(id, payload) {
-    const user = await this.usersRepository.updateById(id, payload);
-    return user;
+    return this.usersRepository.updateById(id, payload);
   }
 
   async findUser(payload) {
     const user = await this.usersRepository.findUser(payload);
     return user;
+  }
+
+  async findAll(payload) {
+    const users = await this.usersRepository.findAll(payload);
+    return users;
   }
 }
 

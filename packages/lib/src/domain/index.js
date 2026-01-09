@@ -3,6 +3,7 @@ import { Order } from './orders/services';
 import { Store } from './stores/services';
 import { Users, AuthToken } from './users/services';
 import { Reviews } from './reviews/services';
+import { Subscribers } from './subscribers/services';
 
 export {
   Product,
@@ -13,4 +14,5 @@ export {
   Users,
   Reviews,
   AuthToken,
+  Subscribers,
 }
