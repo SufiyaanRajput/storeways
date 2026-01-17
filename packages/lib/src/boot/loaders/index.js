@@ -9,7 +9,7 @@ export default async ({app, config}) => {
     await databaseLoader({dbConnectionUrl: database.connectionUrl, domains});
     swaggerLoader({app});
     adaptersLoader({config});
-    expressLoader({app});
+    expressLoader({app, config});
   }catch(error){
     throw error;
   }

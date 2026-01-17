@@ -11,11 +11,12 @@ import { Select, RemoveButton, PriceSpan, Space, CheckoutButton, CostCol, Produc
 import { useAsyncFetch } from "themes/utils/hooks.js";
 import { getProductsByIds } from "./api/index.js";
 import { getVariationGroupBySelection } from '../../../utils';
+import { CURRENCY } from "../../../../constants";
 
 const ItemActions = ({mobile, price, stock, quantity, onQuantityChange, removeItem}) => (
   <ItemActionsRow gutter={15} mobile={mobile}>
     <Col>
-      <p><PriceSpan>₹{price}</PriceSpan> <span>x</span></p>
+      <p><PriceSpan>{CURRENCY}{price}</PriceSpan> <span>x</span></p>
     </Col>
     <Col>
       <Select value={quantity} onChange={onQuantityChange}>
@@ -190,7 +191,7 @@ const Cart = observer(() => {
                           Subtotal
                       </Col>
                       <CostCol sm={12}>
-                        ₹{makeSubtotal()}
+                        {CURRENCY}{makeSubtotal()}
                       </CostCol>
                     </Row>
                    {
@@ -200,7 +201,7 @@ const Cart = observer(() => {
                           Other charges
                       </Col>
                       <CostCol sm={12}>
-                        ₹{makeChargeByType('otherCharges')}
+                        {CURRENCY}{makeChargeByType('otherCharges')}
                       </CostCol>
                     </Row>
                    }
@@ -211,7 +212,7 @@ const Cart = observer(() => {
                             Tax
                         </Col>
                         <CostCol sm={8}>
-                          ₹{makeChargeByType('tax')}
+                        {CURRENCY}{makeChargeByType('tax')}
                         </CostCol>
                       </Row>
                     }
@@ -221,7 +222,7 @@ const Cart = observer(() => {
                         <h6>Total</h6>
                       </Col>
                       <CostCol sm={8}>
-                        <h6>₹{makeTotal()}</h6>
+                        <h6>{CURRENCY}{makeTotal()}</h6>
                       </CostCol>
                     </Row>
                   </Space>

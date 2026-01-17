@@ -12,6 +12,7 @@ export default {
   adminbaseUrl: process.env.ADMIN_URL || 'http://localhost:3001',
   databaseURL: process.env.POSTGRES_URI,
   JWTSecret: process.env.JWT_SECRET,
+  currency: process.env.CURRENCY || 'INR',
   paymentGateway: {
     keyId: process.env.PAYMENT_GATEWAY_KEY_ID,
     keySecret: process.env.PAYMENT_GATEWAY_KEY_SECRET,

@@ -22,6 +22,11 @@ class AuthTokenRepository {
   async update(payload, clause) {
     return this.models.AuthToken.update(payload, { where: clause });
   }
+
+  async findAll({clause}) {
+    const tokens = await this.models.AuthToken.findAll({ where: clause });
+    return tokens.map((token) => token?.get({ plain: true }));
+  }
 }
 
 export default AuthTokenRepository;

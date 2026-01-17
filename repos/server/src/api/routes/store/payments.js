@@ -1,5 +1,5 @@
 import {Router, raw } from 'express';
-import {formatFromError, customJoiValidators, makeSwaggerFromJoi} from '../../../utils/helpers';
+import {formatFromError, customJoiValidators} from '../../../utils/helpers';
 import { Order as OrderService } from '@storeways/lib/domain';
 import { getStore, requestValidator } from '../../middlewares';
 import Joi from 'joi';
@@ -19,15 +19,6 @@ const schema = Joi.object({
   otp: Joi.string().length(6).required(),
   products: Joi.array().items(Joi.object()).required(),
   paymentMode: Joi.string().valid('online', 'cod').required(),
-});
-
-export const createOrderSwagger = makeSwaggerFromJoi({ 
-  JoiSchema: schema, 
-  route: '/orders', 
-  method: 'post', 
-  summary: 'Create an order', 
-  tags: ['Payments'],
-  security: false,
 });
 
 router.post('/orders', getStore(), requestValidator(schema), async (req, res) => {

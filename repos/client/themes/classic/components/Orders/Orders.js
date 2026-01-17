@@ -6,6 +6,7 @@ import { useRouter } from "next/router";
 import { useAsyncFetch } from "themes/utils/hooks";
 import { cancelOrders, fetchOrders } from "./api";
 import cartStore from "../Cart/store";
+import { CURRENCY } from "../../../../constants";
 
 const ProductTable = ({ record, refetchOrders, deliveryStatuses }) => {
   const [cancellingId, setCancellingId] = useState(null);
@@ -119,7 +120,7 @@ const Orders = () => {
       key: 'amount',
       width: 150,
       render: (text, record) => {
-        return(<p>₹{text}</p>);
+        return(<p>{CURRENCY}{text}</p>);
       },
     },
     {

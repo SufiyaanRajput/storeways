@@ -17,6 +17,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import QueryBoundary from "../../internals/QueryBoundary";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import { useCurrency } from "../../utils/hooks";
 
 const STORAGE_KEY = 'ordersListSelectedColumnKeys';
 const FILTERS_STORAGE_KEY = 'ordersListFilters';
@@ -38,6 +39,7 @@ const SortableItem = ({ id, children }) => {
 const ProductTable = ({ record, refetchOrders, deliveryStatuses, cancelOrders, updateOrder }) => {
   const [cancellingId, setCancellingId] = useState(null);
   const [updatingId, setUpdatingId] = useState(null);
+  const { currencySymbol } = useCurrency();
 
   const cancelOrdersMutation = useMutation({
     mutationFn: async (payload) => {
@@ -107,7 +109,7 @@ const ProductTable = ({ record, refetchOrders, deliveryStatuses, cancelOrders, u
   const columns = [
     { title: 'Reference ID', dataIndex: 'referenceId', key: 'referenceId', width: 300, },
     { title: 'Product', dataIndex: 'product', key: 'product', width: 500, },
-    { title: 'Price', dataIndex: 'price', key: 'price', width: 200, },
+    { title: 'Price', dataIndex: 'price', key: 'price', width: 200, render: (text) => (<p>{currencySymbol}{text}</p>) },
     { title: 'Quantity', dataIndex: 'quantity', key: 'quantity', width: 100, },
     {
       title: 'Variations',
@@ -159,6 +161,7 @@ const ProductTable = ({ record, refetchOrders, deliveryStatuses, cancelOrders, u
 };
 
 const Orders = () => {
+  const { currencySymbol } = useCurrency();
   const PRODUCT_FILTER_FIELDS = ['referenceId', 'product', 'variations', 'quantity', 'deliveryStatus', 'price', 'status'];
 
   const DEFAULT_COLUMNS_CONFIG = useMemo(() => ([
@@ -236,7 +239,7 @@ const Orders = () => {
       return (text) => <Tag color={text ? 'red' : 'green'}>{text ? 'Yes' : 'No'}</Tag>;
     }
     if (field === 'amountPaid' || field === 'amount') {
-      return (text) => (<p>₹{text}</p>);
+      return (text) => (<p>{currencySymbol}{text}</p>);
     }
     if (field === 'totalItems') {
       return (text, record) => (<p>{Array.isArray(record.items) ? record.items.length : ''}</p>);

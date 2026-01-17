@@ -1,4 +1,4 @@
 import { privateInstance } from "../api.config";
 
-export const logout = () => privateInstance.post(`/v1/users/logout`);
+export const logout = () => privateInstance.post(`/v1/admin/logout`);
 

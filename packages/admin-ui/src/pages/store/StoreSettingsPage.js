@@ -29,6 +29,7 @@ import {
   uploadLogo as uploadLogoApi,
   updateStore as updateStoreApi,
 } from "./api";
+import { useCurrency } from "../../utils/hooks";
 
 const StoreSettings = ({ storeUrl }) => {
   const [form] = Form.useForm();
@@ -36,6 +37,7 @@ const StoreSettings = ({ storeUrl }) => {
   const [logo, setLogo] = useState(null);
   const [filesToDelete, setFilesToDelete] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
+  const { currencySymbol } = useCurrency();
 
   const {
     data: storeSettings = {},
@@ -164,10 +166,10 @@ const StoreSettings = ({ storeUrl }) => {
   };
 
   const suffixSelectorPrice = (name) => (
-    <Form.Item name={name} noStyle initialValue="VALUE">
+    <Form.Item name={name} noStyle initialValue="PERCENTAGE">
       <Select style={{ width: 70 }}>
         <Select.Option value="PERCENTAGE">%</Select.Option>
-        <Select.Option value="VALUE">₹</Select.Option>
+        <Select.Option value="VALUE">{currencySymbol}</Select.Option>
       </Select>
     </Form.Item>
   );

@@ -51,9 +51,9 @@ class OrderService extends BaseUtilityService {
     await this.ordersRepository.update({referenceId, storeId}, updates);
 
     if (updates.deliveryStatus !== undefined) {
-      const EmailService = getAdapter('emailService');
+      const emailService = getAdapter('email');
 
-      await EmailService.send({
+      await emailService.send({
         to: user.email,
         subject: 'Order updated',
         html: `
@@ -270,8 +270,8 @@ class OrderService extends BaseUtilityService {
     orderUrl,
   }) {
     try {
-      const EmailService = getAdapter('emailService');
-      await EmailService.send({
+      const emailService = getAdapter('email');
+      await emailService.send({
         to: user.email,
         subject: 'Thank you for your order!',
         html: `

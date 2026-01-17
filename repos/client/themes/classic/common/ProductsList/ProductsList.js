@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from 'next/router'
 import { ProductCard, ProductImage, ProductMeta, ProductName, Wrapper } from "./styles";
+import { CURRENCY } from "../../../../constants";
 
 export const ProductCardContainer = ({ product, className='' }) => {
   const router = useRouter();
@@ -18,7 +19,7 @@ export const ProductCardContainer = ({ product, className='' }) => {
         {
           <><FontAwesomeIcon icon={faStar} color="#F8E71C"/> {product.ratings}</>
         }
-        <p>₹{product.price}</p>
+        <p>{CURRENCY}{product.price}</p>
       </ProductMeta>
     </Wrapper>
   );

@@ -1,7 +1,7 @@
-import {Router} from 'express';
-import {formatFromError} from '../../../utils/helpers';
-import { Order } from '@storeways/lib/domain';
-import { getStore, auth, requestValidator } from '../../middlewares';
+import { Router } from 'express';
+import { formatFromError } from '../utils/helpers';
+import { Order } from '../../domain';
+import { getStore, auth, requestValidator } from '../middlewares';
 import Joi from 'joi';
 
 const orderService = new Order();
@@ -16,7 +16,7 @@ const getSchema = Joi.object({
 });
 
 router.get('/orders', auth(['owner']), requestValidator(getSchema), async (req, res) => {
-  try{
+  try {
     const { filters: rawFilters, ...rest } = req.values;
     let filters = [];
     if (rawFilters) {
@@ -28,12 +28,16 @@ router.get('/orders', auth(['owner']), requestValidator(getSchema), async (req, 
       }
     }
 
-    const { orders, deliveryStatuses } = await orderService.fetchAll({storeId: req.storeId, admin: true, filters, ...rest});
+    const { orders, deliveryStatuses } = await orderService.fetchAll({
+      storeId: req.storeId,
+      admin: true,
+      filters,
+      ...rest,
+    });
 
-    res.status(200).send({orders, deliveryStatuses, success: true});
-  }catch(error){
-    console.error('[ADMIN-ORDERS-GET-CONTROLLER]', error);
-    const {status, ...data} = formatFromError(error);
+    res.status(200).send({ orders, deliveryStatuses, success: true });
+  } catch (error) {
+    const { status, ...data } = formatFromError(error);
     res.status(status).send(data);
   }
 });
@@ -45,13 +49,17 @@ const schema = Joi.object({
 });
 
 router.put('/orders/cancel', auth(['owner']), requestValidator(schema), getStore(), async (req, res) => {
-  try{
-    await orderService.cancel({storeId: req.storeId, currentUser: req.user, storeSupport: req.storeSupport, ...req.values});
+  try {
+    await orderService.cancel({
+      storeId: req.storeId,
+      currentUser: req.user,
+      storeSupport: req.storeSupport,
+      ...req.values,
+    });
 
-    res.status(200).send({message: 'Orders cancelled!', success: true});
-  }catch(error){
-    console.error('[ADMIN-ORDERS-CANCEL-PUT-CONTROLLER]', error);
-    const {status, ...data} = formatFromError(error);
+    res.status(200).send({ message: 'Orders cancelled!', success: true });
+  } catch (error) {
+    const { status, ...data } = formatFromError(error);
     res.status(status).send(data);
   }
 });
@@ -63,27 +71,28 @@ const updateOrderSchema = Joi.object({
 });
 
 router.put('/orders', auth(['owner']), requestValidator(updateOrderSchema), getStore(), async (req, res) => {
-  try{
-    await orderService.update({storeId: req.storeId, storeSupport: req.storeSupport, ...req.values});
+  try {
+    await orderService.update({
+      storeId: req.storeId,
+      storeSupport: req.storeSupport,
+      ...req.values,
+    });
 
-    res.status(200).send({message: 'Order updated!', success: true});
-  }catch(error){
-    console.error('[ADMIN-ORDER-PUT-CONTROLLER]', error);
-    const {status, ...data} = formatFromError(error);
+    res.status(200).send({ message: 'Order updated!', success: true });
+  } catch (error) {
+    const { status, ...data } = formatFromError(error);
     res.status(status).send(data);
   }
 });
 
 router.get('/orders/filters', auth(['owner']), async (req, res) => {
-  try{
+  try {
     const filters = await orderService.getOrderFilters();
-    res.status(200).send({filters, success: true});
-  }catch(error){
-    console.error('[ADMIN-ORDERS-FILTERS-GET-CONTROLLER]', error);
-    const {status, ...data} = formatFromError(error);
+    res.status(200).send({ filters, success: true });
+  } catch (error) {
+    const { status, ...data } = formatFromError(error);
     res.status(status).send(data);
   }
 });
-
 
 export default router;

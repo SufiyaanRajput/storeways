@@ -1,5 +1,4 @@
 import express from 'express';
-import dotenv from 'dotenv';
 // import logger from './loaders/logger.js';
 import path from 'path';
 import { createStorewaysApp } from "@storeways/lib";
@@ -16,11 +15,17 @@ const startServer = async () => {
         connectionUrl: config.databaseURL,
       },
       domains: ['products', 'stores', 'users', 'orders', 'reviews'],
+      auth: {
+        jwtSecret: config.JWTSecret,
+      },
+      api: {
+        adminbaseUrl: config.adminbaseUrl,
+      },
       adapters: {
         fileStorage: new FileStorage({
           uploadDir: 'uploads',
         }),
-        emailService: new EmailService(),
+        email: new EmailService(),
         paymentGateway: new PaymentGateway(),
         eventBus: new EventBus(),
       },

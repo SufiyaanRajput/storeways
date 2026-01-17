@@ -5,7 +5,7 @@ import reportWebVitals from './reportWebVitals';
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <App config={{ currency: 'USD' }} />
   </React.StrictMode>,
   document.getElementById('root')
 );

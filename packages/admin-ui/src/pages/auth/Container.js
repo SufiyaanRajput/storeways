@@ -89,15 +89,6 @@ const Container = ({ fields, onSubmitCb, title, isLoading }) => {
               Submit
             </Button>
           </ButtonWrapper>
-          {title === "Register" ? (
-            <p>
-              Already have an account? <Link to="/login">Sign in</Link>
-            </p>
-          ) : (
-            <p>
-              Need an account? <Link to="/register">Register</Link>
-            </p>
-          )}
         </Space>
       </Form>
       <Space direction="vertical" align="center" style={{ width: "100%" }}>

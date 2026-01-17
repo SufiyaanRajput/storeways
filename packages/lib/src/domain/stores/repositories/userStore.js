@@ -7,7 +7,13 @@ class UserStoreRepository extends BaseRepository {
   }
 
   async findForUser(userId, storeId) {
-    const userStores = await this.models.UserStore.findAll({ where: { userId, storeId, deletedAt: null } });
+    const clause = { userId, deletedAt: null };
+
+    if (storeId) {
+      clause.storeId = storeId;
+    }
+
+    const userStores = await this.models.UserStore.findAll({ where: clause });
     return userStores.map((userStore) => userStore.get({ plain: true }));
   }
 

@@ -3,6 +3,7 @@ import UserStoresService from "../../stores/services/userStores";
 import AuthTokenService from "./authToken";
 import { getDatabase } from "../../../db";
 import bcrypt from 'bcryptjs';
+import { getAdapter } from "../../../boot/loaders/adapters";
 
 class UsersService {
   constructor() {
@@ -88,6 +89,53 @@ class UsersService {
   async findAll(payload) {
     const users = await this.usersRepository.findAll(payload);
     return users;
+  }
+
+  async sendPasswordResetEmail({email}) {
+    try{
+      const user = await this.usersRepository.findUser({email, deletedAt: null});
+
+      if (!user) {
+        console.log.error('User not found!');
+        return;
+      }
+
+      const token = await this.authTokenService.create(
+        { payload: {userId: user.id, role: user.role, mobile: user.mobile},
+        userId: user.id,
+        }
+      );
+
+      const link = `${config.clientbaseUrl}/password-reset?token=${token}`;
+
+      const emailService = getAdapter('email');
+      await emailService.send({
+        to: email,
+        subject: 'Storeways admin password reset',
+        html: `
+          Hey there,
+
+          <p>Here's your link to reset your password:</p>
+          <p><a href="${link} target="_blank" rel="noreferrer">${link}</a></p>
+          <p>We're always here. You may get in touch by replying to this email</p>
+
+          <p>Team Storeways</p>
+        `,
+      });
+    }catch(error){
+      throw error;
+    }
+  }
+
+  async passwordReset({token, password}) {
+    try{
+      const decoded = await this.authTokenService.decryptToken({token});
+      const encryptedPassword = await bcrypt.hash(password, 8);
+
+      await this.usersRepository.updateById(decoded.userId, {password: encryptedPassword});
+    }catch(error){
+      throw error;
+    }
   }
 }
 

@@ -6,7 +6,8 @@
         ".": "./dist/index.js",
         "./db/models": "./dist/db/models/index.js",
         "./db/migrations": "./dist/db/migrations/index.js",
-        "./domain": "./dist/domain/index.js"
+        "./domain": "./dist/domain/index.js",
+        "./middlewares": "./dist/api/middlewares/index.js"
     },
     "devDependencies": {
         "@babel/cli": "^7.28.3",

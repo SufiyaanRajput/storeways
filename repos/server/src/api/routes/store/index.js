@@ -1,16 +1,14 @@
 import {Router} from 'express';
-import fetchStore from './fetchStore';
-import fetchShopFilters from './fechShopFilters';
 import payments from './payments';
 import orders from './orders';
+import store from './store';
 import reviews from './reviews';
 import newsletter from './newsletter';
 import products from './products';
 
 const router = Router();
 
-router.use(fetchStore);
-router.use(fetchShopFilters);
+router.use(store);
 router.use(orders);
 router.use(reviews);
 router.use(newsletter);

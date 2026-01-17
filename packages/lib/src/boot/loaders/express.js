@@ -1,18 +1,18 @@
 import express from 'express';
-// import routes from '../api/routes';
-import loggerInstance from './logger';
+// import loggerInstance from './logger';
 import cors from 'cors';
+import createApiRouter from '../../api';
 
-export default ({app}) => {
-  const logger = loggerInstance({name: 'Incoming Request'});
-  const reqSerializer = (req) => {
-    return {
-        method: req.method,
-        url: req.url,
-        headers: req.headers,
-        body: req.body
-    };
-  }
+export default ({app, config}) => {
+  // const logger = loggerInstance({name: 'Incoming Request'});
+  // const reqSerializer = (req) => {
+  //   return {
+  //       method: req.method,
+  //       url: req.url,
+  //       headers: req.headers,
+  //       body: req.body
+  //   };
+  // }
 
   app.enable('trust proxy');
   app.use(cors());
@@ -24,8 +24,12 @@ export default ({app}) => {
     return express.json()(req, res, next);
   });
   app.use((req, res, next) => {
-    logger.info(reqSerializer(req));
+    // logger.info(reqSerializer(req));
     next();
   });
-  // app.use(routes);
+
+  const apiRouter = createApiRouter(config);
+  if (apiRouter) {
+    app.use(apiRouter);
+  }
 }

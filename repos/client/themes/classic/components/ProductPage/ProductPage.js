@@ -32,6 +32,7 @@ import {
  } from "./styles";
  import { getVariationGroupBySelection } from '../../../utils';
 import { createReview, fetchReviews } from "./api";
+import { CURRENCY } from "../../../../constants";
 
 const ReviewList = ({ replies }) => (
   <List
@@ -355,7 +356,7 @@ const ProductPage = () => {
   }
 
   const makePrice = () => {
-    if (variationGroupPrice) return `₹${variationGroupPrice}`;
+    if (variationGroupPrice) return `${CURRENCY}${variationGroupPrice}`;
 
     let minPrice = price, maxPrice = price;
 
@@ -365,12 +366,12 @@ const ProductPage = () => {
         if (pvs.price > 0 && pvs.price < minPrice) minPrice = pvs.price;
       });
 
-      if (minPrice === maxPrice) return `₹${price}`;
+      if (minPrice === maxPrice) return `${CURRENCY}${price}`;
 
-      return `₹${minPrice} - ₹${maxPrice}`;
+      return `${CURRENCY}${minPrice} - ${CURRENCY}${maxPrice}`;
     }
 
-    return `₹${price}`;
+    return `${CURRENCY}${price}`;
   }
 
   const makeStock = () => {
